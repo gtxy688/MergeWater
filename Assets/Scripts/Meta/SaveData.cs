@@ -1,0 +1,70 @@
+using System;
+using System.Collections.Generic;
+
+namespace MergeWater.Meta
+{
+    /// <summary>本地排行榜记录（存档内）。</summary>
+    [Serializable]
+    public struct LeaderboardRecord
+    {
+        public string name;
+        public int score;
+
+        public LeaderboardRecord(string name, int score)
+        {
+            this.name = name;
+            this.score = score;
+        }
+    }
+
+    /// <summary>
+    /// 本地存档数据。字段为 public 以便 JsonUtility 序列化；schema 版本用于迁移。
+    /// 运行时可变状态只存在这里，不写回 ScriptableObject 资产。
+    /// </summary>
+    [Serializable]
+    public sealed class SaveData
+    {
+        public const int CurrentSchemaVersion = 2;
+        public const int MaxItemCount = 999;
+
+        /// <summary>0 表示来源更早（缺少版本字段）的存档，必须迁移。</summary>
+        public int schemaVersion;
+
+        public int bestScore;
+        public int bestCombo;
+        public int gamesPlayed;
+        public bool privacyAccepted;
+
+        public string dailyKey = string.Empty;
+        public int undoGrantedToday;
+        public int bombGrantedToday;
+        public int hammerGrantedToday;
+        public int shakeGrantedToday;
+        public int giftGrantedToday;
+
+        public int undoCount;
+        public int bombCount;
+        public int hammerCount;
+        public int shakeCount;
+
+        public int interstitialLastShownGame = -999;
+
+        public long lastReviveAdUtcTicks;
+        public long lastShareUtcTicks;
+
+        public int tutorialRoundsSeen;
+        public bool tutorialDropHintSeen;
+        public bool tutorialMergeHighlightSeen;
+
+        public bool settingsSfx = true;
+        public bool settingsMusic = true;
+        public bool settingsVibrate = true;
+
+        public List<LeaderboardRecord> leaderboard = new List<LeaderboardRecord>();
+
+        public static SaveData CreateDefault()
+        {
+            return new SaveData { schemaVersion = CurrentSchemaVersion };
+        }
+    }
+}

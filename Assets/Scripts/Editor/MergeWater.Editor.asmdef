@@ -1,0 +1,26 @@
+{
+  "name": "MergeWater.Editor",
+  "rootNamespace": "MergeWater.Editor",
+  "references": [
+    "MergeWater.Core",
+    "MergeWater.Field",
+    "MergeWater.Session",
+    "MergeWater.Aim",
+    "MergeWater.Presentation",
+    "MergeWater.Meta",
+    "MergeWater.Bootstrap",
+    "Unity.TextMeshPro",
+    "UnityEngine.UI"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

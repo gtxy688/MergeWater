@@ -1,0 +1,16 @@
+{
+  "name": "MergeWater.Field",
+  "rootNamespace": "MergeWater.Field",
+  "references": [
+    "MergeWater.Core"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

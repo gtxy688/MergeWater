@@ -1,0 +1,16 @@
+{
+  "name": "MergeWater.Session",
+  "rootNamespace": "MergeWater.Session",
+  "references": [
+    "MergeWater.Core"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

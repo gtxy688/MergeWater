@@ -1,0 +1,27 @@
+{
+  "name": "MergeWater.Tests.PlayMode",
+  "rootNamespace": "MergeWater.Tests.PlayMode",
+  "references": [
+    "MergeWater.Core",
+    "MergeWater.Field",
+    "MergeWater.Session",
+    "MergeWater.Aim",
+    "MergeWater.Presentation",
+    "MergeWater.Meta",
+    "MergeWater.Bootstrap",
+    "Unity.TextMeshPro",
+    "UnityEngine.UI"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

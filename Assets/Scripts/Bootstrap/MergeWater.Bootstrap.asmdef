@@ -1,0 +1,23 @@
+{
+  "name": "MergeWater.Bootstrap",
+  "rootNamespace": "MergeWater.Bootstrap",
+  "references": [
+    "MergeWater.Core",
+    "MergeWater.Field",
+    "MergeWater.Session",
+    "MergeWater.Aim",
+    "MergeWater.Presentation",
+    "MergeWater.Meta",
+    "Unity.TextMeshPro",
+    "UnityEngine.UI"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

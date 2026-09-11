@@ -1,0 +1,30 @@
+{
+  "name": "MergeWater.Tests.EditMode",
+  "rootNamespace": "MergeWater.Tests.EditMode",
+  "references": [
+    "MergeWater.Core",
+    "MergeWater.Field",
+    "MergeWater.Session",
+    "MergeWater.Aim",
+    "MergeWater.Presentation",
+    "MergeWater.Meta",
+    "MergeWater.Bootstrap",
+    "MergeWater.Editor",
+    "Unity.TextMeshPro",
+    "UnityEngine.UI"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}
