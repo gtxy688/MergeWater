@@ -51,7 +51,7 @@
 | 受影响模块或契约 | 复验项 | 原因 | 状态 | 证据或备注 |
 |------------------|--------|------|------|------------|
 | M3 | `03-session-test.md` A1/A2 | 投放指令消费方；`CanAcceptDrop` 覆盖 Ready | PASS | `RoundSessionTests` 17/17、`BootstrapFlowTests.SharedScene_OnAccept_RoundIsPlayableThroughRealAimPath` |
-| M7 | `07-bootstrap-test.md` A6 | 可交互性开关与道具编排 | PASS | `ItemUseTests` 6/6 |
+| M7 | `07-bootstrap-test.md` A6 | 可交互性开关与道具编排 | PASS | `ItemUseTests` 7/7 |
 
 ## 交付结论
 

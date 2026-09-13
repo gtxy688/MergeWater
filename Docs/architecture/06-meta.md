@@ -24,7 +24,7 @@
 
 `DailyLimitService` 以 `IClock.Today`（本地日期字符串 `yyyy-MM-dd`）为键，跨天自动清零计数。
 
-`AnalyticsService` 接收 `IAnalyticsSink`；生产为 `UnityDebugSink`（`Debug.Log` 结构化事件）与预留的 `BufferedSink`，测试为 `InMemorySink`。事件名使用 `requirements.md` R24 的固定枚举，避免字符串漂移。
+`AnalyticsService` 接收 `IAnalyticsSink`；**运行时默认 `NullAnalyticsSink`（什么都不写，Console 干净）**；`UnityDebugSink`（结构化 `Debug.Log`）改为按需启用——勾选场景里 `GameBootstrapper.logAnalyticsToConsole` 即可（2026-09-13 需求方「运行游戏时 console 老是有调试信息」：原默认就是它，每次合成/连击/越线/道具都会刷行）；测试用 `InMemoryAnalyticsSink`。事件名使用 `requirements.md` R24 的固定枚举，避免字符串漂移。
 
 ## 关键机制
 

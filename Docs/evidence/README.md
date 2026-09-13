@@ -732,6 +732,26 @@ Get-Content Assets/Scenes/Main.unity     # CloseButton → m_AnchoredPosition: {
 
 > 提示：只要编辑器还开着并持续保存场景，批处理回归就是在打移动靶——同一份测试在 15:0x 全绿、15:30 出现这项失败，变化全部来自场景侧的编辑。
 
+## 追加：出现间隔 1s + 撤销改清屏 + 清掉运行期调试信息（2026-09-13，V2.33/V2.46/V2.47）
+
+需求方三条指令：「小球的出现间隔时间改为 2 秒」（确认代码现值 0.45 秒后定为 **1 秒**）、「『撤销』改为清屏，删除相关撤销逻辑」、「运行游戏时 console 老是有调试信息，将其删去」。
+
+| 项 | 改动 | 结果 |
+|---|---|---|
+| V2.33 出现间隔 | `GameBalance.nextFruitRevealDelaySeconds` 0.45 → **1.0**，并同步 `Assets/Config/GameBalance.asset` | `ConfigAssetTests` 的「V2.33 下一颗延迟」标量断言守住磁盘/代码一致 |
+| V2.46 撤销→清屏 | `ItemUseController.UseUndo` → `UseClearField`（走 `ClearAll()`）；**删除** `DropRecord` / `IFieldPort.TryPeekLastDrop` / `GameField.MarkLastDropMerged` / `_lastDrop`；场景与 `HudBuilder` 的按钮文案「撤销」→「清屏」 | 新增 2 条用例（清空全场并扣 1；空场拒绝且不扣），删掉 2 条撤销专用场地用例 |
+| V2.47 Console 噪音 | 埋点默认 `NullAnalyticsSink`（勾选 `GameBootstrapper.logAnalyticsToConsole` 才写 Console）；删掉 `[AudioDirector] 未指派 BGM`；`AimController`「落点区间因半径反转」与 `FloatingTextSpawner`「飘字池为空」改为**只报一次**（原先在逐帧/逐次路径上） | 埋点接口与 R24 事件不变，只是默认不输出；R24 的可观察性改为「测试用 `InMemoryAnalyticsSink` 断言 + 需要时勾选开关」 |
+
+### 过程中被门禁拦下的两次问题（都值得留档）
+
+1. **编译门禁拦住我自己造成的误删**：编辑 `GameBootstrapper` 的属性块时，替换范围把 `SaveStoreOverride` / `ClockOverride` 一起吞掉了。批处理立刻报 `error CS0103: The name 'ClockOverride' does not exist in the current context`，EditMode 直接 abort（未跑出任何用例）。补回属性后复跑正常——若跳过编译检查，这个错误会以「读档/时钟注入静默失效」的形式在运行时才暴露。
+2. **17 项 PlayMode 失败，根因只有一个**：`LogAssert.Expect(LogType.Log, new Regex("未指派 BGM"))` 分布在 3 个文件（`AudioDirectorTests`、`PhysicsAndPreviewDiagnostics.LoadAndAccept`、`BootstrappedSceneTests.LoadRealScene`）。删掉那行日志是一次**行为变更**，测试如实报 `Expected log did not appear`。三处预期已删除，`PlayMusic_WithoutClip_LogsOnceAndStaysSilent` 随之更名为 `..._StaysSilentWithoutLogging`。
+
+### 最终结果
+
+- EditMode **127/128**：唯一失败项仍是需求方手工把设置面板 `CloseButton` 从 y=100 改成 216 造成的几何门槛失败（与本轮三项改动无关，待需求方裁定）。
+- PlayMode **86/86** 全绿，退出码 0。
+
 ## 尚未完成
 
 - 手动验收项（手感、观感、真机 60fps、中文渲染、`Main.unity` 目视检查）：清单见 `Docs/architecture/0X-*-test.md` 的「手动验收」表。

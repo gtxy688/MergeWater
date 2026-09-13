@@ -26,7 +26,7 @@
 
 `NewRound()`：解绑上一局 `SessionEvents` 订阅 → `field.ClearAll()` → 新建 `RoundSession` → `hud.Bind(session, aim, balance)` → `aim.SetInteractable(true)` → `session.StartRound()` → 引导：若为首局则启动 `TutorialDirector`。
 
-输入编排：`AimController.DropRequested` → `session.ReleaseDrop(x)`；`AimController.ItemTargetRequested` → `ItemUseController.Apply(kind, point)`：校验 `economy` 库存 → 调用对应场地方法（炸弹/锤子）或 `session`/`field`（撤销/摇一摇，摇一摇先要广告放行）→ 扣减库存 → `session.NotifyItemUsed(kind, result)` 发事件 → `analytics.Track`。全程在 `session.Snapshot.Phase == Playing` 且非瞄准广告时执行。
+输入编排：`AimController.DropRequested` → `session.ReleaseDrop(x)`；`AimController.ItemTargetRequested` → `ItemUseController.Apply(kind, point)`：校验 `economy` 库存 → 调用对应场地方法（炸弹/锤子）或 `session`/`field`（清屏/摇一摇，摇一摇先要广告放行）→ 扣减库存 → `session.NotifyItemUsed(kind, result)` 发事件 → `analytics.Track`。全程在 `session.Snapshot.Phase == Playing` 且非瞄准广告时执行。
 
 `TutorialDirector`：读取存档 `tutorialFlags`；第 1 局显示「按住拖动—松手」箭头、首次合成高亮、越线前脉冲预警（由 `DangerStarted` 触发）；前 3 局结算页显示分享/排行引导；标记写回存档。
 
@@ -51,7 +51,7 @@
 ### 道具使用编排
 
 - 触发条件：点击两侧入口并完成瞄准，或直接使用摇一摇。
-- 处理顺序：库存校验 → 摇一摇需先过广告放行 → 进入道具瞄准模式（撤销无需瞄准，直接作用于最后投放）→ 收到目标点 → 场地生效 → 扣库存 → 发 `ItemUsed` → 埋点。
+- 处理顺序：库存校验 → 摇一摇需先过广告放行 → 进入道具瞄准模式（清屏无需瞄准，直接清空全场）→ 收到目标点 → 场地生效 → 扣库存 → 发 `ItemUsed` → 埋点。
 - 成功结果：道具数量 −1，场地按 R11–R14 生效。
 - 失败与边界：库存为 0 或广告被拒时给出 Toast 并不进入瞄准；瞄准中取消不扣库存。
 

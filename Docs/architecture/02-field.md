@@ -5,7 +5,7 @@
 
 ## 职责边界
 
-- 本模块负责：水果实体的生成/销毁与视觉同步、2D 物理堆叠参数、同级碰撞到合成的解析与吸附时序、越线物理查询、道具对场地的直接作用（撤销/炸弹/锤子/摇一摇）、场地边界与仿真开关。
+- 本模块负责：水果实体的生成/销毁与视觉同步、2D 物理堆叠参数、同级碰撞到合成的解析与吸附时序、越线物理查询、道具对场地的直接作用（清屏/炸弹/锤子/摇一摇）、场地边界与仿真开关。
 - 本模块不负责：得分与连击计算（M3）、投放等级决策（M3）、指针输入与瞄准（M4）、库存与广告（M6）、HUD 表现（M5 负责订阅事件后的表现）。
 - 本模块实现 `Core.IFieldPort`。
 
@@ -13,7 +13,7 @@
 
 | 被依赖模块 | 只使用的公开契约 | 用途 | 缺失时的行为 |
 |------------|------------------|------|--------------|
-| M1 | `GameBalance`、`FruitTierDefinition`、`MergeEvent`、`DangerViolation`、`DropRecord`、`ItemKind`、`IFieldPort`、`FruitArt` | 数值、事件结构、端口定义、等级→贴图/染色规则 | 缺失则无法编译，属确定性依赖；`FruitArt` 未注入时退化为「单一占位图 + 调色板染色」 |
+| M1 | `GameBalance`、`FruitTierDefinition`、`MergeEvent`、`DangerViolation`、`ItemKind`、`IFieldPort`、`FruitArt` | 数值、事件结构、端口定义、等级→贴图/染色规则 | 缺失则无法编译，属确定性依赖；`FruitArt` 未注入时退化为「单一占位图 + 调色板染色」 |
 | Unity | `Rigidbody2D`、`CircleCollider2D`、`PhysicsMaterial2D`、`SpriteRenderer` | 物理与显示 | — |
 
 ## 设计与数据流
@@ -60,7 +60,7 @@
 
 ### 道具对场地的作用
 
-- 撤销：`TryPeekLastDrop(out record)` 返回本局最后一颗「未被标记 Merged」的投放记录；`RemoveFruit(id)` 移除它。是否可用由 M3/M7 依据 `record.Merged` 判断。
+- 清屏（原「撤销」，2026-09-13 需求方改写 R11）：直接调用 `ClearAll()` 清空全场——不再有「最后一颗投放记录」这一概念，配套的 `DropRecord` / `IFieldPort.TryPeekLastDrop` / `GameField.MarkLastDropMerged` 已一并删除。是否可用（空场拒绝、扣库存、Toast 文案）由 M7 的 `ItemUseController.UseClearField` 判断。
 - 炸弹：`RemoveFruitInRadius(point, 0.6m)` 移除半径内全部水果（V2.17），返回移除数量。
 - 锤子：`RemoveSingleNearest(point, maxRadius, out id)` 只移除最近的一颗。
 - 摇一摇：`ApplyShakeShuffle(impulse, seed)` 对全场水果施加小幅确定性随机冲量（同一 seed 可复现），不直接移除任何水果（R14）。
@@ -74,10 +74,9 @@
 
 | 名称 | 类型 | 输入 | 输出或事件 | 错误/生命周期保证 |
 |------|------|------|------------|-------------------|
-| `Drop(level, x, out id)` | `IFieldPort` | 等级 1–11、世界 x | bool、唯一 id | 失败时不产生对象；id 单调递增 |
+| `Drop(level, x, out id)` | `IFieldPort` | 等级 1–10、世界 x | bool、唯一 id | 失败时不产生对象；id 单调递增 |
 | `LiveFruitCount` | `IFieldPort` | — | 当前存活数量 | 恒等于字典大小 |
 | `TryGetDangerViolation(out v)` | `IFieldPort` | — | 是否越线 + 最严重者 | 无水果返回 false |
-| `TryPeekLastDrop(out r)` | `IFieldPort` | — | 最后一颗未合成投放记录 | 无投放返回 false |
 | `RemoveFruit(id)` | `IFieldPort` | id | 是否移除 | 幂等；不存在返回 false |
 | `RemoveFruitInRadius(point, r)` | `IFieldPort` | 点、半径 | 移除数量 | 半径 ≤0 返回 0 |
 | `HasFruitInRadius(point, r)` | `IFieldPort` | 点、半径 | 是否有水果 | 无副作用，用于道具命中判定；半径 ≤0 返回 false |
