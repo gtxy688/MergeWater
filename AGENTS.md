@@ -2,7 +2,7 @@
 
 《合成果园》MergeWater —— 竖屏 2D 投放堆叠合成游戏（合成大西瓜 like）的 MVP 作品集 Demo。
 
-- Unity：2022.3.62f3（LTS），URP 14.0.12（2D Renderer）
+- Unity：2022.3.62f3（LTS），**Built-in RP**（2026-09-13 由 URP 14.0.12 / 2D Renderer 切回，见 `Docs/requirements.md` V2.48：去掉微信小游戏「必须 WebGL2/ES3」的硬约束并减小包体）
 - 目标平台：微信小游戏优先（竖屏），抖音小游戏同构复用；Editor 内可完整游玩
 - 需求文档：`Docs/requirements.md`
 - 架构与任务索引：`Docs/architecture/00-overview.md`

@@ -752,6 +752,52 @@ Get-Content Assets/Scenes/Main.unity     # CloseButton → m_AnchoredPosition: {
 - EditMode **127/128**：唯一失败项仍是需求方手工把设置面板 `CloseButton` 从 y=100 改成 216 造成的几何门槛失败（与本轮三项改动无关，待需求方裁定）。
 - PlayMode **86/86** 全绿，退出码 0。
 
+## 追加：渲染管线 URP → Built-in RP（2026-09-13，V2.48）
+
+需求方问：「我能不能把 URP 改成其他的」。答：能，而且**本工程换起来特别便宜**——因为一个 URP 特性都没用。选定方案 B（切 Built-in）。
+
+### 切换前的可行性取证（都是实测，不是推断）
+
+| 检查 | 结果 |
+|---|---|
+| 代码里的 URP API（`Light2D` / `UniversalRenderPipeline` / `Renderer2D` / `GetUniversalAdditionalCameraData`） | **零调用**。全项目只剩 `HudBuilder.CreateSpriteMaterial` 两处 `Shader.Find`，而且**优先 `Sprites/Default`**、URP 才是备选 |
+| 工程内的 `.mat` 资产 | 只有 TMP 自带的两个示例材质（`LiberationSans SDF - Drop Shadow/Outline`），**没有任何项目材质依赖 URP shader** |
+| 场景里的 shader 引用 | 3 处，GUID 全是 `0000000000000000f000000000000000` = **Unity 内置 shader** |
+| URP 的绑定点 | **只有 `GraphicsSettings.m_CustomRenderPipeline` 一处**；QualitySettings 全部 6 档都是 `customRenderPipeline: {fileID: 0}` |
+
+### 改动（2 个文件、45 行）
+
+| 文件 | 改动 |
+|---|---|
+| `ProjectSettings/GraphicsSettings.asset` | `m_CustomRenderPipeline: {… guid: 681886c5…}` → `{fileID: 0}`；`m_SRPDefaultSettings:` 下的 URP 条目删除，改为 `{}` |
+| `Assets/Scenes/Main.unity` | 删除 Main Camera 上的 `UniversalAdditionalCameraData` 组件（1 行 `m_Component` 引用 + 44 行组件块）。**用行号精确删除并前置校验了块首/块尾**，不是手抄 |
+
+URP 包**保留安装**（`com.unity.feature.2d` 依赖它，卸载会连带报错），只是不再绑定 = 不生效。`Assets/Settings/{UniversalRP,Renderer2D}.asset` 与 `Assets/UniversalRenderPipelineGlobalSettings.asset` 变为未引用，**留作回退**。
+
+### 验证
+
+| 检查 | 结果 |
+|---|---|
+| EditMode | **127/128** —— 唯一失败仍是需求方手工把设置面板 `CloseButton` 改成 y=216 的几何门槛（与本轮无关） |
+| PlayMode（`-nographics`） | **86/86**，退出码 0 |
+| PlayMode（**带图形设备**） | **86/86**，退出码 0，并产出真实渲染帧 |
+
+> 关键方法：`PhysicsAndPreviewDiagnostics.CaptureCamera` 在 `-nographics` 下会直接跳过渲染、只写一个 `.skipped.txt`（`CanRender => SystemInfo.graphicsDeviceType != Null`）。所以**去掉 `-nographics`** 重跑一次，才拿到真正渲染出来的画面。
+
+### 目视核对（真实渲染帧）
+
+| 截图 | 结论 |
+|---|---|
+| `stacked-tiers.png`（世界） | 4 颗星球按真实贴图与配色正常渲染、`bg_star` 太空背景在后方、警戒线正常 —— **无品红、无材质丢失** |
+| `ui-01-loading.png`（加载页） | 需求方手工调的那版（星体主视觉 + 《健康游戏忠告》+ 进度条 + 百分比 + 「加载中…」）完整渲染，**中文字形完整**（无空白字） |
+| `while-aiming.png` / `after-6-drops.png` / `ui-02..05` | 一并产出，画面正常 |
+
+### 对微信小游戏的意义
+
+- **去掉「必须 WebGL2/ES3」**：`WXConvertCore.cs:776-783` 按 `Webgl2` 开关把图形 API 设成 ES3 或 ES2；URP 需 ES3，Built-in 在 ES2 下即可工作 → `WebGL2.0` 从硬要求降为**可选优化**，真机兼容面更宽。
+- **包体更小**：不再把 URP 的 shader 变体与管线代码带进 wasm。
+- 相关文档已同步：`requirements.md` V2.48、`AGENTS.md` 概述、`00-overview.md` 渲染管线行、微信发布工作流 §10.2 / C1 / §C3（那几处「必须勾 WebGL2」的结论已标注作废）。
+
 ## 尚未完成
 
 - 手动验收项（手感、观感、真机 60fps、中文渲染、`Main.unity` 目视检查）：清单见 `Docs/architecture/0X-*-test.md` 的「手动验收」表。

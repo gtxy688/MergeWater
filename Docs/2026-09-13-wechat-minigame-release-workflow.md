@@ -9,7 +9,7 @@
 ## 0. 结论（三句话）
 
 1. **不用换引擎**。工程已装 `com.qq.weixin.minigame`（`Packages/manifest.json` 指向 `minigame-tuanjie-transform-sdk`，落地在 `Library/PackageCache/com.qq.weixin.minigame@d288776c50`，`WXPluginVersion.pluginVersion = 202609030748`）。该 SDK 对非团结引擎走 **`BuildTarget.WebGL`** 分支（`Editor/WXConvertCore.cs:729/1289/1301`，团结专属能力都在 `TUANJIE_2022_3_OR_NEWER` 之后），所以 **Unity 2022.3.62f3 + 菜单 `微信小游戏 / 转换小游戏` 直接可用**。
-2. **真正的发布工作量不在"导出"，而在 3 件事**：① 平台适配层从 Mock 换成真微信 API（广告/分享/存档/埋点）；② 包体与 URP+WebGL2 的构建配置；③ 主体资质与备案。
+2. **真正的发布工作量不在"导出"，而在 3 件事**：① 平台适配层从 Mock 换成真微信 API（广告/分享/存档/埋点）；② 包体与构建配置（**2026-09-13 已切回 Built-in RP，去掉「必须 WebGL2」这条硬约束**，见 V2.48）；③ 主体资质与备案。
 3. **当前工程第一次点「转换」会直接失败**：`MiniGameConfig.asset` 的 `relativeDST` 为空，`WXConvertCore.PreCheck()` 会报「请先配置游戏导出路径」（`WXConvertCore.cs:231-235`）。这是第一个必须先填的字段。
 
 ---
@@ -133,7 +133,7 @@
 | `ProjectConf.CDN` | 空 | A7 的 CDN 根 URL | `assetLoadType: 0`=CDN |
 | `ProjectConf.assetLoadType` | 0 (CDN) | 保持 0；若临时本地调试可改 1（小游戏包内），但**总包会超限** | `WXEditorSettingHelper.cs:362` |
 | `ProjectConf.Orientation` | 0 | 保持 0 = Portrait（竖屏） | `WXEditorSettingHelper.cs:323` |
-| `CompileOptions.Webgl2` | **0** | **改为 1（勾选 WebGL2.0）** | URP 需要 ES3；否则被设为 `{OpenGLES2}` → 渲染失败（§10.2） |
+| `CompileOptions.Webgl2` | 0 | **可选**——2026-09-13 切 Built-in 后已不是硬要求（见 §10.2） | 勾 = ES3（性能更好，但依赖设备支持 WebGL2）；不勾 = ES2（兼容面更宽） |
 | `CompileOptions.Il2CppOptimizeSize` | 1 | 保持 1（体积优先） | 已在 `WXConvertCore.cs:1201` 映射到 `OptimizeSize` |
 | `CompileOptions.DevelopBuild` | 0 | 调试期可开，**提审必须关** | — |
 | `ProjectConf.projectName` | 空 | 填 `MergeWater` | 导出工程名 |
@@ -154,10 +154,13 @@
 | 首包资源（CDN） | `webgl.data`（本工程几乎只有占位图 + 字体 + 配置资产） | 已通过"UI 图移出 Resources"瘦身 −4.9MB |
 | 总包（⚠️ 30MB 量级） | 全部分包之和 | 已由 `defaultReleaseSize: 31457280` 反映 |
 
-**本项目最大的包体风险是 URP**：URP 会带一整套 shader 变体。可考虑的减重手段（按收益排序）：
-1. 场景材质确认为 `Universal Render Pipeline/2D/Sprite-Unlit-Default`，不要混用 `Sprites/Default`（`HudBuilder.cs:1178-1188` 目前是"先试 Sprites/Default 再回退 URP"，**实际场景里序列化的是哪一个需要核对**）；
-2. Project Settings → Graphics 里删除未使用的 shader 变体 / 用 URP Asset 的 Shader Stripping 关掉未用特性；
-3. **评估回退 Built-in RP**：本工程代码中**没有**任何 `Light2D`/URP 特性 API 调用（grep `Assets/Scripts` 仅 `HudBuilder.cs:1180/1182` 两处 `Shader.Find`），`Assets/Settings/{UniversalRP,Renderer2D}.asset` 只是管线资产。理论上 2D 精灵 + uGUI 用 Built-in 也可行，但会牵动材质与场景序列化，**属于可选优化，不是发布必需**。
+**本项目最大的包体风险曾是 URP** —— 2026-09-13 已按 V2.48 **切回 Built-in RP** 解决（URP 会带进一整套 shader 变体与管线代码，而本工程一个 URP 特性都没用）。当时的核对结论留档：
+
+1. 场景里的 3 处 shader 引用**全是内置 shader**（GUID `0000…f000…`）；`HudBuilder.CreateSpriteMaterial` 本来就是**优先** `Sprites/Default`、URP 只作备选；
+2. 工程内**只有 TMP 自带的两个示例材质**（`.mat`），没有任何项目材质依赖 URP shader；
+3. URP 的**唯一**绑定点是 `GraphicsSettings.m_CustomRenderPipeline`（QualitySettings 各档全是 `{fileID: 0}`）—— 所以切换只需两处改动。
+
+剩下可做的减重（按收益排序）：① 核对已用 UI 图的纹理压缩格式；② `Resources/` 继续只留运行时 `Load` 的东西（硬约束 10）；③ 按真机表现决定是否开 `UseCompressedTexture`。
 
 ---
 
@@ -240,8 +243,11 @@
 ### 10.1 `SampleScene` 会白进包（高）
 `EditorBuildSettings.asset` 里两个场景都是 `enabled: 1`；`WXConvertCore.GetScenePaths()` 只收集 enabled 场景。Unity 默认的 SampleScene 与它引用的资源会一起打进包体预算。**发布前第一件事就是移出。**
 
-### 10.2 URP 必须开 WebGL2（高）
-`MiniGameConfig.CompileOptions.Webgl2: 0` → `WXConvertCore.cs:776-783` 会 `SetGraphicsAPIs(WebGL, {OpenGLES2})`。URP 需要 ES3/WebGL2，此状态下渲染会出问题（典型表现：全黑 / 材质丢失 / shader 编译失败）。**必须勾上 WebGL2.0**，并在 iOS 真机验证（iOS 侧依赖 `iOSHighPerformance`，模板已默认 `true`）。
+### 10.2 ~~URP 必须开 WebGL2~~ → **已作废**（2026-09-13 切回 Built-in RP，V2.48）
+
+原风险：`MiniGameConfig.CompileOptions.Webgl2: 0` 时 `WXConvertCore.cs:776-783` 会把 WebGL 图形 API 设成 `{OpenGLES2}`，而 URP 需要 ES3/WebGL2。
+
+**现已不适用**：工程已把渲染管线切回 **Built-in RP**（`GraphicsSettings` 不再绑定 URP —— 那是 URP 在本项目里唯一的绑定点）。Built-in 在 ES2 下即可正常工作，因此 `WebGL2.0` 从**硬要求**变成**可选优化**：想要更好的真机性能可以勾（代价是依赖设备支持 WebGL2，iOS 需 15+），追求最大兼容面就保持默认不勾。
 
 ### 10.3 存档可能丢（中高）
 - 现状：`Meta.FileSaveStore` 写 `persistentDataPath`（WebGL 下由 SDK 的 Emscripten 文件系统落到微信本地存储），而**写盘时机只有 `OnApplicationPause(true)`**（`GameBootstrapper.cs:239-243`）。

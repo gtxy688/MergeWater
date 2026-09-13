@@ -6,7 +6,7 @@
 
 - Unity：2022.3.62f3（LTS）
 - 目标平台：微信小游戏优先（竖屏），抖音小游戏同构复用；Editor 内可完整游玩
-- 渲染管线：URP 14.0.12（2D Renderer）
+- 渲染管线：**Built-in RP**（2026-09-13 起。原 URP 14.0.12 / 2D Renderer 已在 `GraphicsSettings` 解绑，见 V2.48；URP 包仍装着——`com.unity.feature.2d` 依赖它——只是不再绑定。工程为纯精灵 + uGUI，未使用任何 URP 特性）
 - 输入：旧版 Input（`Input.touches` / `Input.mousePosition`），单指拖动
 - UI：uGUI + **TextMeshPro**（决策 **D16**）：文本一律用 TMP，字体为随包分发的 `ChineseUI SDF`（`Assets/Fonts/`，编辑期静态烘焙，运行时零字形生成）。原 legacy `Text` + 运行时系统字体的方案已废弃——微信小游戏（WebGL）无法访问系统字体，真机会显示方块。UI 对象全部预先存在于 `Main.unity`，运行时不生成界面；`HudBuilder` 在 Editor 程序集，运行时编译期不可引用
 - 物理：Unity 2D 物理（Rigidbody2D + CircleCollider2D，CCD）
