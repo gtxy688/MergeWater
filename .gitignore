@@ -116,6 +116,7 @@ InitTestScene*.unity*
 /Assets/Art
 /Assets/Resources/Model
 
+
 # 工具与调试产物（不参与构建，也不应入库）
 .codely/
 .codely-cli/
@@ -125,3 +126,6 @@ InitTestScene*.unity*
 
 # 诊断截图（各诊断测试的输出，见 Docs/architecture/*-test.md）
 /screenshots/
+
+# 美术原图备份（水果降采样前的 1280² 原图，仅本地保留；正式素材在 Assets/Resources/kenney_planets/）
+/ArtBackup/
