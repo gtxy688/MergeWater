@@ -45,8 +45,6 @@ namespace MergeWater.Field
         private bool _limitWarned;
         private bool _escapeWarned;
         private Sprite _wallSpriteFallback;
-        private DropRecord _lastDrop;
-        private bool _hasLastDrop;
         private int _nextId;
 
         // 方案 B：场地边界跟随屏幕（左右墙贴屏幕左右边缘、地面 = 屏幕底 + FloorScreenInset），
@@ -217,8 +215,6 @@ namespace MergeWater.Field
 
             Spawn(id, level, new Vector2(clampedX, balance.DropSpawnY), new Vector2(jitter, 0f));
 
-            _lastDrop = new DropRecord { FruitId = id, Level = level, X = clampedX, Merged = false };
-            _hasLastDrop = true;
             fruitId = id;
             return true;
         }
@@ -253,14 +249,8 @@ namespace MergeWater.Field
             return found;
         }
 
-        public bool TryPeekLastDrop(out DropRecord record)
-        {
-            record = _lastDrop;
-            return _hasLastDrop;
-        }
-
         /// <summary>
-        /// 在指定位置直接生成水果（不写投放记录）。用于测试装配与特殊玩法。
+        /// 在指定位置直接生成水果。用于测试装配与特殊玩法。
         /// 越线判定会通过静止计时过滤刚生成的水果，因此本方法不会造成误判。
         /// </summary>
         public bool SpawnAt(int level, Vector2 position, out int fruitId)
@@ -503,8 +493,6 @@ namespace MergeWater.Field
             _ordered.Clear();
             _fruits.Clear();
             _scratch.Clear();
-            _hasLastDrop = false;
-            _lastDrop = default;
             _nextId = 0;
             _limitWarned = false;
             _escapeWarned = false;
@@ -577,9 +565,6 @@ namespace MergeWater.Field
             if (!TryGetLive(idA, out a) || !TryGetLive(idB, out b))
                 yield break;
 
-            MarkLastDropMerged(idA);
-            MarkLastDropMerged(idB);
-
             RemoveInternal(a);
             RemoveInternal(b);
 
@@ -628,12 +613,6 @@ namespace MergeWater.Field
             _frozen.Remove(fruit.FruitId);
             _merging.Remove(fruit.FruitId);
             DestroyObject(fruit.gameObject);
-        }
-
-        private void MarkLastDropMerged(int fruitId)
-        {
-            if (_hasLastDrop && _lastDrop.FruitId == fruitId)
-                _lastDrop.Merged = true;
         }
 
         private bool IsLive(FruitBody fruit) => fruit != null && _fruits.ContainsKey(fruit.FruitId);

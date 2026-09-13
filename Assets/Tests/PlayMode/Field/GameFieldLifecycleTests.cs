@@ -19,7 +19,7 @@ namespace MergeWater.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator ClearAll_RemovesEveryFruitAndDropRecord()
+        public IEnumerator ClearAll_RemovesEveryFruit()
         {
             _rig = new FieldTestRig(gravity: 0f);
 
@@ -34,7 +34,6 @@ namespace MergeWater.Tests.PlayMode
             yield return null;
 
             Assert.That(_rig.Field.LiveFruitCount, Is.EqualTo(0));
-            Assert.That(_rig.Field.TryPeekLastDrop(out _), Is.False, "投放记录应被清除");
             Assert.That(_rig.Root.transform.Find("Fruit_1_0"), Is.Null);
         }
 

@@ -73,7 +73,14 @@ namespace MergeWater.Bootstrap
         /// <summary>测试接缝：为空时使用 <see cref="SystemClock"/>。</summary>
         public IClock ClockOverride { get; set; }
 
-        /// <summary>测试接缝：为空时使用 <see cref="Meta.UnityDebugSink"/>。</summary>
+        /// <summary>
+        /// 是否把埋点事件写进 Console。**默认关闭**（2026-09-13 需求方「运行游戏时 console 老是有调试信息」）：
+        /// 原先默认走 <see cref="Meta.UnityDebugSink"/>，每次合成/连击/越线/道具都会刷行。
+        /// 需要人工核对 R24 事件时，在场景里把这个勾上即可——不必改代码，也不必重建场景。
+        /// </summary>
+        [SerializeField] private bool logAnalyticsToConsole;
+
+        /// <summary>测试接缝：注入的 Sink 优先；为空且未勾选日志开关时用 <see cref="Meta.NullAnalyticsSink"/>（不写 Console）。</summary>
         public Meta.IAnalyticsSink AnalyticsSinkOverride { get; set; }
 
         /// <summary>测试接缝：加载页最短展示时长覆盖（≥0 生效；0 表示下一帧即完成加载）。</summary>
@@ -358,6 +365,11 @@ namespace MergeWater.Bootstrap
 
             var settings = metaSettings;
 
+            // 埋点默认不写 Console（见 logAnalyticsToConsole）；测试可注入 AnalyticsSinkOverride。
+            var analyticsSink = AnalyticsSinkOverride;
+            if (analyticsSink == null && logAnalyticsToConsole)
+                analyticsSink = new Meta.UnityDebugSink();
+
             return new GameContext(
                 transform,
                 balance,
@@ -372,7 +384,7 @@ namespace MergeWater.Bootstrap
                 ClockOverride ?? (IClock)new SystemClock(),
                 SaveStoreOverride ?? (ISaveStore)new Meta.FileSaveStore(),
                 settings,
-                AnalyticsSinkOverride,
+                analyticsSink,
                 message => panels?.ShowToast(message));
         }
 

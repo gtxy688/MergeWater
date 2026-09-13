@@ -410,7 +410,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.4, z: 0}
-  m_LocalScale: {x: 1.6187035, y: 1.6187035, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1543649492}
@@ -471,7 +471,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: -100
-  m_Sprite: {fileID: 21300000, guid: 181a78164e061e04d8c00b22b24ff4da, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 5456847f542bc9a44b036d565083ef35, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -6291,8 +6291,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279901993
-  m_fontColor: {r: 0.16, g: 0.12, b: 0.1, a: 1}
+    rgba: 4280549120
+  m_fontColor: {r: 0, g: 1, b: 0.13839388, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -8371,7 +8371,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u64A4\u9500"
+  m_text: "\u6E05\u5C4F"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e07d91397d033b64bbca49c570406bcf, type: 2}
   m_sharedMaterial: {fileID: 7763230837222356132, guid: e07d91397d033b64bbca49c570406bcf, type: 2}
@@ -16464,8 +16464,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4286479998
-  m_fontColor: {r: 0.495283, g: 0.495283, b: 0.495283, a: 1}
+    rgba: 4278255425
+  m_fontColor: {r: 0.25539327, g: 1, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:

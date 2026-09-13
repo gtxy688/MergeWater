@@ -107,7 +107,8 @@ namespace MergeWater.Core
         // ── V2.33/V2.34 待投水果重现节奏、V2.35 加载页 ─────────────────
         // 投放后不要立刻冒出下一颗（玩家来不及看清刚投下的结果）：先等一小会，
         // 再让下一颗水果从屏幕中央「渐显」出现（缩放 + 淡入）。
-        [SerializeField] private float nextFruitRevealDelaySeconds = 0.45f;
+        // 2026-09-13 需求方「小球的出现间隔」0.45 → 1.0 秒（要求 2 秒，确认后取 1 秒）。
+        [SerializeField] private float nextFruitRevealDelaySeconds = 1.0f;
         [SerializeField] private float nextFruitRevealDurationSeconds = 0.25f;
         [SerializeField] private float loadingMinSeconds = 2.0f;
 

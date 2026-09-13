@@ -111,8 +111,6 @@ namespace MergeWater.Presentation
         private readonly System.Collections.Generic.Dictionary<SfxId, AudioClip> _clips =
             new System.Collections.Generic.Dictionary<SfxId, AudioClip>();
 
-        private bool _musicWarned;
-
         public bool SfxEnabled { get; private set; } = true;
 
         public bool MusicEnabled { get; private set; } = true;
@@ -189,12 +187,8 @@ namespace MergeWater.Presentation
 
             if (backgroundMusic == null)
             {
-                if (!_musicWarned)
-                {
-                    _musicWarned = true;
-                    Debug.Log("[AudioDirector] 未指派 BGM，占位阶段静默降级（无音乐）。");
-                }
-
+                // 未指派 BGM 是占位阶段的既定状态（本来就无音乐），不往 Console 输出：
+                // 2026-09-13 需求方要求清掉运行期调试信息。
                 return;
             }
 

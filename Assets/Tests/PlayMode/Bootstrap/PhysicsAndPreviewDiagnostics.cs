@@ -74,8 +74,6 @@ namespace MergeWater.Tests.PlayMode
 
         private IEnumerator LoadAndAccept()
         {
-            LogAssert.Expect(LogType.Log, new Regex("未指派 BGM"));
-
             var load = SceneManager.LoadSceneAsync(SceneName, LoadSceneMode.Additive);
             while (!load.isDone)
                 yield return null;

@@ -93,22 +93,55 @@ namespace MergeWater.Tests.PlayMode
             Assert.That(_harness.Context.Aim.State.IsItemAim, Is.True, "领取成功后应自动继续这次使用（D11）");
         }
 
+        /// <summary>
+        /// 2026-09-13 需求方：「撤销」改为**清屏**（R11 改写，V2.46）——一次性清空全场水果并扣 1 个库存。
+        /// 不再有「最后一颗是否参与合成」的判定（`DropRecord` 那套机器已删除）。
+        /// </summary>
         [UnityTest]
-        public IEnumerator Undo_RemovesLastUnmergedDrop_AndDeductsStock()
+        public IEnumerator ClearField_RemovesEveryFruit_AndDeductsStock()
         {
             _harness = BootstrapTestHarness.Create(privacyAccepted: true);
             yield return _harness.Activate();
             StartPlayable();
 
             _harness.Context.Economy.Inventory.Grant(ItemKind.Undo, _harness.Context.Balance);
-            Assert.That(_harness.Field.LiveFruitCount, Is.EqualTo(1), "已投放一颗");
+
+            // StartPlayable 已投 1 颗，再放 3 颗（直接生成，避开投放冷却），确保「清屏」不是只清一颗
+            Assert.That(_harness.Field.SpawnAt(1, new Vector2(-0.8f, 0f), out _), Is.True);
+            Assert.That(_harness.Field.SpawnAt(1, new Vector2(0.8f, 0f), out _), Is.True);
+            Assert.That(_harness.Field.SpawnAt(2, new Vector2(0f, 2f), out _), Is.True);
+            yield return null;
+
+            var before = _harness.Field.LiveFruitCount;
+            Assert.That(before, Is.GreaterThan(1), $"前置：场上应有多颗水果（实际 {before}）");
 
             _harness.Context.Items.OnEntryClicked(ItemKind.Undo);
             yield return null;
 
-            Assert.That(_harness.Field.LiveFruitCount, Is.EqualTo(0), "撤销移除最后一颗未合成水果（R11）");
-            Assert.That(_harness.Context.Economy.ItemCount(ItemKind.Undo), Is.EqualTo(0));
+            Assert.That(_harness.Field.LiveFruitCount, Is.EqualTo(0), "清屏应清空全场水果（R11 改写）");
+            Assert.That(_harness.Context.Economy.ItemCount(ItemKind.Undo), Is.EqualTo(0), "使用后扣 1 个库存");
             Assert.That(_itemEvents.Exists(e => e.Key == ItemKind.Undo && e.Value == ItemUseResult.Applied), Is.True);
+        }
+
+        /// <summary>空场时清屏应被拒绝且不扣库存（新分支：LiveFruitCount == 0 → NoTarget）。</summary>
+        [UnityTest]
+        public IEnumerator ClearField_OnEmptyField_IsRejectedWithoutSpendingStock()
+        {
+            _harness = BootstrapTestHarness.Create(privacyAccepted: true);
+            yield return _harness.Activate();
+            StartPlayable();
+
+            _harness.Context.Economy.Inventory.Grant(ItemKind.Undo, _harness.Context.Balance);
+            _harness.Field.ClearAll();
+            yield return null;
+
+            Assert.That(_harness.Field.LiveFruitCount, Is.EqualTo(0));
+
+            _harness.Context.Items.OnEntryClicked(ItemKind.Undo);
+            yield return null;
+
+            Assert.That(_harness.Context.Economy.ItemCount(ItemKind.Undo), Is.EqualTo(1), "空场清屏不应扣库存");
+            Assert.That(_itemEvents.Exists(e => e.Key == ItemKind.Undo && e.Value == ItemUseResult.NoTarget), Is.True);
         }
 
         [UnityTest]

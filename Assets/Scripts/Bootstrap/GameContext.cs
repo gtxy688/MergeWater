@@ -53,7 +53,9 @@ namespace MergeWater.Bootstrap
             Save.Load();
 
             Privacy = new Meta.PrivacyGate(Save);
-            Analytics = new Meta.AnalyticsService(analyticsSink ?? new Meta.UnityDebugSink(), Clock);
+            // 默认不往 Console 写埋点（2026-09-13 需求方要求清掉运行期调试信息，见 NullAnalyticsSink）；
+            // 需要看埋点日志时由 M7 注入 UnityDebugSink。
+            Analytics = new Meta.AnalyticsService(analyticsSink ?? new Meta.NullAnalyticsSink(), Clock);
             Ads = new Meta.AdsServiceProxy();
             SettingsService = new Meta.SettingsService(Save);
             Economy = new Meta.EconomyService(Save, Clock, Balance, Ads, metaSettings);

@@ -32,6 +32,9 @@ namespace MergeWater.Aim
         private bool _interactable = true;
         private bool _aiming;
         private bool _itemAim;
+
+        /// <summary>「落点区间因半径反转」只告警一次：该判断在逐帧的指针更新路径里，否则会每帧刷屏。</summary>
+        private bool _invertedWarned;
         private bool _pointerLeftScreen;
         private ItemKind _itemKind = ItemKind.None;
         private float _x;
@@ -205,8 +208,11 @@ namespace MergeWater.Aim
             }
 
             _x = AimSolver.ClampX(world.x, _minX, _maxX, _dropRadius, out var inverted);
-            if (inverted)
-                Debug.LogWarning("[AimController] 落点区间因半径反转，已使用区间中点。");
+            if (inverted && !_invertedWarned)
+            {
+                _invertedWarned = true;
+                Debug.LogWarning("[AimController] 落点区间因半径反转，已使用区间中点（只告警一次）。");
+            }
         }
 
         private Vector2 WorldFromScreen(Vector2 screenPosition)

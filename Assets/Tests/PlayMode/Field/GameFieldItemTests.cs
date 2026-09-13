@@ -92,38 +92,5 @@ namespace MergeWater.Tests.PlayMode
             Assert.That(_rig.Field.LiveFruitCount, Is.EqualTo(2), "摇一摇不直接消除水果（R14）");
             Assert.That(Vector3.Distance(before, after), Is.GreaterThan(0.01f), "水果应发生可见位移");
         }
-
-        [UnityTest]
-        public IEnumerator Undo_RemovesLastUnmergedDrop()
-        {
-            _rig = new FieldTestRig(gravity: -60f, buildArena: true);
-
-            Assert.That(_rig.Field.Drop(1, 0.5f, out var dropId), Is.True);
-            yield return new WaitForFixedUpdate();
-
-            Assert.That(_rig.Field.TryPeekLastDrop(out var record), Is.True);
-            Assert.That(record.FruitId, Is.EqualTo(dropId));
-            Assert.That(record.Merged, Is.False, "未参与合成时可撤销");
-
-            Assert.That(_rig.Field.RemoveFruit(dropId), Is.True);
-            Assert.That(_rig.Field.LiveFruitCount, Is.EqualTo(0));
-            yield return null;
-        }
-
-        [UnityTest]
-        public IEnumerator LastDrop_ThatMerged_IsMarkedMerged()
-        {
-            _rig = new FieldTestRig(gravity: -60f, buildArena: true);
-
-            Assert.That(_rig.Field.Drop(1, 0f, out _), Is.True);
-            yield return new WaitForSeconds(0.35f);
-            Assert.That(_rig.Field.Drop(1, 0f, out var secondId), Is.True);
-
-            yield return new WaitForSeconds(1.5f);
-
-            Assert.That(_rig.Field.TryPeekLastDrop(out var record), Is.True);
-            Assert.That(record.FruitId, Is.EqualTo(secondId));
-            Assert.That(record.Merged, Is.True, "最后一颗已参与合成时撤销应被禁用（R11）");
-        }
     }
 }

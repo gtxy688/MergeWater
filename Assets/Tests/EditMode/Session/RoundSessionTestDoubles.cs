@@ -47,12 +47,6 @@ namespace MergeWater.Tests.EditMode
             return false;
         }
 
-        public bool TryPeekLastDrop(out DropRecord record)
-        {
-            record = default;
-            return false;
-        }
-
         public bool RemoveFruit(int fruitId) => true;
 
         public int RemoveFruitInRadius(Vector2 point, float radius) => 0;

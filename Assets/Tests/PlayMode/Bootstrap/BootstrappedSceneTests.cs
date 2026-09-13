@@ -77,9 +77,6 @@ namespace MergeWater.Tests.PlayMode
 
         private IEnumerator LoadRealScene()
         {
-            // 实景启动会输出一次「未指派 BGM」的静默降级说明（占位阶段无音频资产）
-            LogAssert.Expect(LogType.Log, new Regex("未指派 BGM"));
-
             var load = SceneManager.LoadSceneAsync(SceneName, LoadSceneMode.Additive);
             Assert.That(load, Is.Not.Null, $"场景 {SceneName} 必须已加入构建场景列表");
 

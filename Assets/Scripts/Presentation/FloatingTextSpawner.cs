@@ -21,6 +21,9 @@ namespace MergeWater.Presentation
         // 轮转游标：飘字是短命特效，直接覆盖最早的一条比排队更符合「即时反馈」。
         private int _next;
 
+        /// <summary>池为空的告警只报一次（每次合成都调 Spawn，否则会刷屏）。</summary>
+        private bool _emptyPoolWarned;
+
         /// <summary>池子里可用的条目数（供测试断言「预置而非运行时生成」）。</summary>
         public int PoolCount => pool?.Length ?? 0;
 
@@ -34,7 +37,12 @@ namespace MergeWater.Presentation
 
             if (pool == null || pool.Length == 0)
             {
-                Debug.LogWarning("[FloatingTextSpawner] 飘字池为空：请用 MergeWater/Build Main Scene 重建场景。");
+                if (!_emptyPoolWarned)
+                {
+                    _emptyPoolWarned = true;
+                    Debug.LogWarning("[FloatingTextSpawner] 飘字池为空：请用 MergeWater/Build Main Scene 重建场景。");
+                }
+
                 return;
             }
 

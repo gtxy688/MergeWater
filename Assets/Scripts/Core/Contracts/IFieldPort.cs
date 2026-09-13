@@ -21,9 +21,6 @@ namespace MergeWater.Core
         /// <summary>查询是否存在「已静止且越过警戒线」的水果，返回溢出量最大者。</summary>
         bool TryGetDangerViolation(out DangerViolation violation);
 
-        /// <summary>读取本局最后一颗投放记录（含是否已参与合成）。无投放返回 false。</summary>
-        bool TryPeekLastDrop(out DropRecord record);
-
         /// <summary>按 id 移除水果。幂等；不存在返回 false。</summary>
         bool RemoveFruit(int fruitId);
 

@@ -86,6 +86,22 @@ namespace MergeWater.Meta
     }
 
     /// <summary>
+    /// 运行时默认实现：**什么都不做**。
+    ///
+    /// <para>2026-09-13 需求方「运行游戏时 console 老是有调试信息」——原默认是 <see cref="UnityDebugSink"/>，
+    /// 它把每一个埋点事件都写进 Console（一次合成就是一行，连击/越线/道具各一行）。
+    /// 埋点服务与接口本身保留不变，只是**默认不再往 Console 输出**；
+    /// 需要人工核对 R24 事件时，勾选场景里 `GameBootstrapper.logAnalyticsToConsole`，
+    /// 或由测试注入 <see cref="InMemoryAnalyticsSink"/> / <see cref="UnityDebugSink"/>。</para>
+    /// </summary>
+    public sealed class NullAnalyticsSink : IAnalyticsSink
+    {
+        public void Write(string eventName, IReadOnlyList<AnalyticsParam> parameters, DateTime at)
+        {
+        }
+    }
+
+    /// <summary>
     /// 埋点门面。隐私同意前 <see cref="IsInitialized"/> 为 false，所有上报静默丢弃（R20）；
     /// Sink 抛异常时被吞掉并降级为一次告警，绝不影响游戏流程。
     /// </summary>

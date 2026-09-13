@@ -534,7 +534,7 @@ namespace MergeWater.Editor
             view.giftBadge = giftBadge;
 
             // 右侧（上→下）：撤销、炸弹
-            CreateEntry(parent, font, "UndoButton", "撤销", new Vector2(1f, 1f), new Vector2(-120f, -470f),
+            CreateEntry(parent, font, "UndoButton", "清屏", new Vector2(1f, 1f), new Vector2(-120f, -470f),
                 "icon_undo", out var undoButton, out var undoLabel, out var undoBadge);
             view.undoButton = undoButton;
             view.undoLabel = undoLabel;

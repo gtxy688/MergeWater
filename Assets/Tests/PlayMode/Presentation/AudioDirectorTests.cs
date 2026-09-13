@@ -66,13 +66,13 @@ namespace MergeWater.Tests.PlayMode
         }
 
         [Test]
-        public void PlayMusic_WithoutClip_LogsOnceAndStaysSilent()
+        public void PlayMusic_WithoutClip_StaysSilentWithoutLogging()
         {
             var source = _root.AddComponent<AudioSource>();
             _audio.Configure(source, source);
 
-            LogAssert.Expect(LogType.Log, new System.Text.RegularExpressions.Regex("未指派 BGM"));
-
+            // 2026-09-13 需求方要求清掉运行期调试信息：未指派 BGM 是占位阶段的既定状态（本来就无音乐），
+            // 不再往 Console 输出——原先这里 Expect 一条 Log，该日志已删除（用例名随之去掉 LogsOnce）。
             _audio.PlayMusic();
             _audio.PlayMusic();
 

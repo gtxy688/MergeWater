@@ -80,15 +80,6 @@ namespace MergeWater.Core
         }
     }
 
-    /// <summary>最后一颗投放记录，用于撤销（R11）。</summary>
-    public struct DropRecord
-    {
-        public int FruitId;
-        public int Level;
-        public float X;
-        public bool Merged;
-    }
-
     /// <summary>一次投放的事实。</summary>
     public readonly struct DropPerformedEvent
     {

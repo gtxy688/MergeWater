@@ -40,7 +40,7 @@ namespace MergeWater.Bootstrap
                     return;
 
                 case ItemKind.Undo:
-                    EnsureStockThen(ItemKind.Undo, () => UseUndo());
+                    EnsureStockThen(ItemKind.Undo, () => UseClearField());
                     return;
 
                 case ItemKind.Bomb:
@@ -138,30 +138,37 @@ namespace MergeWater.Bootstrap
             context.RequestItemGrant(kind, onReady);
         }
 
-        private void UseUndo()
+        /// <summary>
+        /// 侧边「撤销」位的功能已改为**清屏**（2026-09-13 需求方：「撤销」改为清屏，删除相关撤销逻辑）：
+        /// 一次性清空全场水果，不再区分「最后一颗是否参与合成」——配套的
+        /// `DropRecord` / `IFieldPort.TryPeekLastDrop` / `GameField.MarkLastDropMerged` 已一并删除。
+        /// 内部 id 仍沿用 <see cref="ItemKind.Undo"/>（存档字段 `undoCount`/`undoGrantedToday` 随之保留，
+        /// 避免动存档 schema）；玩家可见文案已全部改为「清屏」。
+        /// </summary>
+        private void UseClearField()
         {
             var context = _context;
             var session = context.Session;
             var field = context.Field;
 
-            if (!field.TryPeekLastDrop(out var record) || record.Merged)
+            if (field.LiveFruitCount == 0)
             {
                 session.NotifyItemUsed(ItemKind.Undo, ItemUseResult.NoTarget);
-                context.Notify("没有可撤销的水果（最后一颗已参与合成）");
+                context.Notify("场上没有水果");
                 return;
             }
 
             if (context.Economy.SpendItem(ItemKind.Undo) != SpendResult.Spent)
             {
                 session.NotifyItemUsed(ItemKind.Undo, ItemUseResult.NoStock);
-                context.Notify("撤销数量不足");
+                context.Notify("清屏数量不足");
                 return;
             }
 
-            field.RemoveFruit(record.FruitId);
+            field.ClearAll();
             session.NotifyItemUsed(ItemKind.Undo, ItemUseResult.Applied);
             context.Feedback?.PlayItemUse(ItemKind.Undo);
-            context.Notify("撤销了最后一颗水果");
+            context.Notify("已清空场地");
             context.RefreshBadges();
         }
 
