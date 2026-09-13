@@ -16,7 +16,7 @@ MonoBehaviour:
     projectName: "\u661F\u4F53\u5927\u878D\u5408"
     Appid: wx6fccfe6e1ff08b05
     CDN: 
-    assetLoadType: 0
+    assetLoadType: 1
     compressDataPackage: 0
     VideoUrl: 
     relativeDST: "D:/\u6E38\u620FDemo/MergeWater"
