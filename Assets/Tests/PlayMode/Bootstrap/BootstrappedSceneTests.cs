@@ -498,9 +498,11 @@ namespace MergeWater.Tests.PlayMode
             // 而是从池里取一条激活播放。因此断言「有飘字被激活」，而不是「子对象变多」。
             var activeBefore = CountActiveFloatingText(spawner);
 
-            // 两颗 10 级相邻放置，生成当帧即接触合成
-            field.SpawnAt(10, new Vector2(-0.99f, 0f), out _);
-            field.SpawnAt(10, new Vector2(0.99f, 0f), out _);
+            // 两颗 9 级相邻放置，生成当帧即接触合成。
+            // 2026-09-13 水果等级 11→10 后顶级（10 级）不再合成，故下移一级取 9 级
+            //（半径 0.88，圆心距 1.74 < 直径和 1.76 才会接触）。
+            field.SpawnAt(9, new Vector2(-0.87f, 0f), out _);
+            field.SpawnAt(9, new Vector2(0.87f, 0f), out _);
 
             yield return new WaitForSeconds(0.4f);
 
@@ -519,6 +521,60 @@ namespace MergeWater.Tests.PlayMode
             Assert.That(feedback, Is.Not.Null);
             Assert.That(feedback.ScreenShakeTargetAvailable, Is.True,
                 "震屏目标必须指向相机（否则震屏静默失效）");
+        }
+
+        /// <summary>
+        /// 2026-09-13：水果图换成 `kenney_planets`（planet00 → 1 级 … planet09 → 10 级）。
+        /// 断言「等级 → 贴图」的对应关系与「专属美术不染色」。
+        ///
+        /// <para>存在的理由：这组贴图是在 `GameBootstrapper` 里**运行时装载并注入**给
+        /// `GameField` / `HudBinder` 的（占位图仍是缺图兜底），接错不会抛错，
+        /// 只会静默地一直用占位圆片——正是那种「看起来能跑、但美术没生效」的缺陷。</para>
+        /// </summary>
+        [UnityTest]
+        public IEnumerator SpawnedFruit_UsesItsLevelPlanetArt()
+        {
+            LogAssert.ignoreFailingMessages = true;
+            yield return LoadRealScene();
+
+            var bootstrapper = Find<GameBootstrapper>();
+            yield return WaitForRound(bootstrapper);
+
+            var field = Find<GameField>();
+
+            Assert.That(field.SpawnAt(1, Vector2.zero, out var level1Id), Is.True, "生成 1 级水果");
+            Assert.That(field.SpawnAt(10, new Vector2(0f, 3f), out var level10Id), Is.True, "生成 10 级水果");
+            yield return null;
+
+            var level1 = FindFruitBodyById(level1Id);
+            var level10 = FindFruitBodyById(level10Id);
+
+            Assert.That(level1, Is.Not.Null);
+            Assert.That(level10, Is.Not.Null);
+
+            var renderer1 = level1.Visual.GetComponent<SpriteRenderer>();
+            var renderer10 = level10.Visual.GetComponent<SpriteRenderer>();
+
+            Assert.That(renderer1.sprite, Is.Not.Null, "1 级水果必须有贴图");
+            Assert.That(renderer1.sprite.name, Is.EqualTo("planet00"), "1 级 → planet00（按 Planets 顺序依次对应）");
+            Assert.That(renderer10.sprite.name, Is.EqualTo("planet09"), "10 级 → planet09");
+            Assert.That(renderer1.color, Is.EqualTo(Color.white),
+                "使用专属美术时不染色——染成调色板颜色会毁掉星球本身的可辨识度");
+
+            var worldSize = renderer10.bounds.size;
+            Assert.That(worldSize.x, Is.EqualTo(level10.Radius * 2f).Within(1e-3f),
+                "10 级水果的视觉直径必须等于碰撞直径（1280px 素材按 PPU 隐式换算会大 12.8 倍）");
+        }
+
+        private static FruitBody FindFruitBodyById(int fruitId)
+        {
+            foreach (var body in Object.FindObjectsOfType<FruitBody>())
+            {
+                if (body.FruitId == fruitId)
+                    return body;
+            }
+
+            return null;
         }
     }
 }

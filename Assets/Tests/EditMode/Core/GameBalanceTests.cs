@@ -9,21 +9,21 @@ namespace MergeWater.Tests.EditMode
     {
         private static readonly float[] ExpectedRadius =
         {
-            0.18f, 0.24f, 0.30f, 0.38f, 0.46f, 0.55f, 0.65f, 0.76f, 0.88f, 1.00f, 1.12f
+            0.18f, 0.24f, 0.30f, 0.38f, 0.46f, 0.55f, 0.65f, 0.76f, 0.88f, 1.00f
         };
 
         private static readonly float[] ExpectedMass =
         {
-            0.10f, 0.18f, 0.28f, 0.45f, 0.66f, 0.95f, 1.32f, 1.80f, 2.41f, 3.14f, 3.94f
+            0.10f, 0.18f, 0.28f, 0.45f, 0.66f, 0.95f, 1.32f, 1.80f, 2.41f, 3.14f
         };
 
-        private static readonly int[] ExpectedScore = { 10, 15, 21, 28, 36, 45, 55, 66, 78, 91, 105 };
+        private static readonly int[] ExpectedScore = { 10, 15, 21, 28, 36, 45, 55, 66, 78, 91 };
 
-        private static readonly float[] ExpectedWeight = { 0.5f, 0.3f, 0.2f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f };
+        private static readonly float[] ExpectedWeight = { 0.5f, 0.3f, 0.2f, 0f, 0f, 0f, 0f, 0f, 0f, 0f };
 
         private static readonly string[] ExpectedName =
         {
-            "葡萄", "樱桃", "橘子", "柠檬", "猕猴桃", "番茄", "桃子", "菠萝", "椰子", "西瓜", "大西瓜"
+            "葡萄", "樱桃", "橘子", "柠檬", "猕猴桃", "番茄", "桃子", "菠萝", "椰子", "西瓜"
         };
 
         [Test]
@@ -31,7 +31,7 @@ namespace MergeWater.Tests.EditMode
         {
             var balance = GameBalance.CreateDefault();
 
-            Assert.That(balance.TierCount, Is.EqualTo(11), "V1 表应为 11 级");
+            Assert.That(balance.TierCount, Is.EqualTo(10), "V1 表应为 10 级（2026-09-13 需求方：减一级适配美术资源）");
 
             for (var level = GameBalance.MinTier; level <= GameBalance.MaxTier; level++)
             {
@@ -77,7 +77,7 @@ namespace MergeWater.Tests.EditMode
         {
             var balance = GameBalance.CreateDefault();
 
-            foreach (var level in new[] { -1, 0, 12, 999 })
+            foreach (var level in new[] { -1, 0, 11, 12, 999 })
             {
                 var tier = balance.GetTier(level);
                 Assert.That(tier.IsValid, Is.False, $"等级 {level} 应返回无效默认值");

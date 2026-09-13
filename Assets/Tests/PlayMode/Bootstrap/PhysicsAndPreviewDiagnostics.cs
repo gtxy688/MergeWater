@@ -295,9 +295,10 @@ namespace MergeWater.Tests.PlayMode
             var camera = Camera.main;
 
             // 用互不相同、且永不相邻同级的等级叠放：因为不会合成，才能确定性地验证「会不会叠起来」。
-            // 4 颗的直径合计 (0.92+1.30+1.76+2.24)=6.22 > 容器宽 4.4，因此必然有水果被顶到别的水果之上。
+            // 4 颗的直径合计 (0.92+1.30+1.76+2.00)=5.98 > 容器宽 4.4，因此必然有水果被顶到别的水果之上。
             // 这也是玩家抱怨的场景：以前它们会滚开摊平在地面，现在必须叠住。
-            var tiers = new[] { 5, 7, 9, 11 };
+            // 顶级由 11 级下调为 10 级（2026-09-13），故末位取 10 而不是 11。
+            var tiers = new[] { 5, 7, 9, 10 };
             for (var i = 0; i < tiers.Length; i++)
             {
                 Assert.That(field.SpawnAt(tiers[i], new Vector2(0f, field.PlayFloorY + 0.6f + i * 2.6f), out _),

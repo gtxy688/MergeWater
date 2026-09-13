@@ -14,6 +14,12 @@ namespace MergeWater.Field
     {
         [SerializeField] private GameBalanceAsset balanceAsset;
         [SerializeField] private Sprite fruitSprite;
+
+        /// <summary>
+        /// 「等级 → 贴图 / 染色」的唯一来源，由组合根在运行时注入（M7）。
+        /// 为空时退化成「只用 <see cref="fruitSprite"/> + 调色板染色」，即占位美术时代的旧行为。
+        /// </summary>
+        private FruitArt _art;
         [SerializeField] private PhysicsMaterial2D fruitMaterial;
         [SerializeField] private bool autoBuildArena = true;
         [SerializeField] private Sprite wallSprite;
@@ -128,6 +134,21 @@ namespace MergeWater.Field
             _arenaBuilt = false;
             EnsureArena();
         }
+
+        /// <summary>
+        /// 注入「等级 → 水果外观」的正式美术（M7 在运行时调用）。
+        /// 未注入时退化为「单一占位图 + 调色板染色」，即旧的占位美术行为。
+        /// </summary>
+        public void SetFruitArt(FruitArt art)
+        {
+            _art = art;
+
+            if (art?.Fallback != null)
+                fruitSprite = art.Fallback;
+        }
+
+        /// <summary>未注入正式美术时，用单一占位图构成退化集合，行为与占位美术时代完全一致。</summary>
+        private FruitArt Art => _art ??= new FruitArt(null, fruitSprite);
 
         /// <summary>测试与 Bootstrap 用：注入数值、占位图与物理材质。</summary>
         public void Configure(GameBalance balance, Sprite sprite, PhysicsMaterial2D material, bool buildArena = true)
@@ -586,7 +607,8 @@ namespace MergeWater.Field
             go.transform.position = position;
 
             var body = go.AddComponent<FruitBody>();
-            body.Initialize(this, fruitId, tier, fruitSprite, FruitPalette.ForLevel(level), Material,
+            var art = Art;
+            body.Initialize(this, fruitId, tier, art.ForLevel(level), art.TintForLevel(level), Material,
                 FruitPhysicsConfig.ForTier(balance, level));
 
             if (velocity != Vector2.zero)

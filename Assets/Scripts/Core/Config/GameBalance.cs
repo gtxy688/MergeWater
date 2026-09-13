@@ -12,7 +12,12 @@ namespace MergeWater.Core
     public sealed class GameBalance
     {
         public const int MinTier = 1;
-        public const int MaxTier = 11;
+
+        /// <summary>
+        /// 顶级等级。2026-09-13 需求方「减少一级，来适配美术资源」：11 → 10，
+        /// 原 11 级「大西瓜」整条移除，顶级变为 10 级「西瓜」（V1 表同步）。
+        /// </summary>
+        public const int MaxTier = 10;
 
         // ── V1 水果等级表 ─────────────────────────────────────────────
         [SerializeField] private FruitTierDefinition[] tiers = Array.Empty<FruitTierDefinition>();
@@ -182,7 +187,7 @@ namespace MergeWater.Core
         /// <summary>V2.35：加载页最短展示时长（秒）。</summary>
         public float LoadingMinSeconds => loadingMinSeconds;
 
-        /// <summary>该等级的重力倍率（V2.28，按 1..11 级线性插值）。</summary>
+        /// <summary>该等级的重力倍率（V2.28，按 1..MaxTier 线性插值）。</summary>
         public float GetGravityScale(int level)
         {
             var span = Mathf.Max(1, TierCount - 1);
@@ -243,8 +248,7 @@ namespace MergeWater.Core
                     new FruitTierDefinition(7, "桃子", 0.65f, 1.32f, 55, 0f),
                     new FruitTierDefinition(8, "菠萝", 0.76f, 1.80f, 66, 0f),
                     new FruitTierDefinition(9, "椰子", 0.88f, 2.41f, 78, 0f),
-                    new FruitTierDefinition(10, "西瓜", 1.00f, 3.14f, 91, 0f),
-                    new FruitTierDefinition(11, "大西瓜", 1.12f, 3.94f, 105, 0f)
+                    new FruitTierDefinition(10, "西瓜", 1.00f, 3.14f, 91, 0f)
                 },
                 stageMilestones = new[]
                 {

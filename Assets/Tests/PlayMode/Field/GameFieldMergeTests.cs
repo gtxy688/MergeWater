@@ -65,7 +65,7 @@ namespace MergeWater.Tests.PlayMode
 
             yield return new WaitForSeconds(0.4f);
 
-            Assert.That(_merges, Is.Empty, "11 级为顶点，不应产生合成");
+            Assert.That(_merges, Is.Empty, $"{GameBalance.MaxTier} 级为顶点，不应产生合成");
             Assert.That(_rig.Field.LiveFruitCount, Is.EqualTo(2));
         }
 

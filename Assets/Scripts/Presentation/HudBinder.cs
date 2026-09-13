@@ -18,6 +18,9 @@ namespace MergeWater.Presentation
         [SerializeField] private Sprite fruitSprite;
         [SerializeField] private Color nextFruitColor = Color.white;
 
+        /// <summary>与 <see cref="GameField"/> 共用同一条「等级 → 贴图 / 染色」规则（M7 运行时注入）。</summary>
+        private FruitArt _art;
+
         private readonly List<Vector2> _previewPoints = new List<Vector2>(128);
 
         private ISessionView _session;
@@ -49,6 +52,15 @@ namespace MergeWater.Presentation
             if (sprite != null)
                 fruitSprite = sprite;
         }
+
+        /// <summary>
+        /// 注入「等级 → 水果外观」的正式美术（M7 在运行时调用，与 <see cref="GameField"/> 同一个实例）。
+        /// 未注入时退化为「单一占位图 + 调色板染色」。
+        /// </summary>
+        public void SetFruitArt(FruitArt art) => _art = art;
+
+        /// <summary>未注入正式美术时，用单一占位图构成退化集合，行为与占位美术时代完全一致。</summary>
+        private FruitArt Art => _art ??= new FruitArt(null, fruitSprite);
 
         /// <summary>绑定一局。重复调用会先解绑上一局，避免事件串局（验收 E5）。</summary>
         public void Bind(ISessionView session, IAimSource aim, GameBalance balance, int bestScore)
@@ -247,8 +259,9 @@ namespace MergeWater.Presentation
             {
                 _lastCurrentLevel = snapshot.CurrentLevel;
                 var tier = _balance.GetTier(snapshot.CurrentLevel);
-                preview.SetPendingFruit(snapshot.CurrentLevel, fruitSprite,
-                    FruitPalette.ForLevel(snapshot.CurrentLevel), tier.Radius * 2f);
+                var art = Art;
+                preview.SetPendingFruit(snapshot.CurrentLevel, art.ForLevel(snapshot.CurrentLevel),
+                    art.TintForLevel(snapshot.CurrentLevel), tier.Radius * 2f);
             }
         }
 

@@ -272,8 +272,9 @@ namespace MergeWater.Tests.EditMode
         {
             EnterPlaying();
 
-            for (var i = 0; i < 10; i++)
-                _field.SimulateMerge(11);
+            // 顶级 10 级（西瓜）单次 91 分，取 12 次使总分 ≥ 1000 且不依赖连击倍率是否叠加。
+            for (var i = 0; i < 12; i++)
+                _field.SimulateMerge(10);
 
             Assert.That(_session.Score, Is.GreaterThan(1000), "应已越过全部里程碑");
 

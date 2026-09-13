@@ -74,12 +74,6 @@ MonoBehaviour:
       Mass: 3.14
       Score: 91
       DropWeight: 0
-    - Level: 11
-      DisplayName: "\u5927\u897F\u74DC"
-      Radius: 1.12
-      Mass: 3.94
-      Score: 105
-      DropWeight: 0
     earlyPhaseDropCount: 20
     midPhaseDropCount: 60
     comboWindowSeconds: 3

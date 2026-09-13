@@ -344,7 +344,15 @@ namespace MergeWater.Bootstrap
                 return null;
             }
 
-            field.Configure(balance, Resources.Load<Sprite>("Placeholder/fruit_circle"), null);
+            // 水果外观：等级 1..10 依次对应 kenney_planets 的 planet00..planet09（CC0 授权），
+            // 缺图时回退程序化占位圆片 + 调色板染色。装载与注入只在这里发生一次，
+            // M2（生成水果）与 M5（待投预览）通过同一个 FruitArt 取用，规则不会漂移。
+            var fruitArt = new FruitArt(FruitArt.LoadPlanetSprites(),
+                Resources.Load<Sprite>("Placeholder/fruit_circle"));
+
+            field.Configure(balance, fruitArt.Fallback, null);
+            field.SetFruitArt(fruitArt);
+            hud.SetFruitArt(fruitArt);
 
             aim.SetCamera(targetCamera != null ? targetCamera : Camera.main);
 

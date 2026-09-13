@@ -191,7 +191,15 @@ namespace MergeWater.Field
             Visual = existing;
             Visual.localPosition = Vector3.zero;
             Visual.localRotation = Quaternion.identity;
-            Visual.localScale = Vector3.one * (Radius * 2f);
+
+            // 视觉直径必须等于碰撞直径。贴图的世界尺寸 = 像素 ÷ PPU，所以必须先归一化：
+            // 直接把 localScale 写成 Radius×2 只在「贴图恰好 1×1 世界单位」时成立，
+            // 换成 1280px @ PPU 100 的正式素材就会大 12.8 倍、把整个场地糊住（实测 0.36 → 0.9216）。
+            // 按贴图实际世界尺寸换算后，换任何尺寸/PPU 的素材都不必再管导入设置。
+            var size = sprite != null ? (Vector2)sprite.bounds.size : Vector2.one;
+            var scaleX = size.x > 1e-4f ? Radius * 2f / size.x : Radius * 2f;
+            var scaleY = size.y > 1e-4f ? Radius * 2f / size.y : Radius * 2f;
+            Visual.localScale = new Vector3(scaleX, scaleY, 1f);
 
             var spriteRenderer = Visual.GetComponent<SpriteRenderer>();
             spriteRenderer.sprite = sprite;

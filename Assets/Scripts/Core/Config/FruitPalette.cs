@@ -19,8 +19,7 @@ namespace MergeWater.Core
             new Color(0.95f, 0.58f, 0.54f), // 7 桃子
             new Color(0.83f, 0.67f, 0.05f), // 8 菠萝
             new Color(0.63f, 0.25f, 0.00f), // 9 椰子
-            new Color(0.13f, 0.60f, 0.33f), // 10 西瓜
-            new Color(0.09f, 0.42f, 0.23f)  // 11 大西瓜
+            new Color(0.13f, 0.60f, 0.33f)  // 10 西瓜（2026-09-13 起为顶级，原 11 大西瓜已移除）
         };
 
         public static Color ForLevel(int level)
