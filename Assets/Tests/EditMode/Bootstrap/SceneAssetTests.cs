@@ -192,6 +192,30 @@ namespace MergeWater.Tests.EditMode
                 "主场景应写入构建场景列表并启用");
         }
 
+        /// <summary>
+        /// 需求方（2026-09-13）：合成音改用真实素材 `Assets/Audios/pop.ogg`。这里是它的门禁——
+        /// 素材路径写错、或有人在场景里把槽位清空，音效会**静默**退回占位音（无声，且 Console 干干净净），
+        /// 只有真机试玩才发现。断言两件事：① 指派的素材在工程 `Assets/Audios/` 内且是音频文件；
+        /// ② `Merge` 与 `ComboUp` 都必须有真实素材（连击复用同一素材、靠 pitch 变调）。
+        /// </summary>
+        [Test]
+        public void AudioDirector_MergeSfx_IsAssignedFromProjectAudioAssets()
+        {
+            var audio = InScene<AudioDirector>().Single();
+
+            foreach (var id in new[] { SfxId.Merge, SfxId.ComboUp })
+            {
+                Assert.That(audio.HasClip(id), Is.True,
+                    $"{id} 应有真实素材；为空 = 静默退回运行时占位音（玩家听到的是合成音，不是 pop.ogg）");
+
+                var clip = audio.GetClip(id);
+                var path = AssetDatabase.GetAssetPath(clip);
+
+                Assert.That(path, Does.StartWith("Assets/Audios/").And.EndsWith(".ogg"),
+                    $"{id} 应指向 Assets/Audios 下的 .ogg 素材，实际是「{path}」");
+            }
+        }
+
         [Test]
         public void MainScene_HasNoReferencesToMissingScripts()
         {

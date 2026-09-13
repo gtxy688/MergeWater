@@ -12,6 +12,18 @@
 
 合计 177 项，0 失败。
 
+## 追加：合成音效改用真实素材 `pop.ogg`（2026-09-13，V2.53）
+
+需求方先问「合成星体的音效文件在哪设置」，随后要求「帮我改一下，使用 `pop.ogg`」。定位结论：`AudioDirector` 当时**只有 BGM 槽位**，8 条音效全部由 `PlaceholderAudioFactory` 现场合成（合成音 = `CreateTone("mw_sfx_merge", 523.25Hz, 0.16s)`），因此素材放进工程也听不到、且不报错。
+
+改动：① 新增 `SfxClipEntry`（`SfxId` + `AudioClip`）与序列化指派表 `AudioDirector.sfxClips`；② `Main.unity` 的 `GameRoot/Presentation` 上把 `Merge`(id 1) 与 `ComboUp`(id 2) 都指向 `Assets/Audios/pop.ogg`（连击音阶仍由 `pitch` 实现）；③ 修掉一个**会删素材**的既有缺陷——`OnDestroy` 原先 `Destroy` 查询表里的全部 `AudioClip`，接上真实素材后会把 `pop.ogg` 与 BGM **资产本体删掉**，改为只释放运行时自建的占位音（`_generatedClips`）。
+
+**红灯 → 绿灯**（先规格后实现）：先写 `Assets/Tests/EditMode/Presentation/SfxClipAssignmentTests.cs`（5 项）+ 真场景门禁 `SceneAssetTests.AudioDirector_MergeSfx_IsAssignedFromProjectAudioAssets`，批处理实测 `error CS0246: The type or namespace name 'SfxClipEntry' could not be found`（2 处，正是预期原因，日志 `E:\MergeWaterVerify\Logs\red-sfx.log`）；实现后定向 **13/13**。
+
+**全量**（隔离副本 `E:\MergeWaterVerify`，真工程被运行中的编辑器 41832 锁定）：EditMode **140/141**（唯一失败 = 既存的 `HudLayoutTests.SettingsPanel_BottomBlock_SitsAboveTheBottomEdgeWithBalancedSpacing`，场景里 `CloseButton` 被手工改到距底 216、门槛上限 200）、PlayMode **87/87**、`failed=0`。结果 XML：`E:\MergeWaterVerify\Logs\full-editmode-sfx.xml`、`full-playmode-sfx.xml`、`green-sfx-scene.xml`（未复制进本目录——它们与真工程 `Assets` 逐文件镜像一致，路径已记录在此以便复查）。
+
+**本轮踩到的环境坑（值得记）**：`Unity.exe` 是 GUI 子系统程序，PowerShell 里 `& Unity.exe -batchmode -nographics -runTests ...` **不会等待**进程结束——表现为 `$LASTEXITCODE` 为空、日志文件 0 字节、测试其实还在后台跑（第一次据此误判为「启动即失败」）。必须用 `Start-Process -Wait -PassThru`。另外副本同步仍只需 `Assets`（`Packages/manifest.json` 不要同步，原因见上文）。
+
 ## 追加：HUD 布局修复后的复跑（2026-09-11 18:47）
 
 审查 HUD 实际布局时发现并修复了两个只在视觉上暴露的缺陷（详见 `Docs/progress.md` 的缺陷表）：

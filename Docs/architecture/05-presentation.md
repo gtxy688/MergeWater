@@ -36,7 +36,7 @@ UI 文本一律使用 **TextMeshPro**（`TextMeshProUGUI` / 世界空间 `TextMe
 - 接线规则：Inspector 里手工连的事件（持久监听）**会**随场景序列化；代码里 `AddListener` 只在该代码运行时生效。需要「随值同步的联动」（如音量条的填充）必须在运行时装配，见 `PanelController.HookButtons` 的注释。
 - 仍有少量世界空间对象按事件在运行时创建：飘字 `FloatingText`（`FloatingTextSpawner.Spawn` 每次一个 `TextMesh`）与合成粒子（`ParticleBurst` 用常驻 `ParticleSystem` + `Emit`，不实例化）。这些是「一次性的瞬时特效」，不是界面结构。
 
-占位音效由 `PlaceholderAudioFactory` 在运行时用正弦/方波包络合成短音（投放、合成、连击音阶、越线心跳、失败、按钮、领取、复活），无需音频资产；未指派真实 `AudioClip` 时优先使用占位音。BGM 槽位为可选：未指派时静默并在启动时记录一次日志（诚实降级，不假装有音乐）。
+音效优先用 `AudioDirector` 的 `sfxClips` **指派表**里的真实素材，未指派的 `SfxId` 回退到 `PlaceholderAudioFactory` 在运行时用正弦/方波包络合成的占位音（投放、合成、连击音阶、越线心跳、失败、按钮、领取、复活），因此「一个素材都没配」时也能听到反馈（决策 D4）。需求方（2026-09-13）指定合成音改用 `Assets/Audios/pop.ogg`：`Merge` 与 `ComboUp` 都指向该素材（连击音阶仍由 `pitch` 实现），指派发生在 `Main.unity` 的 `GameRoot/Presentation` 节点上，改素材只需在 Inspector 里换引用。BGM 槽位为可选：未指派时静默降级，不假装有音乐。
 
 `timeScale` 与顿帧由 `TimeDirector` 独占管理（慢放、顿帧、暂停），避免其他模块各自改 `timeScale`；M2 的 `SetSimulationEnabled` 与之解耦（冻结物理用 M2，视觉时间缩放用本模块）。
 
@@ -84,6 +84,16 @@ UI 文本一律使用 **TextMeshPro**（`TextMeshProUGUI` / 世界空间 `TextMe
 - 面板根节点挂 `UiPanel`（项目自定义基类，需求方要求「给 UI 面板搞个父类」）：把「可见」的定义收敛到一处（alpha + blocksRaycasts + interactable + activeSelf 必须同时正确），并提供 `Show()/Hide()/SetVisible()`。**场景里面板的初始状态是 alpha=1 且 active=false**——这样在编辑器里手动勾上 active 就能直接看到面板内容调布局；早期 alpha 被序列化成 0，勾 active 也看不见（需求方实际踩到的坑）。`UiPanel.OnEnable` 在非播放态被手动激活时会自动补 alpha=1，进一步避免该问题。
 - 面板底板与按钮底用的是 `Assets/Resources/Art` 的九宫格素材，**必须按 PPU=100（= `Canvas.referencePixelsPerUnit`）导入**：`Image.Type.Sliced` 的边框设计单位 = `边框像素 × referencePixelsPerUnit ÷ 素材 PPU ÷ pixelsPerUnitMultiplier`，PPU 越小边框越大（`100/PPU` 倍），一旦边框超过元素尺寸，Unity 会把边框压满整个 RectTransform、素材被整体拉伸（2026-09-12 的「设置面板变成大白椭圆」即此）。门禁：`UiArtSlicingTests`。面板底是深紫，因此直接落在面板上的文字都是浅色（标题/正文为暖白、次要文字为浅紫灰、分数高亮为暖黄），按钮内部文字仍是深棕——这些颜色现在只存在于场景里的 TMP 组件上，直接选中文本对象改即可。
 
+### 音效素材指派
+
+- 触发条件：`AudioDirector.GetClip(SfxId)`（`PlaySfx` 的每条路径都经过它；`Configure` 与 `HasClip` 也会先装配一次）。
+- 处理顺序：`EnsureClipsLoaded` 把序列化的 `SfxClipEntry[] sfxClips` 装进查询表 `_clips`（空槽位跳过，重复 `id` 时列表靠后者胜）→ 命中则用真实素材；未命中才现场合成占位音，并把该 `SfxId` 记入 `_generatedClips`。
+- 当前装配（2026-09-13）：`Merge`（id 1）与 `ComboUp`（id 2）都指向 `Assets/Audios/pop.ogg`（8.4KB OGG，Vorbis、非 3D、`preloadAudioData=0`）。`ComboUp` 与 `Merge` 用同一素材是**有意为之**：连击音阶由 `pitch`（`ComboPitch`）实现，不必准备多条音频。
+- 成功结果：合成/连击听到的是 `pop.ogg`（连击时音高上行），其余音效仍是占位音。
+- 失败与边界：素材缺失或槽位为空 → 回退占位音（静默降级，`GetClip` 只在合成抛异常时记一次告警）；`sfxClips` 整个字段为空 → 与改动前行为完全一致（全占位音）。
+- 释放边界（有一条回归用例守）：`OnDestroy` **只**释放 `_generatedClips` 里的占位音。工程资产（`pop.ogg`、`backgroundMusic`）被 `Destroy` 会连素材本体一起删掉。
+- 换素材的正确做法：选中 `GameRoot/Presentation` → `Audio Director` → `Sfx Clips` 槽位里换引用（**不要**在代码里写路径，也不要放进 `Resources/`——那会被无条件打进包）。门禁：`SceneAssetTests.AudioDirector_MergeSfx_IsAssignedFromProjectAudioAssets` 断言 `Merge` 与 `ComboUp` 都指向 `Assets/Audios/` 下的 `.ogg`，防止「拖了没反应」这种无声失效。
+
 ### 音阶与占位音
 
 - 触发条件：合成连击变化。
@@ -100,7 +110,9 @@ UI 文本一律使用 **TextMeshPro**（`TextMeshProUGUI` / 世界空间 `TextMe
 | `HudView` | 序列化容器 | — | 各 UI 引用 | 引用可空，缺失时降级 |
 | `FeedbackDirector.Play*` | 方法 | 反馈参数 | — | 由 `HudBinder` 调用，不反向依赖业务 |
 | `TimeDirector.RequestSlowMo(scale, duration)` / `RequestHitStop(ms)` | 方法 | 参数 | — | 结束恢复 `timeScale=1`；嵌套取最强 |
-| `AudioDirector.PlaySfx(SfxId, pitch)` | 方法 | 音效与音高 | — | 开关关闭静默；无资源用占位音 |
+| `AudioDirector.PlaySfx(SfxId, pitch)` | 方法 | 音效与音高 | — | 开关关闭静默；`sfxClips` 指派的真实素材优先，未指派用占位音 |
+| `AudioDirector.HasClip(SfxId)` | 方法 | 音效标识 | 是否已有真实素材 | 纯查询，不合成；供场景装配门禁使用 |
+| `AudioDirector.SfxClipEntry[] sfxClips` | 序列化字段 | `SfxId` + `AudioClip` | — | 场景序列化数据；空槽位跳过、重复 id 取靠后者；工程资产不随组件销毁释放 |
 | `AudioDirector.SetSfxVolume(v)` / `SetMusicVolume(v)` | 方法 | 0..1 音量 | — | 与开关正交；音乐基准增益 0.4；音源缺失时只记录不报错 |
 | `PanelController.SetVolumeStates(sfx, music)` | 方法 | 0..1 音量 | — | 读档回填滑条与填充；用 `SetValueWithoutNotify`，不触发「玩家改了设置」事件链 |
 | `BackdropView.Configure(renderer, camera)` | 方法 | 背景渲染器与相机 | — | 幂等；素材为空时不动 Transform |
@@ -110,16 +122,16 @@ UI 文本一律使用 **TextMeshPro**（`TextMeshProUGUI` / 世界空间 `TextMe
 
 ## Unity 装配
 
-- 场景与 Prefab：`Main.unity` 的 `Canvas`（Screen Space - Overlay，竖屏 1080×1920 参考分辨率）下含 `HudRoot`、`PanelRoot`、`FeedbackRoot`；`HudView` 等引用由编辑器工具 `SceneBuilder` 自动填充。对局背景不在 Canvas 下，而在表现层根节点（世界空间）的 `Backdrop` 子节点。
-- 组件与序列化引用：`HudBinder`、`FeedbackDirector`、`TimeDirector`、`AudioDirector`、`PanelController`、`ScreenShaker`、`FloatingTextSpawner`、`DangerLineView`、`AimPreviewView`、`BackdropView`。
-- 美术资产：`Assets/Resources/Art/`（由美术包 `Assets/Art` 挑选复制，均为 PPU=100 的 Sprite）。本次新增 `bg_night`（3840×2160 背景）、`sound_bar_track`（390×44 轨道）、`sound_bar_fill`（376×24 分段填充）。
+- 场景与 Prefab：`Main.unity` 的 `Canvas`（Screen Space - Overlay，竖屏 1080×1920 参考分辨率）下含 `HudRoot`、`PanelRoot`、`FeedbackRoot`；`HudView` 等引用**全部手工在该场景里维护**（原 `SceneBuilder` 与 UI 生成器已删除，2026-09-13）。对局背景不在 Canvas 下，而在表现层根节点（世界空间）的 `Backdrop` 子节点。
+- 组件与序列化引用：`HudBinder`、`FeedbackDirector`、`TimeDirector`、`AudioDirector`、`PanelController`、`ScreenShaker`、`FloatingTextSpawner`、`DangerLineView`、`AimPreviewView`、`BackdropView`；音频侧另有 `AudioDirector.sfxClips`（音效→素材指派表）、`sfxSource`/`musicSource`/`backgroundMusic`。
+- 美术与音频资产：UI 图放 `Assets/UI/Art/`（如 `bg_star.png` 941×1672 竖版背景、`sound_bar_track.png` 390×44 轨道、`sound_bar_fill.png` 376×24 分段填充，均 PPU=100）；音效/BGM 放 `Assets/Audios/`（`pop.ogg` = 合成与连击音、`our_expanse_-_with_tail-version-.mp3` = 当前指派的 BGM）。**都不放 `Resources/`**，由场景引用决定是否进包。
 - ScriptableObject / 其他资产：`UiTheme`（占位色板与字号，ScriptableObject）可选；无则用代码默认。
-- 创建、启用、禁用和销毁：`HudBinder` 在 `OnEnable` 订阅、`OnDisable` 取消；`TimeDirector.OnDisable` 强制恢复 `timeScale`；占位音 `AudioClip` 缓存在 `AudioDirector` 内并在销毁时释放。
+- 创建、启用、禁用和销毁：`HudBinder` 在 `OnEnable` 订阅、`OnDisable` 取消；`TimeDirector.OnDisable` 强制恢复 `timeScale`；占位音 `AudioClip`（运行时合成的那部分）缓存在 `AudioDirector` 内并在销毁时释放，`sfxClips`/`backgroundMusic` 指向的工程资产**不释放**。
 
 ## 影响与回归范围
 
 - 直接影响模块：M7（面板与红点调用）、M3（订阅 `Events`，跨局重订阅）、M6（设置音量写入存档）。
-- 必须复验的契约：`HudBinder.Bind/Unbind` 与跨局重订阅；`TimeDirector` 结束后 `timeScale` 恢复；`AudioDirector` 在无资源时的静默降级；`AudioDirector` 音量与开关正交；背景是否铺满视口且排在全部对局元素之后。
+- 必须复验的契约：`HudBinder.Bind/Unbind` 与跨局重订阅；`TimeDirector` 结束后 `timeScale` 恢复；`AudioDirector` 在无资源时的静默降级；`AudioDirector` 音量与开关正交；`AudioDirector` 的 `sfxClips` 指派优先于占位音且不释放工程资产；背景是否铺满视口且排在全部对局元素之后。
 - 对应验收项：A1–A4（PlayMode 冒烟）+ A10–A12（背景与音量条）+ H1–H6（手动手感与观感）。
 
 ## 待裁定事项

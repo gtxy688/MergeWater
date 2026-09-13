@@ -16934,6 +16934,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b44047f71f0c3394ba0aeae227545e4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sfxClips:
+  - id: 1
+    clip: {fileID: 8300000, guid: dd91b5b2e38ed3048bd23c40a91b1ae0, type: 3}
+  - id: 2
+    clip: {fileID: 8300000, guid: dd91b5b2e38ed3048bd23c40a91b1ae0, type: 3}
   sfxSource: {fileID: 1543649496}
   musicSource: {fileID: 1543649495}
   backgroundMusic: {fileID: 8300000, guid: 2620effb982ea064e80d6cee40a996df, type: 3}

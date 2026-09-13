@@ -93,8 +93,22 @@ namespace MergeWater.Presentation
     }
 
     /// <summary>
-    /// 音频与震动开关（R25）。没有任何音频资产时使用占位合成音；BGM 槽位为空时静默降级并
-    /// 只告警一次，不假装有音乐。
+    /// 一条「音效 → 真实素材」的指派（需求方 2026-09-13：合成音改用 `Assets/Audios/pop.ogg`）。
+    /// 槽位是**场景序列化数据**：在 `Main.unity` 的 `GameRoot/Presentation` 上直接拖素材，不要在代码里写路径。
+    /// </summary>
+    [Serializable]
+    public struct SfxClipEntry
+    {
+        [Tooltip("要替换的 SfxId（Merge 与 ComboUp 可指向同一素材，连击音高由 pitch 实现）")]
+        public SfxId id;
+
+        [Tooltip("真实音频素材；留空则回退到运行时合成的占位音")]
+        public AudioClip clip;
+    }
+
+    /// <summary>
+    /// 音频与震动开关（R25）。音效优先用 `sfxClips` 里指派的真实素材，未指派的 SfxId 回退到运行时
+    /// 合成的占位音（决策 D4：没有音频资产时也能听到反馈）；BGM 槽位为空时静默降级，不假装有音乐。
     /// </summary>
     public sealed class AudioDirector : MonoBehaviour
     {
@@ -104,12 +118,17 @@ namespace MergeWater.Presentation
         /// <summary>音乐基准增益：BGM 比音效轻，音量条 100% 时音乐源用 0.4。</summary>
         private const float MusicBaseGain = 0.4f;
 
+        [SerializeField] private SfxClipEntry[] sfxClips;
         [SerializeField] private AudioSource sfxSource;
         [SerializeField] private AudioSource musicSource;
         [SerializeField] private AudioClip backgroundMusic;
 
         private readonly System.Collections.Generic.Dictionary<SfxId, AudioClip> _clips =
             new System.Collections.Generic.Dictionary<SfxId, AudioClip>();
+
+        /// <summary>运行时**自己合成**的占位音。只有这些能在销毁时释放——工程资产销毁会连素材本体一起删掉。</summary>
+        private readonly System.Collections.Generic.HashSet<SfxId> _generatedClips =
+            new System.Collections.Generic.HashSet<SfxId>();
 
         public bool SfxEnabled { get; private set; } = true;
 
@@ -124,12 +143,40 @@ namespace MergeWater.Presentation
 
         public bool HasMusicClip => backgroundMusic != null;
 
+        /// <summary>该音效是否已有真实素材（未指派时用占位音兜底）——供场景装配门禁与诊断使用。</summary>
+        public bool HasClip(SfxId id)
+        {
+            EnsureClipsLoaded();
+            return _clips.TryGetValue(id, out var clip) && clip != null;
+        }
+
+        /// <summary>
+        /// 把场景里指派的真实素材装进查询表（`GetClip` 会懒装配一次，因此 `AddComponent` 后立刻取也拿得到）。
+        /// 后写的条目覆盖先写的——误配重复时以列表里靠后的为准，避免「拖了没反应」还查不出原因。
+        /// </summary>
+        private void EnsureClipsLoaded()
+        {
+            if (sfxClips == null)
+                return;
+
+            foreach (var entry in sfxClips)
+            {
+                if (entry.clip == null)
+                    continue;
+
+                _clips[entry.id] = entry.clip;
+                _generatedClips.Remove(entry.id);
+            }
+        }
+
         public void Configure(AudioSource sfx, AudioSource music, AudioClip musicClip = null)
         {
             sfxSource = sfx;
             musicSource = music;
             if (musicClip != null)
                 backgroundMusic = musicClip;
+
+            EnsureClipsLoaded();
 
             // 音量可能先于音源注入（读档 → 应用设置），这里补一次同步。
             ApplyVolumes();
@@ -224,12 +271,16 @@ namespace MergeWater.Presentation
 
         public AudioClip GetClip(SfxId id)
         {
+            EnsureClipsLoaded();
+
             if (_clips.TryGetValue(id, out var clip) && clip != null)
                 return clip;
 
             try
             {
                 clip = PlaceholderAudioFactory.Create(id);
+                if (clip != null)
+                    _generatedClips.Add(id);
             }
             catch (Exception e)
             {
@@ -245,11 +296,14 @@ namespace MergeWater.Presentation
         {
             foreach (var pair in _clips)
             {
-                if (pair.Value != null)
+                // 只释放自己合成的占位音：`sfxClips` / `backgroundMusic` 是工程资产，
+                // 对它们调 Destroy 会连素材本体一起删掉（pop.ogg、BGM 直接消失）。
+                if (pair.Value != null && _generatedClips.Contains(pair.Key))
                     Destroy(pair.Value);
             }
 
             _clips.Clear();
+            _generatedClips.Clear();
         }
     }
 }
