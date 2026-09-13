@@ -317,5 +317,7 @@ SDK 的 `Editor/Node` 只带 `binaryen`，需系统 Node。本机 v26.7.0 属于
 | 字体收集 + 烘焙 | 菜单 `MergeWater/Font/1. 收集字符` → `/2. 烘焙中文 TMP 字体资产` |
 | 场景与 UI 改动 | **在编辑器里手工改 `Assets/Scenes/Main.unity` 并保存**（2026-09-13 V2.51 起无生成器：原 `Rebuild UI In Open Scene` / `Build Main Scene` 菜单已删除） |
 | 改动 `SafeAreaSources.cs`（WX 分支） | **必须跑一次真实 WebGL / 微信导出才算验证过**：`#if UNITY_WEBGL && !UNITY_EDITOR` 内的代码编辑器**不编译**，EditMode / PlayMode 全套绿也覆盖不到（2026-09-13 实测：`WindowInfo`/`SafeArea` 的字段在 `wx-runtime.dll` 里全是 `double`，漏一个 `(float)` 就在构建期报 `CS1503`） |
+| WebGL **调试符号**（Debug Symbols） | ⚠️ **不要去关，也关不掉**：转换插件每次导出都**无条件**写回 `External`（`WXConvertCore.cs:67`；其 CHANGELOG：「2021 版本修改为默认使用 External Symbols」），原因是**代码分包需要 symbol 文件做增量更新**（`WXConvertCore.cs:1647` 注释）。**符号不进上传包**——`minigame/project.config.json` 的 `packOptions.ignore` 已按后缀忽略 `.symbols.unityweb` / `.symbols.unityweb.br`（实测被忽略 **7.86 MB**）。2026-09-13 实测上传包：**主包 0.88 MB / 分包 26.43 MB（wasmcode 6.73 + data-package 19.70）/ 合计 27.3 MB** |
+| 开发者工具「优化建议」弹窗 | 是**建议不是错误**，可忽略。三条的处置：①「首包资源较大」= 启动要下的 `data-package` **19.70 MB**（因 `assetLoadType: 1` 包内）→ 正解是 A7 配 CDN / 云开发后改回 `assetLoadType: 0`；②「未使用 wasm 代码分包」与 ③「未使用预下载」**本工程已配好**（`minigame/game.json` 的 `subpackages` + `parallelPreloadSubpackages`），属工具通用提示 |
 | EditMode 测试 | `Unity.exe -batchmode -nographics -projectPath <工程> -runTests -testPlatform editmode -testResults Logs/editmode-results.xml -logFile Logs/editmode.log` |
 | PlayMode 测试 | 同上，`-testPlatform playmode` |

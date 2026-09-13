@@ -10,7 +10,7 @@
 | A1 | PlayMode | `Assets/Tests/PlayMode/Presentation/HudBinderTests.cs::Scored_RaisesScoreTextToSnapshotValue`、`PhaseToReviving_ShowsSettlementWithReviveAvailable`、`PhaseToGameOver_ShowsSettlementWithoutRevive`、`MilestoneReached_ShowsClaimToast` | 得分事件刷新分数文本；失败页/结算页与复活按钮可用性；里程碑 Toast | 实现前无 `HudBinder` | PASS |
 | A2 | PlayMode | `Presentation/HudBinderTests.cs::BindAfterRebind_SubscribesNewEventsOnlyOnce`、`Unbind_StopsReceivingEvents` | 跨局重新绑定不重复订阅；解绑后不再响应 | 同上 | PASS |
 | A3 | PlayMode | `Presentation/TimeDirectorTests.cs`（6 项，含 `SlowMoAndHitStop_FinishRestoreTimeScaleToOne`、`HitStop_FreezesThenRestoresTimeScale`、`NestedSlowMo_TakesStrongestScaleAndLongestDuration`、`ResetToNormal_AlwaysRestoresOne`） | 慢放与顿帧结束后 `timeScale` 必为 1；嵌套取最强；非法请求忽略 | 实现前无 `TimeDirector` | PASS |
-| A4 | PlayMode | `Presentation/AudioDirectorTests.cs`（5 项，含 `PlaySfx_WithoutSourceOrWithSfxDisabled_DoesNotThrow`、`PlaceholderClips_AreGeneratedWithAudioData`、`PlayMusic_WithoutClip_LogsOnceAndStaysSilent`） | 关闭音效/无音源时静默不报错；占位音可生成并缓存；无 BGM 时只告警一次 | 同上 | PASS |
+| A4 | PlayMode | `Presentation/AudioDirectorTests.cs`（5 项，含 `PlaySfx_WithoutSourceOrWithSfxDisabled_DoesNotThrow`、`PlaceholderClips_AreGeneratedWithAudioData`、`PlayMusic_WithoutClip_StaysSilentWithoutLogging`） | 关闭音效/无音源时静默不报错；占位音可生成并缓存；无 BGM 时静默降级（不写 Console） | 同上 | PASS |
 | A5 | EditMode | `Assets/Tests/EditMode/Presentation/ComboPitchTests.cs::ComboPitch_AddsSemitonePerCombo_CappedAtOneOctave`、`HitStopSeconds_GrowsWithCombo_AndStaysWithinV223Range`、`ShakeTier_IsThreeLevels` | 音阶 +1 半音/连击、封顶 8 度（12 半音）；顿帧 80–120ms 随连击递增；震屏三档 | 实现前无音阶函数 | PASS |
 | A6 | PlayMode | `Presentation/HudBinderTests.cs::DangerEvents_ToggleDangerLinePulse`、`Update_RefreshesNextPreviewAndPendingFruit`、`Update_WhileAiming_DrawsTrajectory` | 警戒线脉冲随越线事件开关；next 预览与待投水果随快照刷新；瞄准时绘制虚线 | 实现前无 `DangerLineView`/`AimPreviewView` | PASS |
 
@@ -22,6 +22,7 @@
 | A10 | EditMode | `Assets/Tests/EditMode/Presentation/BackdropViewTests.cs`（5 项：`Backdrop_CoversWholeCameraView_竖屏/横屏/正方形`、`Backdrop_RefitsWhenCameraAspectChanges`、`Backdrop_WithoutSprite_DoesNotThrow`） | 背景必须按 cover 盖满任意宽高比的视口（1080×1920 / 1920×1080 / 1:1）、居中于相机、缩放贴近理论 cover 值；超宽屏（2.2:1）重新贴合后仍盖满；素材缺失时不抛异常且不动 Transform | **2026-09-12 需求方「背景图太丑，换一个」后新增**（D14）：cover 逻辑写错就会露出相机清屏色边带，逻辑测试抓不到 | PASS |
 | A11 | EditMode | `Assets/Tests/EditMode/Bootstrap/SceneAssetTests.cs::Backdrop_IsBehindEveryWorldElement`、`HudView_RequiredElementsAreWired`（本次扩充） | 场景必须有背景节点且排序值为负（低于场景里每一个 `SpriteRenderer`/`LineRenderer`，否则挡住玩法画面）；指派了素材时渲染器必须启用。设置页必须有音效/音乐两条音量条与分段填充，取值范围 0..1 | **同上新增**：需求方反馈「音量条丢失」；背景断言随后改为兼容「换回原来的纯色底」 | PASS |
 | A12 | PlayMode | `Assets/Tests/PlayMode/Bootstrap/BootstrappedSceneTests.cs::VolumeSliders_AreWiredAtRuntime_AndChangeAudio`、`Backdrop_CoversViewport_AndSitsBehindTheGameplay` | 真场景端到端：拖动音量条必须立刻改 `AudioDirector` 音量、写入存档、并让分段填充跟随；**取消勾选对应开关后音量条必须不可调、勾回来恢复且档位保留**。背景节点必须在场且排序在水果之前；指派了素材时还要盖满视口并在宽高比变化后重贴合（**2026-09-13 起走「有素材」分支**：`bg_star` 已启用） | **同上新增**（R25「即时生效并写入存档」+ 2026-09-12「取消勾选时禁止调节大小」） | PASS（2026-09-13 启用背景素材后复跑仍全绿） |
+| A15 | EditMode | `Assets/Tests/EditMode/Presentation/SfxClipAssignmentTests.cs`（5 项：`GetClip_WithAssignedClip_ReturnsTheAssignedAssetInsteadOfPlaceholder`、`GetClip_WithComboUpSharingTheMergeAsset_ResolvesBothIds`、`GetClip_ForUnassignedId_StillFallsBackToPlaceholder`、`GetClip_WithNullEntry_DoesNotThrowAndFallsBack`、`OnDestroy_DoesNotDestroyClipsThatComeFromProjectAssets`）+ `Assets/Tests/EditMode/Bootstrap/SceneAssetTests.cs::AudioDirector_MergeSfx_IsAssignedFromProjectAudioAssets`（真场景） | `sfxClips` 指派的真实素材必须优先于占位音（`Merge`/`ComboUp` 可共用一条素材）；未指派或槽位留空仍回退占位音；`OnDestroy` 只释放自己合成的占位音、不销毁工程资产；真场景里 `Merge` 与 `ComboUp` 都指向 `Assets/Audios/` 下的 `.ogg` | 需求方（2026-09-13）「合成音改用 `pop.ogg`」：在本次改动前 `AudioDirector` 根本没有「SfxId → 素材」的入口，拖进工程也听不到；反过来若 `OnDestroy` 照旧销毁查询表里的全部 clip，会把 `pop.ogg` 与 BGM 素材本体删掉。红灯实测：先写用例 → `error CS0246: SfxClipEntry` 找不到（2 处），实现后转绿 | PASS（2026-09-13，EditMode 定向 13/13、全量 140/141） |
 
 ## 自动化运行记录
 
@@ -34,6 +35,7 @@
 | 2026-09-12 | Unity 2022.3.62f3 / Windows 10 / 隔离副本 `-batchmode -nographics` | EditMode 与 PlayMode 全量（设置面板底部块上移 V2.41 后） | `Logs\editmode-results.xml`、`Logs\playmode-results.xml` | PASS — EditMode **113/113**、PlayMode **83/83**，`failed=0`；补上了上一条遗留的「PlayMode 未跑」缺口 |
 
 | 2026-09-13 | Unity 2022.3.62f3 / Windows 10 / **真工程本体** `-batchmode -nographics`（编辑器已关闭） | EditMode 与 PlayMode 全量（删除全部程序化 UI 工具 + 重收字符集后，V2.51） | `Docs/evidence/editmode-results.xml`、`Docs/evidence/playmode-results.xml`、`Docs/evidence/uigate-falsify-results.xml` | EditMode **134/135**（唯一失败是既存的面板几何 —— 场景里 `CloseButton` 被手工改到 216、门槛上限 200，与本轮无关）、PlayMode **87/87**、PlayMode `failed=0`。A14 的源码门禁另做了**反证**：临时插入 `AddComponent<Canvas>()` 后立刻失败并报出 `Presentation/UiPanel.cs:32`；字符集核对「收集 ⊆ 已烘」= 464 ⊆ 508、缺失 0 |
+| 2026-09-13 | Unity 2022.3.62f3 / Windows 10 / **隔离副本 `E:\MergeWaterVerify`**（真工程被运行中的编辑器 41832 锁定） | 先定向 `-testFilter 'MergeWater.Tests.EditMode.SfxClipAssignmentTests\|MergeWater.Tests.EditMode.SceneAssetTests'`，再 EditMode + PlayMode 全量（合成音改用 `pop.ogg` 后，V2.53） | `E:\MergeWaterVerify\Logs\red-sfx.log`（红灯）、`green-sfx-scene.xml`、`full-editmode-sfx.xml`、`full-playmode-sfx.xml` | 红灯成立（`error CS0246: SfxClipEntry` 找不到，2 处，正是预期原因）；定向 **13/13**；EditMode **140/141**（唯一失败仍是上面那条既存面板几何 `HudLayoutTests.SettingsPanel_BottomBlock_...`，与本轮无关）、PlayMode **87/87**、`failed=0`。注：`Unity.exe` 是 GUI 子系统程序，PowerShell 直接 `&` 调用**不会等待**进程结束（会拿到空 `$LASTEXITCODE` 与 0 字节日志），必须用 `Start-Process -Wait` |
 
 > 环境说明：先在由真工程同步出的隔离副本上运行，随后 MCP 直连真工程本体复跑。最近一轮（2026-09-12，含九宫格 PPU 门禁、面板截图诊断与设置面板底部块上移 V2.41）为批处理全量运行：EditMode 113/113、PlayMode 83/83，`failed=0`。详见 `Docs/evidence/README.md`。
 
@@ -48,7 +50,7 @@
 | 编号 | 操作步骤 | 可观察预期结果 | 环境与构建 | 执行者/日期 | 状态 | 证据或备注 |
 |------|----------|----------------|------------|-------------|------|------------|
 | H1 | 观察对局 HUD | 顶栏含最高分/当前分/阶段进度/设置；中央待投水果与垂直虚线；左右入口齐备；底部无任何 Banner/信息流/交叉推广 | Editor | 待执行 | 待手动验收 | GDD §6.2、R27（自动化已断言无广告位节点） |
-| H2 | 连续制造 2/4/6 连击 | 顿帧与震屏随连击增强，音高上行，飘字 punch 明显 | Editor | 待执行 | 待手动验收 | V2.23/V2.24 |
+| H2 | 连续制造 2/4/6 连击 | 顿帧与震屏随连击增强，音高上行，飘字 punch 明显 | Editor | 待执行 | 待手动验收 | V2.23/V2.24；**V2.53 后合成与连击音改用 `Assets/Audios/pop.ogg`**（原为运行时合成占位音）：本轮需一并确认「pop 音本身好听、连击变调自然、与 BGM 不打架」 |
 | H3 | 堆到警戒线附近并越线 | 警戒线红色脉冲 + 心跳音；失败时重震 0.2s | Editor | 待执行 | 待手动验收 | V2.25 |
 | H4 | 打开设置面板切换音效/音乐/震动 | 开关即时生效、重启后保持 | Editor | 待执行 | 待手动验收 | R25（持久化已自动化验证） |
 | H7 | 打开设置面板拖动「音效/音乐」音量条；再取消对应勾选 | 滑钮跟随手指、分段填充随音量增减；**取消勾选后该音量条不可调（变暗），勾回来恢复且档位保持**；关掉开关再打开音量值保留 | Editor | 已执行（运行时脚本） | 待手动验收（触感） | A12；实测：取消勾选后 `interactable=False`、存档音量保留 0.45，重新勾选后 `interactable=True`、值仍 0.45、填充 0.45 |
@@ -72,6 +74,7 @@
 | E8 | 场景里删掉/改坏了必需的 UI 元素（历史上是「只改了生成器却忘记重建 `Main.unity`」） | 真场景缺控件或布局越界 → 运行时静默失效（「改了没反应」）。UI 现在**只在场景里维护**，`Main.unity` 与这几道门禁就是唯一防线 | 自动 | PASS | `SceneAssetTests.HudView_RequiredElementsAreWired`（音量条等在位）+ `HudLayoutTests`（画布内/胶囊避让/底部净空）+ `TMPFontAssetTests.EveryTmpText_InMainScene_UsesBundledFont` |
 | E9 | 音量条填充没有运行时接线（历史上是「只在编辑器期用代码挂监听」） | 编辑器期挂的运行时监听不随场景序列化：**音量真的变了、填充条却一直满格**（实际复现过） | 自动 | PASS | `BootstrappedSceneTests.VolumeSliders_AreWiredAtRuntime_AndChangeAudio` 断言 `fillAmount`；接线点在 `PanelController.HookButtons` |
 | E10 | 有人把 UI 生成逻辑写回运行时代码（又造一个「Builder」） | 界面重新出现两套来源，「编辑器里看到的」不再是最终效果 | 自动 | PASS | `UiSourceOfTruthTests.RuntimeSources_DoNotCreateUiComponents`（源码扫描）+ `RuntimeAssemblies_DoNotReferenceTheEditorAssembly` |
+| E11 | 首次评估安全区时微信桥尚未就绪（开发者工具冷启动会出现 `[jsbridge] invoke getSystemInfo fail: jsbridge not ready`） | `WxSafeAreaSource` 抛异常即回落 `Screen.safeArea`（不崩不卡）；但 `HudBinder.RefreshSafeArea` **只在 `Screen.width/height` 变化时重算**（`HudBinder.cs:336-339`），若首次评估 latch 了回退值、此后画布不再 resize，微信专属补差就不会应用。真机实测正常（画布在 loader 拿到窗口信息后会 resize 一次，从而触发重算） | 手动 | 待观察（**有意不加固**） | 2026-09-13 与需求方确认「能运行、不用改」，故不加「值变化即重算」逻辑，仅留档：将来若出现「顶栏避让在小游戏里没生效」，先查这里 |
 
 ## 回归范围
 
@@ -84,7 +87,8 @@
 ## 交付结论
 
 - 已验证：A1–A7、A10–A11、A13 与 E1–E6 通过（EditMode 全量 113/113，含本次新增的底部块几何用例）；A8/A9（九宫格 PPU 门禁与面板截图诊断）与 A12 的两项 PlayMode 用例（背景覆盖/层级、音量条读档回填/拖动/存档/填充/开关正交）已由 **PlayMode 全量 83/83** 覆盖。
+- 已验证（2026-09-13，V2.53 合成音改用 `pop.ogg`）：**A15 新增 6 项全绿**（定向 13/13）；隔离副本全量 EditMode **140/141**、PlayMode **87/87**、`failed=0`。唯一失败是**既存**的 `HudLayoutTests.SettingsPanel_BottomBlock_SitsAboveTheBottomEdgeWithBalancedSpacing`（场景里 `CloseButton` 被手工改到距底 216、门槛上限 200），本轮未触碰面板几何，与本改动无关。
 - 不适用：无。
-- 待手动验收：H1–H6（观感、手感、真机帧率）、H7–H8（音量条触感、背景观感）。中文渲染已在真工程中确认解析到系统中文字体 `Microsoft YaHei`，真机仍需确认。
+- 待手动验收：H1–H6（观感、手感、真机帧率）、H7–H8（音量条触感、背景观感）。中文渲染已在真工程中确认解析到系统中文字体 `Microsoft YaHei`，真机仍需确认。**H2 本轮追加待验内容**：`pop.ogg` 的实际听感与连击变调是否自然。
 - 未验证：无（此前遗留的「PlayMode 全量未运行」已在本轮批处理运行中补跑：EditMode 116/116 + PlayMode 85/85，`failed=0`）。
 - 未通过：无。
