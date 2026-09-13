@@ -35,7 +35,7 @@ namespace MergeWater.Tests.PlayMode
 
             var body = fruit.GetComponent<FruitBody>();
             Assert.That(body.Level, Is.EqualTo(3));
-            Assert.That(body.Collider.radius, Is.EqualTo(0.30f).Within(1e-4f), "V1 等级 3 半径");
+            Assert.That(body.Collider.radius, Is.EqualTo(0.45f).Within(1e-4f), "V1 等级 3 半径（2026-09-13 整体 x1.5）");
             Assert.That(body.Body.mass, Is.EqualTo(0.28f).Within(1e-4f), "V1 等级 3 质量");
             Assert.That(body.Body.collisionDetectionMode, Is.EqualTo(CollisionDetectionMode2D.Continuous), "V3 需开启 CCD");
         }

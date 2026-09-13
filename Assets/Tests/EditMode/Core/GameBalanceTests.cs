@@ -7,9 +7,10 @@ namespace MergeWater.Tests.EditMode
     /// <summary>M1 验收 A1/A2：V1 等级表与权重（Docs/architecture/01-core-test.md）。</summary>
     public sealed class GameBalanceTests
     {
+        // 2026-09-13 需求方「球形弄得太小了」：半径整体 x1.5（质量/得分/权重不变）
         private static readonly float[] ExpectedRadius =
         {
-            0.18f, 0.24f, 0.30f, 0.38f, 0.46f, 0.55f, 0.65f, 0.76f, 0.88f, 1.00f
+            0.27f, 0.36f, 0.45f, 0.57f, 0.69f, 0.825f, 0.975f, 1.14f, 1.32f, 1.50f
         };
 
         private static readonly float[] ExpectedMass =
@@ -129,7 +130,7 @@ namespace MergeWater.Tests.EditMode
             Assert.That(balance.ShakeDailyCap, Is.EqualTo(2), "V2.14");
             Assert.That(balance.GiftDailyCap, Is.EqualTo(1), "V2.15");
             Assert.That(balance.InterstitialEveryNGames, Is.EqualTo(3), "V2.16");
-            Assert.That(balance.BombRadius, Is.EqualTo(0.6f).Within(1e-5f), "V2.17");
+            Assert.That(balance.BombRadius, Is.EqualTo(0.9f).Within(1e-5f), "V2.17（2026-09-13 随半径 x1.5 同步）");
             Assert.That(balance.DropShakeSeconds, Is.EqualTo(0.05f).Within(1e-5f), "V2.20");
             Assert.That(balance.SlowMoScale, Is.EqualTo(0.2f).Within(1e-5f), "V2.22");
             Assert.That(balance.SlowMoSeconds, Is.EqualTo(0.15f).Within(1e-5f), "V2.22");
@@ -140,8 +141,9 @@ namespace MergeWater.Tests.EditMode
             Assert.That(balance.ShareCooldownSeconds, Is.EqualTo(60f).Within(1e-5f), "V2.19");
             Assert.That(balance.AbsorbDurationSeconds, Is.EqualTo(0.06f).Within(1e-5f), "V2.21");
             Assert.That(balance.MergeResultUpwardImpulse, Is.EqualTo(0f).Within(1e-5f), "V2.31b：合成结果不向上蹦");
-            Assert.That(balance.MergeResultSideImpulse, Is.EqualTo(1.5f).Within(1e-5f),
-                "V2.31b：合成结果水平初速（2026-09-12 需求方「力度太吝啬」后 0.45→1.5）");
+            // 2026-09-13 半径 x1.5 后同比放大（同比例的速度尺度）
+            Assert.That(balance.MergeResultSideImpulse, Is.EqualTo(2.25f).Within(1e-5f),
+                "V2.31b：合成结果水平初速（0.45→1.5→2.25，随半径 x1.5 同步）");
         }
     }
 }

@@ -16,61 +16,61 @@ MonoBehaviour:
     tiers:
     - Level: 1
       DisplayName: "\u8461\u8404"
-      Radius: 0.18
+      Radius: 0.27
       Mass: 0.1
       Score: 10
       DropWeight: 0.5
     - Level: 2
       DisplayName: "\u6A31\u6843"
-      Radius: 0.24
+      Radius: 0.36
       Mass: 0.18
       Score: 15
       DropWeight: 0.3
     - Level: 3
       DisplayName: "\u6A58\u5B50"
-      Radius: 0.3
+      Radius: 0.45
       Mass: 0.28
       Score: 21
       DropWeight: 0.2
     - Level: 4
       DisplayName: "\u67E0\u6AAC"
-      Radius: 0.38
+      Radius: 0.57
       Mass: 0.45
       Score: 28
       DropWeight: 0
     - Level: 5
       DisplayName: "\u7315\u7334\u6843"
-      Radius: 0.46
+      Radius: 0.69
       Mass: 0.66
       Score: 36
       DropWeight: 0
     - Level: 6
       DisplayName: "\u756A\u8304"
-      Radius: 0.55
+      Radius: 0.825
       Mass: 0.95
       Score: 45
       DropWeight: 0
     - Level: 7
       DisplayName: "\u6843\u5B50"
-      Radius: 0.65
+      Radius: 0.975
       Mass: 1.32
       Score: 55
       DropWeight: 0
     - Level: 8
       DisplayName: "\u83E0\u841D"
-      Radius: 0.76
+      Radius: 1.14
       Mass: 1.8
       Score: 66
       DropWeight: 0
     - Level: 9
       DisplayName: "\u6930\u5B50"
-      Radius: 0.88
+      Radius: 1.32
       Mass: 2.41
       Score: 78
       DropWeight: 0
     - Level: 10
       DisplayName: "\u897F\u74DC"
-      Radius: 1
+      Radius: 1.5
       Mass: 3.14
       Score: 91
       DropWeight: 0
@@ -91,8 +91,8 @@ MonoBehaviour:
     itemDailyCap: 3
     shakeDailyCap: 2
     giftDailyCap: 1
-    bombRadius: 0.6
-    hammerMaxRadius: 1.2
+    bombRadius: 0.9
+    hammerMaxRadius: 1.8
     stageMilestones:
     - Score: 200
       Reward: 1
@@ -109,20 +109,20 @@ MonoBehaviour:
     comboSemitoneCap: 12
     aimPreviewMaxSeconds: 0.8
     absorbDurationSeconds: 0.06
-    fieldHalfWidth: 2.2
-    wallThickness: 0.4
-    fieldFloorY: -4.2
+    fieldHalfWidth: 3.3
+    wallThickness: 0.6
+    fieldFloorY: -6.3
     floorScreenInset: 0.06
     dropSpawnY: 4
     dangerLineY: 3.4
-    killY: -6.5
+    killY: -9.75
     maxLiveFruits: 120
-    maxLinearVelocity: 20
+    maxLinearVelocity: 30
     dropCooldownSeconds: 0.2
-    spawnJitter: 0.02
+    spawnJitter: 0.03
     mergeResultUpwardImpulse: 0
-    mergeResultSideImpulse: 1.5
-    shakeImpulse: 1.6
+    mergeResultSideImpulse: 2.25
+    shakeImpulse: 2.4
     fruitFriction: 0.35
     fruitBounciness: 0.25
     fruitLinearDrag: 1.1

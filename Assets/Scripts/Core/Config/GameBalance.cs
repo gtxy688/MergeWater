@@ -50,8 +50,8 @@ namespace MergeWater.Core
         [SerializeField] private int giftDailyCap = 1;
 
         // ── V2.17 道具作用范围 ───────────────────────────────────────
-        [SerializeField] private float bombRadius = 0.6f;
-        [SerializeField] private float hammerMaxRadius = 1.2f;
+        [SerializeField] private float bombRadius = 0.9f;
+        [SerializeField] private float hammerMaxRadius = 1.8f;
 
         // ── V2.18 阶段目标 ───────────────────────────────────────────
         [SerializeField] private StageMilestone[] stageMilestones = Array.Empty<StageMilestone>();
@@ -68,9 +68,9 @@ namespace MergeWater.Core
         [SerializeField] private float absorbDurationSeconds = 0.06f;
 
         // ── 场地与物理稳定性（V3） ───────────────────────────────────
-        [SerializeField] private float fieldHalfWidth = 2.2f;
-        [SerializeField] private float wallThickness = 0.4f;
-        [SerializeField] private float fieldFloorY = -4.2f;
+        [SerializeField] private float fieldHalfWidth = 3.3f;
+        [SerializeField] private float wallThickness = 0.6f;
+        [SerializeField] private float fieldFloorY = -6.3f;
         /// <summary>
         /// 屏幕地面相对屏幕底边抬起的距离（V2.42）。方案 B「屏幕即边框」原先把地面精确放在
         /// 屏幕底边（`floorY = 相机 y − 正交半高`），水果落地后紧贴最后一行像素，
@@ -84,14 +84,14 @@ namespace MergeWater.Core
         // 取 4.0 时待投水果位于屏幕顶部约 18% 处，既不被顶栏遮挡，也在警戒线之上。
         [SerializeField] private float dropSpawnY = 4.0f;
         [SerializeField] private float dangerLineY = 3.4f;
-        [SerializeField] private float killY = -6.5f;
+        [SerializeField] private float killY = -9.75f;
         [SerializeField] private int maxLiveFruits = 120;
-        [SerializeField] private float maxLinearVelocity = 20f;
+        [SerializeField] private float maxLinearVelocity = 30f;
         [SerializeField] private float dropCooldownSeconds = 0.20f;
-        [SerializeField] private float spawnJitter = 0.02f;
+        [SerializeField] private float spawnJitter = 0.03f;
         [SerializeField] private float mergeResultUpwardImpulse = 0f;   // V2.31b：不再向上蹦（需求方要求）
-        [SerializeField] private float mergeResultSideImpulse = 1.5f;   // V2.31b：向左右推开；2026-09-12 需求方「力度太吝啬」后 0.45→1.5
-        [SerializeField] private float shakeImpulse = 1.6f;
+        [SerializeField] private float mergeResultSideImpulse = 2.25f;   // V2.31b：向左右推开；2026-09-12 需求方「力度太吝啬」后 0.45→1.5
+        [SerializeField] private float shakeImpulse = 2.4f;
         // 物理手感参数（2026-09-12 第三轮，按需求方「往左右移动、别往上蹦」的反馈）：
         // 弹性压低，避免落地/碰撞后向上弹；摩擦与阻尼再降一点，让水果更愿意横向滑动去找同级水果。
         // 注意别把阻尼降到接近 0，否则会回到「一路滚到墙角、摊平成一层」的老问题（V2.27 的教训）。
@@ -241,16 +241,18 @@ namespace MergeWater.Core
             {
                 tiers = new[]
                 {
-                    new FruitTierDefinition(1, "葡萄", 0.18f, 0.10f, 10, 0.5f),
-                    new FruitTierDefinition(2, "樱桃", 0.24f, 0.18f, 15, 0.3f),
-                    new FruitTierDefinition(3, "橘子", 0.30f, 0.28f, 21, 0.2f),
-                    new FruitTierDefinition(4, "柠檬", 0.38f, 0.45f, 28, 0f),
-                    new FruitTierDefinition(5, "猕猴桃", 0.46f, 0.66f, 36, 0f),
-                    new FruitTierDefinition(6, "番茄", 0.55f, 0.95f, 45, 0f),
-                    new FruitTierDefinition(7, "桃子", 0.65f, 1.32f, 55, 0f),
-                    new FruitTierDefinition(8, "菠萝", 0.76f, 1.80f, 66, 0f),
-                    new FruitTierDefinition(9, "椰子", 0.88f, 2.41f, 78, 0f),
-                    new FruitTierDefinition(10, "西瓜", 1.00f, 3.14f, 91, 0f)
+                    // 半径 2026-09-13 整体 x1.5（需求方「球形弄得太小了」）：质量/得分/权重不变，
+                    // 即「同样重的果子变大」；阻尼/摩擦/弹性未动，手感需真机手动验收。
+                    new FruitTierDefinition(1, "葡萄", 0.27f, 0.10f, 10, 0.5f),
+                    new FruitTierDefinition(2, "樱桃", 0.36f, 0.18f, 15, 0.3f),
+                    new FruitTierDefinition(3, "橘子", 0.45f, 0.28f, 21, 0.2f),
+                    new FruitTierDefinition(4, "柠檬", 0.57f, 0.45f, 28, 0f),
+                    new FruitTierDefinition(5, "猕猴桃", 0.69f, 0.66f, 36, 0f),
+                    new FruitTierDefinition(6, "番茄", 0.825f, 0.95f, 45, 0f),
+                    new FruitTierDefinition(7, "桃子", 0.975f, 1.32f, 55, 0f),
+                    new FruitTierDefinition(8, "菠萝", 1.14f, 1.80f, 66, 0f),
+                    new FruitTierDefinition(9, "椰子", 1.32f, 2.41f, 78, 0f),
+                    new FruitTierDefinition(10, "西瓜", 1.50f, 3.14f, 91, 0f)
                 },
                 stageMilestones = new[]
                 {
