@@ -72,12 +72,13 @@ namespace MergeWater.Editor
         private static readonly string[] ScanSkipRoots = { "Assets/Art/" };
 
         /// <summary>
-        /// 代码扫描的例外名单：`Editor/` 下的文案基本是编辑器菜单与日志（玩家看不到），
-        /// 但 <c>HudBuilder</c> 例外——玩家可见的 UI 文案就写在它里面。
+        /// 代码扫描的例外名单。**当前为空**：编辑器目录下的文案是菜单项、弹窗与日志（玩家看不到），
+        /// 而玩家可见的 UI 文案全部随 UI 对象存在于 `Assets/Scenes/Main.unity`，由上面的场景扫描收齐
+        /// （2026-09-13 删除 UI 生成器后，原先唯一的例外 `HudBuilder.cs` 已不存在）。
         /// 不收编辑器文案还有一个实际原因：工具自己的日志里会有 `✓` 这类字符，
         /// 源字体没有该字形，会把「烘焙成功」误报成「缺字」。
         /// </summary>
-        private static readonly string[] ScriptScanAllowlist = { "Assets/Scripts/Editor/HudBuilder.cs" };
+        private static readonly string[] ScriptScanAllowlist = { };
 
         /// <summary>必带标点：ASCII 已在别处补齐，这里只管中文标点与常见符号。</summary>
         public const string RequiredPunctuation = "，。！？：；、“”‘’《》（）【】+-*/%=.%";
@@ -202,7 +203,7 @@ namespace MergeWater.Editor
             {
                 var normalized = path.Replace('\\', '/');
 
-                // Editor/ 下的字符串是菜单项、弹窗与日志文案，玩家看不到（HudBuilder 例外）
+                // Editor/ 下的字符串是菜单项、弹窗与日志文案，玩家看不到
                 if (normalized.Contains("/Editor/") && !IsAllowlistedScript(normalized))
                     continue;
 

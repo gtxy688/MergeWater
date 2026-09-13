@@ -9,7 +9,8 @@ namespace MergeWater.Presentation
     /// 任何满屏的不透明 UI 底板都会盖住水果、容器、警戒线与落点预览（见
     /// <c>HudLayoutTests.NoOpaqueFullScreenGraphic_HidesTheGameWorld</c>）。
     /// 因此背景由世界空间的 <see cref="SpriteRenderer"/> 承担，相机 SolidColor 清屏只作为
-    /// 素材缺失时的兜底。美术换图时只改 <c>MergeWater.Editor.HudBuilder</c> 里的资源名。
+    /// 素材缺失时的兜底。换图只需在场景里选中 `GameRoot/Presentation/Backdrop` 节点，
+    /// 替换它 <see cref="SpriteRenderer"/> 上的 Sprite（缩放由本组件在运行时按 cover 自动铺满）。
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class BackdropView : MonoBehaviour

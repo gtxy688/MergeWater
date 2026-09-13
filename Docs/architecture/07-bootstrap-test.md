@@ -28,7 +28,7 @@
 
 ## 手动验收前置条件
 
-- 场景、Prefab 与配置：先用 `MergeWater/Build Main Scene` 生成场景与占位美术/配置（菜单一次完成），或直接使用已提交的 `Main.unity`。
+- 场景、Prefab 与配置：直接使用已提交的 `Assets/Scenes/Main.unity`（**场景与界面靠手工维护，没有生成器**）；占位美术/配置资产由菜单 `MergeWater/Generate Placeholder Art` / `MergeWater/Generate Config Assets` 生成。
 - 依赖模块状态：M1–M6 全部实现。
 - 目标设备与画质档位：Editor Play Mode；真机竖屏。
 

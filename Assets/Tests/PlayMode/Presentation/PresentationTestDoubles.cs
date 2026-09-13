@@ -100,7 +100,7 @@ namespace MergeWater.Tests.PlayMode
 
     /// <summary>
     /// M5 测试用最小 HUD：包含 HudBinder 与 PanelController 实际会访问的元素，
-    /// 不使用 HudBuilder/系统字体，保证批量模式下稳定。
+    /// 不使用场景里的 UI 与系统字体，保证批量模式下稳定。
     /// </summary>
     internal sealed class PresentationHarness
     {

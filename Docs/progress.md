@@ -21,15 +21,17 @@
 
 | 套件 | 结果 | 执行方式 | 证据 |
 |------|------|----------|------|
-| EditMode | **PASS 128 / 128**（0 失败） | 隔离副本 `E:\MergeWaterVerify` 命令行（真工程被运行中的编辑器锁定） | `Docs/evidence/editmode-results.xml`（含 HUD 布局与安全区、九宫格 PPU、UI 来源不变量、设置面板几何、字体字集、水果美术资产与 `Resources` 死重等门禁） |
-| PlayMode | **PASS 87 / 87**（0 失败） | 同上 | `Docs/evidence/playmode-results.xml`（含加载页单帧卡顿、合成水平初速、地面抬升、真场景端到端、水果视觉尺寸与等级→贴图对应） |
-| 合计 | **PASS 215 / 215** | 同上 | `Docs/evidence/README.md` |
+| EditMode | **134 / 135**（唯一失败：`HudLayoutTests.SettingsPanel_BottomBlock_SitsAboveTheBottomEdgeWithBalancedSpacing`——场景里 `CloseButton` 被手工改成距面板底 216、门槛上限 200，**场景侧既有问题、与本轮改动无关**，见下方「待裁定」条目） | **真工程本体**命令行（2026-09-13 关闭编辑器后跑；批处理退出码 2 = 有失败） | `Docs/evidence/editmode-results.xml`（含 HUD 布局与安全区、九宫格 PPU、UI 来源不变量、设置面板几何、字体字集、水果美术资产与 `Resources` 死重等门禁） |
+| PlayMode | **PASS 87 / 87**（0 失败） | 同上（退出码 0） | `Docs/evidence/playmode-results.xml`（含加载页单帧卡顿、合成水平初速、地面抬升、真场景端到端、水果视觉尺寸与等级→贴图对应） |
+| 合计 | **221 / 222**（无一项失败来自本轮改动） | 同上 | `Docs/evidence/README.md` |
+
+> 2026-09-13 本轮复跑（改动：删除全部程序化 UI 工具 + 重收字符集，V2.51）：EditMode **134/135**、PlayMode **87/87**。UI 来源源码门禁做了**反证**——往 `UiPanel.Group` 里临时塞一行 `AddComponent<Canvas>()`，用例立刻失败并指出 `Presentation/UiPanel.cs:32 AddComponent<Canvas>`（证据 `Docs/evidence/uigate-falsify-results.xml`，改回后恢复通过）；字符集重收集后核对「收集字符 ⊆ 已烘字形」= **464 ⊆ 508、缺失 0**（改动前的收集文件留档 `Docs/evidence/TMPCharacters.before-2026-09-13.txt`）。
 
 > 2026-09-13 全量复跑（本轮改动：水果等级 11→10 + 水果图换 `kenney_planets`，V2.43/V2.44）：EditMode **128/128**、PlayMode **87/87**，`failed=0`，批处理退出码均为 0。运行命令与红/绿灯过程见 `Docs/evidence/README.md`。
 >
-> 历史：2026-09-11 EditMode 103 / PlayMode 74（真工程 MCP 直连）；2026-09-12 EditMode 116 / PlayMode 85；2026-09-13（减级）EditMode 120 / PlayMode 85。
+> 历史：2026-09-11 EditMode 103 / PlayMode 74（真工程 MCP 直连）；2026-09-12 EditMode 116 / PlayMode 85；2026-09-13（减级）EditMode 120 / PlayMode 85；2026-09-13（V2.51）EditMode 134/135 / PlayMode 87/87。
 
-**验证环境说明**：首次运行发生在「由真实工程 `Assets` 同步出的隔离副本 `E:\MergeWaterVerify`」——原因是真工程当时被运行中的编辑器锁定（`Temp/UnityLockfile`），批处理模式无法打开同一工程。随后 MCP 桥接直连本工程，已在**真工程本体**复跑并复核。因此测试结论成立，无遗留验证缺口。详见 `Docs/evidence/README.md`。
+**验证环境说明**：首次运行发生在「由真实工程 `Assets` 同步出的隔离副本 `E:\MergeWaterVerify`」——原因是真工程当时被运行中的编辑器锁定（`Temp/UnityLockfile`），批处理模式无法打开同一工程。随后 MCP 桥接直连本工程，已在**真工程本体**复跑并复核。因此测试结论成立，无遗留验证缺口。详见 `Docs/evidence/README.md`。**2026-09-13（V2.51 起）**：编辑器可关闭，本轮直接在**真工程本体**跑完 EditMode + PlayMode，不再需要副本。另注：Unity 批处理需要写 `%LOCALAPPDATA%\Unity` 下的许可数据库，受限沙箱会以 `attempt to write a readonly database` + 退出码 199 失败——这是环境问题，不是工程问题。
 
 > 副本同步注意：**不要**把真工程的 `Packages/manifest.json` 同步过去（含 Git URL 与 `file:../` 依赖，副本解析不了会让批处理静默卡死）。只同步 `Assets` 即可。
 
@@ -59,7 +61,7 @@
 |------|------|----------|
 | 占位美术 | `Assets/Resources/Placeholder/`（fruit_circle、ui_arrow、ui_dot） | 菜单 `MergeWater/Generate Placeholder Art` |
 | 配置资产 | `Assets/Config/GameBalance.asset`、`Assets/Config/MetaSettings.asset` | 菜单 `MergeWater/Generate Config Assets` |
-| 主场景 | `Assets/Scenes/Main.unity`（已加入构建场景列表） | 菜单 `MergeWater/Build Main Scene`（会先跑前两项） |
+| 主场景 | `Assets/Scenes/Main.unity`（已加入构建场景列表；**UI 的唯一来源**） | **没有生成器**：在编辑器里手工维护并保存（2026-09-13 删除 `Build Main Scene` / `Rebuild UI In Open Scene`，见下） |
 
 ## 待办
 
@@ -67,7 +69,7 @@
 - [x] 7 个模块架构文档与验收文档
 - [x] 根指令文件 `AGENTS.md`
 - [x] 程序集边界（8 个运行时/编辑器 + 2 个测试 asmdef）
-- [x] 占位美术、配置资产与主场景生成工具
+- [x] 占位美术与配置资产生成工具（原「主场景生成工具」`MergeWater/Build Main Scene` 已于 2026-09-13 按 V2.51 删除，主场景改为手工维护）
 - [x] M1–M7 实现
 - [x] 全量 EditMode + PlayMode 测试运行与证据记录（最新 **201/201**：EditMode 116 + PlayMode 85，0 失败）
 - [x] UI 改为「运行前就存在、运行时不生成」（2026-09-12 需求方要求方便调整）：`HudBuilder` 移入 **Editor 程序集**（运行时编译期无法引用）、删除 `GameBootstrapper` 的运行时兜底（缺引用改为明确报错，并补上原先只校验 `field` 的缺口——`aim` 为空时会在 `GameContext` 构造器里 NRE）、新增 `MergeWater/Rebuild UI In Open Scene`（只重建 UI 子树，保留场景其余内容）、`Build Main Scene` 加「会丢失手工调整」确认；新增 `UiSourceOfTruthTests`（3 项，含反证）。场景等价性核对：139 条路径、0 数值差异（重构未改动任何 UI 内容）
@@ -108,6 +110,8 @@
 - [x] **渲染管线由 URP 切回 Built-in RP**（2026-09-13，需求方「我能不能把 URP 改成其他的」→ 选定方案 B，V2.48）：`GraphicsSettings.m_CustomRenderPipeline` 置空、`m_SRPDefaultSettings` 清空、删除 `Main.unity` 里 Main Camera 上的 `UniversalAdditionalCameraData`（共 2 个文件、45 行）。动因：① 去掉微信小游戏「**必须 WebGL2/ES3**」这条硬约束（`WXConvertCore.cs:776-783` 按 `Webgl2` 开关在 ES3/ES2 间二选一，而 URP 需要 ES3）；② 减小包体（URP 会带进整套 shader 变体与管线代码，本工程一个 URP 特性都没用）。**可行性证据（切换前实测）**：代码**零** URP API 调用（全量 grep 只剩 `HudBuilder` 两处 `Shader.Find`，且优先 `Sprites/Default`）、工程内只有 TMP 自带的两个示例材质、场景 3 处 shader 引用**全是内置 shader**、URP 的唯一绑定点就是 `GraphicsSettings` 一处（QualitySettings 各档全是 `{fileID: 0}`）。**验证**：EditMode 127/128（唯一失败是与本轮无关的 CloseButton 几何）、PlayMode **86/86**；并额外用**带图形设备**的批处理（去掉 `-nographics`，否则 `CaptureCamera` 会跳过渲染只写 `.skipped.txt`）产出真实渲染帧逐张目视核对——**世界**（星球堆叠 + `bg_star` 背景 + 警戒线）与 **UI**（加载页《健康游戏忠告》/进度条/百分比/加载中…）全部正常，**无品红、无材质丢失、中文字形完整**。URP 包**保留安装**（`com.unity.feature.2d` 依赖它），`Assets/Settings/{UniversalRP,Renderer2D}.asset` 与 `Assets/UniversalRenderPipelineGlobalSettings.asset` 变为未引用，留作回退
 - [x] **小球出现间隔再调大：1.0 → 1.5 秒**（2026-09-13，需求方「把水果落地后的生成时间间隔，再调大点，调成 1.5」，V2.33 的第三次调整）：`GameBalance.nextFruitRevealDelaySeconds` 1.0 → 1.5，同步 `Assets/Config/GameBalance.asset`。**测试影响：无**——唯一涉及时长的 `PhysicsAndPreviewDiagnostics.AfterDrop_PendingFruitReturnsToCenter_AndRevealsGradually` 用 `+3f` 超时轮询（1.5 + 0.25 渐显 = 1.75s 仍在窗口内）；`ConfigAssetTests` 的「V2.33 下一颗延迟」标量断言自动守住磁盘/代码一致。验证：EditMode 127/128（唯一失败仍是 CloseButton 几何）、PlayMode 86/86
 - [x] **验证副本补齐微信插件**（2026-09-13，验证环境改造）：需求方按指引给 `GameRoot/EventSystem` 挂上 `WXTouchInputOverride` 后，隔离副本因为没有微信插件而把它判成 Missing Script → `SceneAssetTests.MainScene_HasNoReferencesToMissingScripts` 报假警报。修法：把 `com.qq.weixin.minigame` 作为**内嵌包**放进副本的 `Packages/`（从真工程 `Library/PackageCache` 复制，`.meta` 一并复制所以 GUID 不变，脚本引用照样解析），并在副本 `manifest.json` 加 `"com.qq.weixin.minigame": "file:com.qq.weixin.minigame"`（**不是**同步真工程的 manifest——那份含 git URL 与 `file:../` 依赖，副本解析不了会静默卡死，见既有注意事项）。结果：副本编译无错、`MainScene_HasNoReferencesToMissingScripts` 恢复通过、EditMode 127/128。**副本身份也随之升级**：现在能验证依赖插件的场景，也具备在副本里试跑导出的条件（无需占用真工程编辑器）
+
+- [x] **删除全部程序化 UI 工具：UI 改为纯手工维护**（2026-09-13，需求方「把这个编辑器工具删除，以后只通过手动编辑 UI，而不是程序自动生成」，V2.51）：删除 `HudBuilder.cs`（1408 行 UI 生成器，内含 `Assign Backdrop Art (No UI Rebuild)` 与「选中 Backdrop 节点」两个菜单）、`SceneBuilder.cs`（`Build Main Scene` 用 `NewScene(EmptyScene)` 整场重建；`Rebuild UI In Open Scene` 删掉并重建 UI 子树——**没有 HudBuilder 它只会生成一个没 UI 的废场景**，故一并删除）、`UiTmpMigrator.cs`（2026-09-12 的一次性 legacy Text→TMP 迁移工具，同样程序化改场景里的 UI）。**替代物只有常量，没有任何生成逻辑**：新增 `Assets/Scripts/Editor/MainSceneAsset.cs`（主场景路径，原 `SceneBuilder.ScenePath` 的 5 处引用改指它）与 `UiDesignSpec.cs`（1080×1920 画布、微信胶囊区 300×115、底部净空 60、清屏底色——原 `HudBuilder` 的常量，门禁 `HudLayoutTests` 继续按这套规格断言场景）。**门禁改造**：`UiSourceOfTruthTests` 前两项原先按类型名扫反射（生成器删除后会退化成空断言），改为**扫运行时代码源码**——`AddComponent<Canvas/Image/Button/Toggle/Slider/TMP/HudView/PanelController/UiPanel/…>` 一律红灯（**刻意不含 `CanvasGroup`**：`UiPanel` 在缺组件时给自己补一个，它只是透明度载体，不产生界面元素；注释里写明了这个例外）；「运行时程序集不得引用 `MergeWater.Editor`」作为独立不变量保留。`TMPFontBuilder` 的代码扫描白名单里 `HudBuilder.cs` 一并移除（玩家可见文案现在全部随 UI 对象存在于 `Main.unity`，场景扫描已覆盖）。**场景资产零改动**：`Main.unity` 未被本次改动触碰，加载页与 HUD 的既有手工调整原样保留。**新工作流**：① 换背景图 = 在场景里选中 `GameRoot/Presentation/Backdrop`，拖 Sprite / 调 `SpriteRenderer.Color`；② 加删控件、改锚点与布局、接线全在场景里做（Inspector 的持久监听会被序列化）；③ 改完 UI 靠 EditMode 门禁兜底（`SceneAssetTests` / `HudLayoutTests` / `TMPFontAssetTests` / `UiArtSlicingTests` / `UiSourceOfTruthTests`）。**验证**：真工程本体批处理 EditMode **134/135**（唯一失败是既存的 `CloseButton` 场景几何，见「待裁定」）、PlayMode **87/87**；源码门禁做了反证（临时插入 `AddComponent<Canvas>()` → 立刻红并报出文件行号，证据 `Docs/evidence/uigate-falsify-results.xml`）。**顺带查清的一件事（字符集）**：删掉 `HudBuilder.cs` 白名单后重跑字符收集，字符数 492 → 464：25 个字是只出现在 `HudBuilder` 字面量里的编辑器文案（逐个核对：**都不在 `Main.unity`、不在 Prefab、在运行时代码里只出现在注释与 `Debug.Log` 行**，即玩家看不到），另 2 个字（把/派）是**我自己新写的 `Debug.LogError` 文案**被行级 `Debug.Log` 过滤漏掉带进来的——已把两句报错文案改成不含新字的措辞，使「收集字符 ⊆ 已烘字形」这条不变量成立（复核实测 **464 ⊆ 508、缺失 0**；收集文件改动前留档 `Docs/evidence/TMPCharacters.before-2026-09-13.txt`）。**未重烘字体**：修正后没有任何玩家可见字符缺字形，重烘反而会换掉材质子资产 fileID（历史坑）
 
 ## 阻塞
 

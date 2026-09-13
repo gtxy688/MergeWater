@@ -82,7 +82,7 @@
 
 ## Unity 装配
 
-- 场景与 Prefab：`Assets/Scenes/Main.unity` 由编辑器工具 `MergeWater/Build Main Scene` 生成，根节点 `GameRoot` 挂 `GameBootstrapper`、`AimController`、`ItemUseController`，子节点 `Field`（`GameField`）与 `Canvas`（HUD 与面板）；同时写入 `EditorBuildSettings`。
+- 场景与 Prefab：`Assets/Scenes/Main.unity` 是**已提交的场景资产，手工维护**（工程里没有场景/界面生成器：原 `MergeWater/Build Main Scene` / `Rebuild UI In Open Scene` 菜单已随 UI 生成器一并删除）。根节点 `GameRoot` 挂 `GameBootstrapper`、`AimController`、`ItemUseController`，子节点 `Field`（`GameField`）与 `Presentation`（其下 `Canvas` 承载 HUD 与面板、`Backdrop` 是世界空间背景）；场景已写入 `EditorBuildSettings`。需要改装配或界面时，直接在编辑器里改这个场景并保存。
 - 组件与序列化引用：`GameBootstrapper` 序列化 `GameField`、`AimController`、`HudBinder`、`PanelController`、`AudioDirector`、`GameBalanceAsset`、`MetaSettings`、`TutorialDirector` 引用。
 - ScriptableObject / 其他资产：`Assets/Config/GameBalance.asset`、`Assets/Config/MetaSettings.asset`，由编辑器工具从代码默认值生成；缺失时运行时回退 `GameBalance.Default` 并告警。
 - 创建、启用、禁用和销毁：`GameBootstrapper` 在 `Awake` 构造、`Start` 初始化、`OnApplicationPause(true)` 保存、`OnDestroy` 保存并 `Dispose`。

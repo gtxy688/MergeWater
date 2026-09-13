@@ -194,7 +194,7 @@ namespace MergeWater.Editor
         /// <summary>命令行入口：打开主场景 → 审计（改前）→ 重指 → 保存 → 再审计（改后）→ 退出。</summary>
         public static void RepointFromCommandLine()
         {
-            var scene = EditorSceneManager.OpenScene(SceneBuilder.ScenePath, OpenSceneMode.Single);
+            var scene = EditorSceneManager.OpenScene(MainSceneAsset.Path, OpenSceneMode.Single);
             var fontAsset = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(TMPFontBuilder.OutputPath);
             if (fontAsset == null)
             {
@@ -215,7 +215,7 @@ namespace MergeWater.Editor
             AssetDatabase.Refresh();
 
             // 重新加载场景，让改后的审计读的是**已落盘的序列化数据**，而不是内存里的临时状态。
-            EditorSceneManager.OpenScene(SceneBuilder.ScenePath, OpenSceneMode.Single);
+            EditorSceneManager.OpenScene(MainSceneAsset.Path, OpenSceneMode.Single);
             Debug.Log("[TMPFontReferenceTool] ======== 重指后 ========");
             AuditAndReport();
 
@@ -226,7 +226,7 @@ namespace MergeWater.Editor
         /// <summary>命令行入口：只审计，不修改。</summary>
         public static void AuditFromCommandLine()
         {
-            EditorSceneManager.OpenScene(SceneBuilder.ScenePath, OpenSceneMode.Single);
+            EditorSceneManager.OpenScene(MainSceneAsset.Path, OpenSceneMode.Single);
             AuditAndReport();
             EditorApplication.Exit(0);
         }

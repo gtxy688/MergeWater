@@ -79,7 +79,7 @@ namespace MergeWater.Tests.EditMode
             Assert.That(font, Is.Not.Null);
             Assert.That(font.material, Is.Not.Null, "字体资产必须带默认材质");
 
-            var scene = EditorSceneManager.OpenScene(MergeWater.Editor.SceneBuilder.ScenePath,
+            var scene = EditorSceneManager.OpenScene(MergeWater.Editor.MainSceneAsset.Path,
                 OpenSceneMode.Additive);
 
             try

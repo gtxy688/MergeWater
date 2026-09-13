@@ -16,7 +16,7 @@ namespace MergeWater.Tests.EditMode
 {
     /// <summary>
     /// M7 验收 A1：主场景确实装配了必需的组件与引用（不是只检查文件存在）。
-    /// 前置：先运行 `MergeWater/Build Main Scene`。
+    /// 前置：`Assets/Scenes/Main.unity` 必须在场（UI 全在该场景里手工维护，没有生成器）。
     /// </summary>
     public sealed class SceneAssetTests
     {
@@ -26,10 +26,10 @@ namespace MergeWater.Tests.EditMode
         [SetUp]
         public void SetUp()
         {
-            Assert.That(File.Exists(MergeWater.Editor.SceneBuilder.ScenePath), Is.True,
-                "缺少主场景，请先运行 MergeWater/Build Main Scene");
+            Assert.That(File.Exists(MergeWater.Editor.MainSceneAsset.Path), Is.True,
+                "缺少主场景资产 Assets/Scenes/Main.unity（UI 全部在该场景里手工维护，不要删除或改名）");
 
-            _scene = EditorSceneManager.OpenScene(MergeWater.Editor.SceneBuilder.ScenePath, OpenSceneMode.Additive);
+            _scene = EditorSceneManager.OpenScene(MergeWater.Editor.MainSceneAsset.Path, OpenSceneMode.Additive);
             _opened = true;
         }
 
@@ -135,7 +135,8 @@ namespace MergeWater.Tests.EditMode
         /// 背景一旦排到水果/预览线之前，玩家就看不到玩法画面了——这条断言是该缺陷的门禁。
         /// 2026-09-12 需求方先要求换成美术包背景、随后要求换回原来的纯色底：因此**当前不指派素材**
         /// （渲染器关闭、由相机清屏色兜底），这里改为断言「节点在 + 排序安全」，不再要求 sprite 非空。
-        /// 想重新启用背景图时把 `HudBuilder.BackdropArtName` 填回资源名即可，本条断言依然成立。
+        /// 想重新启用背景图时，在场景里选中 `GameRoot/Presentation/Backdrop`、给它的 SpriteRenderer
+        /// 指派 Sprite 并勾上渲染器即可，本条断言依然成立。
         /// </summary>
         [Test]
         public void Backdrop_IsBehindEveryWorldElement()
@@ -184,7 +185,7 @@ namespace MergeWater.Tests.EditMode
         [Test]
         public void MainScene_IsInBuildSettings()
         {
-            var path = MergeWater.Editor.SceneBuilder.ScenePath;
+            var path = MergeWater.Editor.MainSceneAsset.Path;
             var scenes = EditorBuildSettings.scenes;
 
             Assert.That(scenes.Any(scene => scene.path == path && scene.enabled), Is.True,
@@ -200,7 +201,7 @@ namespace MergeWater.Tests.EditMode
             // 场景里 12 个飘字条目仍指向拆分前的旧脚本 GUID，`FloatingTextSpawner.Spawn`
             // 遇到 null 条目直接 return，合成时再也不出现飘字（由 PlayMode 手感测试才暴露出来）。
             // 注意两种形态都要查：既没有 guid 的裸引用，以及**有 guid 但该 guid 不对应任何脚本**。
-            var sceneText = File.ReadAllText(MergeWater.Editor.SceneBuilder.ScenePath);
+            var sceneText = File.ReadAllText(MergeWater.Editor.MainSceneAsset.Path);
 
             var referenced = System.Text.RegularExpressions.Regex
                 .Matches(sceneText, @"m_Script: \{fileID: -?\d+(?:, guid: ([0-9a-f]+))?")

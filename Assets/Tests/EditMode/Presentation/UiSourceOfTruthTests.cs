@@ -1,8 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using MergeWater.Presentation;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace MergeWater.Tests.EditMode.Presentation
 {
@@ -14,35 +18,71 @@ namespace MergeWater.Tests.EditMode.Presentation
     /// 与「运行时看到的」可能不是同一套界面，改布局/美术必须先改代码，而且手工调整会在
     /// 下次重建场景时静默丢失。</para>
     ///
-    /// <para>现在 <c>HudBuilder</c> 位于 <c>MergeWater.Editor</c>（Editor 平台程序集），
-    /// 运行时程序集在编译期就无法引用它。本测试把这条约束固化下来：一旦有人把 UI 生成
-    /// 逻辑挪回运行时程序集，这里就会失败。</para>
+    /// <para>2026-09-13 需求方要求「以后只手动编辑 UI，不要程序自动生成」，因此工程里已经
+    /// **不存在**任何 UI 生成器（`HudBuilder` / `SceneBuilder` / `UiTmpMigrator` 三个编辑器工具
+    /// 连同菜单一并删除）。本测试把这条约束固化成两道门禁：① 运行时代码不得创建 UI 组件；
+    /// ② 运行时程序集不得引用 <c>MergeWater.Editor</c>。谁想把界面生成挪回代码里，这里就会红。</para>
     /// </summary>
     public sealed class UiSourceOfTruthTests
     {
-        [Test]
-        public void RuntimeAssemblies_DoNotContainTheUiBuilder()
+        /// <summary>
+        /// 一旦在运行时代码里 AddComponent 这些类型，就等于「代码在造界面」。
+        /// 注意**刻意不含** <c>CanvasGroup</c>：<see cref="UiPanel"/> 会在缺组件时给自己补一个
+        /// （它只是透明度载体，不产生任何界面元素），这类自愈不属于「生成界面」。
+        ///
+        /// <para>扫描范围是 <c>Assets/Scripts/</c>（跳过其中的 <c>Editor/</c>）：**测试**在
+        /// <c>Assets/Tests/</c> 下自建最小 HUD（`PresentationHarness`）是允许的——测试不是运行时装配。</para>
+        /// </summary>
+        private static readonly string[] UiComponentTypes =
         {
-            // HudBuilder 会 AddComponent<Text>()/Image/Button/Toggle/Slider——它是唯一能「生成界面」的类。
-            // 它必须留在 MergeWater.Editor（Editor 平台程序集），运行时程序集既不能包含它、也不能引用它。
-            string[] runtimeAssemblyNames = { "MergeWater.Presentation", "MergeWater.Bootstrap" };
+            "Canvas", "CanvasScaler", "GraphicRaycaster", "EventSystem", "StandaloneInputModule",
+            "Image", "RawImage", "Button", "Toggle", "Slider", "ScrollRect", "Mask", "RectMask2D",
+            "TextMeshProUGUI", "TextMeshPro", "HudView", "PanelController", "UiPanel",
+            "HorizontalLayoutGroup", "VerticalLayoutGroup", "GridLayoutGroup", "ContentSizeFitter",
+            "LayoutElement"
+        };
 
-            var offenders = runtimeAssemblyNames
-                .Select(name => AppDomain.CurrentDomain.GetAssemblies()
-                    .FirstOrDefault(assembly => assembly.GetName().Name == name))
-                .Where(assembly => assembly != null)
-                .SelectMany(assembly => assembly.GetTypes().Select(type => new { type, assembly }))
-                .Where(x => x.type.FullName != null && x.type.FullName.EndsWith("HudBuilder"))
-                .Select(x => $"{x.type.FullName}（程序集 {x.assembly.GetName().Name}）")
-                .ToArray();
+        [Test]
+        public void RuntimeSources_DoNotCreateUiComponents()
+        {
+            var scriptsRoot = Path.Combine(Application.dataPath, "Scripts").Replace('\\', '/');
+            Assert.That(Directory.Exists(scriptsRoot), Is.True, $"找不到运行时代码目录：{scriptsRoot}");
+
+            var offenders = new List<string>();
+
+            foreach (var path in Directory.GetFiles(scriptsRoot, "*.cs", SearchOption.AllDirectories))
+            {
+                var normalized = path.Replace('\\', '/');
+
+                // `Editor/` 下是编辑器工具，不进运行时装配（当前连 UI 生成器都没有了）。
+                if (normalized.Contains("/Editor/"))
+                    continue;
+
+                var lineNo = 0;
+                foreach (var line in File.ReadLines(path))
+                {
+                    lineNo++;
+
+                    var trimmed = line.TrimStart();
+                    if (trimmed.StartsWith("//", StringComparison.Ordinal))
+                        continue;
+
+                    foreach (var type in UiComponentTypes)
+                    {
+                        if (Regex.IsMatch(line, $@"AddComponent<\s*{type}\s*>"))
+                            offenders.Add($"{normalized.Substring(scriptsRoot.Length + 1)}:{lineNo} " +
+                                          $"AddComponent<{type}>");
+                    }
+                }
+            }
 
             Assert.That(offenders, Is.Empty,
-                "UI 生成器存在于运行时程序集：运行时会生成界面，编辑器里的调整就不是最终效果。" +
-                "请把 UI 生成放回 MergeWater.Editor。\n" + string.Join("\n", offenders));
+                "运行时代码在创建 UI 组件——界面必须只来自 Assets/Scenes/Main.unity" +
+                "（在编辑器里手动维护），不要在代码里生成或拼装界面：\n" + string.Join("\n", offenders));
         }
 
         [Test]
-        public void RuntimeAssemblies_DoNotReferenceTheUiBuilder()
+        public void RuntimeAssemblies_DoNotReferenceTheEditorAssembly()
         {
             string[] runtimeAssemblyNames = { "MergeWater.Presentation", "MergeWater.Bootstrap" };
 
@@ -56,7 +96,7 @@ namespace MergeWater.Tests.EditMode.Presentation
                 .ToArray();
 
             Assert.That(offenders, Is.Empty,
-                "运行时程序集不得引用 MergeWater.Editor（否则可以间接调用 UI 生成器）：\n"
+                "运行时程序集不得引用 MergeWater.Editor（编辑器工具不该进运行时装配）：\n"
                 + string.Join("\n", offenders));
         }
 

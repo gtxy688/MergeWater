@@ -35,10 +35,10 @@ namespace MergeWater.Tests.EditMode
         [SetUp]
         public void SetUp()
         {
-            Assert.That(File.Exists(MergeWater.Editor.SceneBuilder.ScenePath), Is.True,
-                "缺少主场景，请先运行 MergeWater/Build Main Scene");
+            Assert.That(File.Exists(MergeWater.Editor.MainSceneAsset.Path), Is.True,
+                "缺少主场景资产 Assets/Scenes/Main.unity（UI 全部在该场景里手工维护，不要删除或改名）");
 
-            _scene = EditorSceneManager.OpenScene(MergeWater.Editor.SceneBuilder.ScenePath, OpenSceneMode.Additive);
+            _scene = EditorSceneManager.OpenScene(MergeWater.Editor.MainSceneAsset.Path, OpenSceneMode.Additive);
             _opened = true;
 
             _canvas = Object.FindObjectsOfType<Canvas>(true).FirstOrDefault(c => c.gameObject.scene == _scene);
@@ -105,14 +105,14 @@ namespace MergeWater.Tests.EditMode
                 return false;
             }
 
-            var anchorX = rect.anchorMin.x * HudBuilder.ReferenceWidth;
-            var anchorY = rect.anchorMin.y * HudBuilder.ReferenceHeight;
+            var anchorX = rect.anchorMin.x * UiDesignSpec.ReferenceWidth;
+            var anchorY = rect.anchorMin.y * UiDesignSpec.ReferenceHeight;
 
             // 以左上角为原点的设计坐标（y 向下为正）。
             var pivotX = anchorX + rect.anchoredPosition.x;
             var pivotY = anchorY + rect.anchoredPosition.y;
             var left = pivotX - rect.pivot.x * rect.sizeDelta.x;
-            var top = HudBuilder.ReferenceHeight - (pivotY + (1f - rect.pivot.y) * rect.sizeDelta.y);
+            var top = UiDesignSpec.ReferenceHeight - (pivotY + (1f - rect.pivot.y) * rect.sizeDelta.y);
 
             designRect = new Rect(left, top, rect.sizeDelta.x, rect.sizeDelta.y);
             return true;
@@ -140,10 +140,10 @@ namespace MergeWater.Tests.EditMode
                 if (rect.yMin < -Tolerance)
                     failures.Add($"{pair.Key} 顶部越界 yMin={rect.yMin:0.#}");
 
-                if (rect.xMax > HudBuilder.ReferenceWidth + Tolerance)
+                if (rect.xMax > UiDesignSpec.ReferenceWidth + Tolerance)
                     failures.Add($"{pair.Key} 右侧越界 xMax={rect.xMax:0.#}");
 
-                if (rect.yMax > HudBuilder.ReferenceHeight + Tolerance)
+                if (rect.yMax > UiDesignSpec.ReferenceHeight + Tolerance)
                     failures.Add($"{pair.Key} 底部越界 yMax={rect.yMax:0.#}");
             }
 
@@ -190,8 +190,8 @@ namespace MergeWater.Tests.EditMode
         {
             // 胶囊保留区：右上角 CapsuleZoneWidth × CapsuleZoneHeight（GDD §6.2）。
             var capsule = new Rect(
-                HudBuilder.ReferenceWidth - HudBuilder.CapsuleZoneWidth, 0f,
-                HudBuilder.CapsuleZoneWidth, HudBuilder.CapsuleZoneHeight);
+                UiDesignSpec.ReferenceWidth - UiDesignSpec.CapsuleZoneWidth, 0f,
+                UiDesignSpec.CapsuleZoneWidth, UiDesignSpec.CapsuleZoneHeight);
 
             Assert.That(_view.settingsButton, Is.Not.Null, "应有设置按钮");
 
@@ -270,19 +270,19 @@ namespace MergeWater.Tests.EditMode
                 if (!TryGetDesignRect(pair.Value, out var rect, out _))
                     continue;
 
-                var bottomMargin = HudBuilder.ReferenceHeight - rect.yMax;
-                if (bottomMargin < HudBuilder.BottomClearance - Tolerance)
+                var bottomMargin = UiDesignSpec.ReferenceHeight - rect.yMax;
+                if (bottomMargin < UiDesignSpec.BottomClearance - Tolerance)
                     failures.Add($"{pair.Key} 侵入底部净空区，余量仅 {bottomMargin:0.#}");
             }
 
             Assert.That(failures, Is.Empty,
-                $"底部 {HudBuilder.BottomClearance} 单位内不应有 HUD 元素（R27）：\n" + string.Join("\n", failures));
+                $"底部 {UiDesignSpec.BottomClearance} 单位内不应有 HUD 元素（R27）：\n" + string.Join("\n", failures));
         }
 
         [Test]
         public void SideEntries_SitOnTheirOwnHalf()
         {
-            var center = HudBuilder.ReferenceWidth * 0.5f;
+            var center = UiDesignSpec.ReferenceWidth * 0.5f;
             var failures = new List<string>();
 
             var leftEntries = new[] { _view.shakeButton, _view.hammerButton, _view.giftButton };
@@ -317,8 +317,8 @@ namespace MergeWater.Tests.EditMode
 
             Assert.That(_canvas.renderMode, Is.EqualTo(RenderMode.ScreenSpaceOverlay));
             Assert.That(scaler.uiScaleMode, Is.EqualTo(CanvasScaler.ScaleMode.ScaleWithScreenSize));
-            Assert.That(scaler.referenceResolution.x, Is.EqualTo(HudBuilder.ReferenceWidth).Within(1f));
-            Assert.That(scaler.referenceResolution.y, Is.EqualTo(HudBuilder.ReferenceHeight).Within(1f));
+            Assert.That(scaler.referenceResolution.x, Is.EqualTo(UiDesignSpec.ReferenceWidth).Within(1f));
+            Assert.That(scaler.referenceResolution.y, Is.EqualTo(UiDesignSpec.ReferenceHeight).Within(1f));
             Assert.That(scaler.referenceResolution.y, Is.GreaterThan(scaler.referenceResolution.x),
                 "应为竖屏参考分辨率（高 > 宽）");
         }
@@ -329,7 +329,7 @@ namespace MergeWater.Tests.EditMode
         ///
         /// 曾真实发生：Canvas/Background（满屏、alpha=1）把整个世界遮住，玩家只能看到 HUD，
         /// 表现为「无法拖动水果确定落点」「改了预览与物理参数也没区别」。
-        /// 底色应由相机 SolidColor 清屏提供，见 <see cref="MergeWater.Editor.HudBuilder.BackgroundColor"/>。
+        /// 底色应由相机 SolidColor 清屏提供，见 <see cref="MergeWater.Editor.UiDesignSpec.BackgroundColor"/>。
         /// </summary>
         [Test]
         public void NoOpaqueFullScreenGraphic_HidesTheGameWorld()

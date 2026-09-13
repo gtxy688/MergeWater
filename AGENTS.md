@@ -18,10 +18,10 @@
 5. 修改 `timeScale` 只能通过 M5 的 `TimeDirector`；冻结物理只能通过 M2 的 `IFieldPort.SetSimulationEnabled`。其他模块不得自行改动。
 6. 引入新资源或第三方库前先确认必要性并更新 `00-overview.md` 的「技术与目标环境」。MVP 运行时代码不依赖 DOTween。
 7. 美术资源分两层：**正式水果美术** = `Assets/Resources/kenney_planets/Planets/planet00..09.png`（等级 1..10 依次对应，Kenney CC0 可商用，运行时由 `FruitArt.LoadPlanetSprites()` 按命名约定 `Resources.Load`）；**兜底占位美术** = `Assets/Resources/Placeholder/`（缺图时回退，生成入口菜单 `MergeWater/Generate Placeholder Art`）。取图与染色规则只有一份：`FruitArt.ForLevel` / `FruitArt.TintForLevel`（M2 生成水果与 M5 待投预览共用，避免「投下来是星球、预览还是圆片」）。**替换美术只需覆盖同名文件**：`FruitBody` 会把视觉按贴图的**实际世界尺寸**归一化到碰撞半径，所以像素尺寸与 PPU 都可以随便换，不必改代码。素材包的其余部分（`Parts/`、预览图、授权文件）放 `Assets/Art/kenney_planets/`，**刻意不进包**。
-8. **UI 一律来自场景资产，运行时不生成界面。** 所有 HUD/面板/加载页对象都是 `Assets/Scenes/Main.unity` 里的真实对象（`GameRoot/Presentation` 子树），可直接在编辑器里选中调整位置、颜色、文字、字号。生成器 `HudBuilder` 位于 **Editor 平台程序集**（`Assets/Scripts/Editor/HudBuilder.cs`），运行时代码在编译期无法调用它——`UiSourceOfTruthTests` 会守住这条约束。工作流：
-   - 微调（位置/颜色/文字/图标）：直接在场景里改，**不必**动代码。
-   - 改结构性布局：改 `HudBuilder.cs` 后执行菜单 `MergeWater/Rebuild UI In Open Scene`（只重建 UI 子树，场景其余部分与手工调整保留）。
-   - 只有在需要整场重置时才用 `MergeWater/Build Main Scene`（会重建整个场景，UI 手工调整会丢失，菜单会先弹确认）。
+8. **UI 一律来自场景资产，且只靠手动编辑维护——工程里没有界面生成器。** 所有 HUD/面板/加载页对象都是 `Assets/Scenes/Main.unity` 里的真实对象（`GameRoot/Presentation` 子树），位置/颜色/文字/字号/层级/组件/引用**一律在编辑器里直接改**。2026-09-13 需求方要求「以后只手动编辑 UI，不要程序自动生成」，因此原 UI 生成器 `HudBuilder`、场景构建菜单 `MergeWater/Build Main Scene` 与 `MergeWater/Rebuild UI In Open Scene`、一次性迁移工具 `UiTmpMigrator` **已全部删除**：不存在「改代码/跑菜单重建界面」这条路，改了场景就是改了界面。约束由两组门禁守住：
+   - `UiSourceOfTruthTests`：运行时代码不得 `AddComponent` 任何 UI 组件，运行时程序集不得引用 `MergeWater.Editor`。谁想再写一个生成器，这里会红。
+   - `SceneAssetTests` / `HudLayoutTests`：场景必须装配齐必需元素与引用，并满足竖屏设计规格（`Assets/Scripts/Editor/UiDesignSpec.cs`，**只有常量、无生成逻辑**：1080×1920 画布、微信胶囊区、底部净空、相机清屏底色）。
+   - Inspector 里手工连的事件（持久监听）会被序列化，运行时装配的监听（代码里 `AddListener`）不会——哪些接线必须在代码里做，看 `PanelController.HookButtons` 的注释。**不要引入任何「读场景 → 批量改并写回场景」的脚本**（那正是被删掉的那类工具）。
 
 9. **中文字体的唯一来源是字符收集文件。** UI 文案一律用 TMP，字体是静态烘焙资产 `Assets/Fonts/ChineseUI SDF.asset`（Static 模式，运行时零字形生成）。字集来自 `Assets/Fonts/TMPCharacters.txt`：**新增/修改任何面向玩家的文案后，必须重跑菜单 `MergeWater/Font/1. 收集字符` + `MergeWater/Font/2. 烘焙中文 TMP 字体资产`**，否则新字在 Static 模式下渲染为空白（2026-09-13 实测：隐私说明有 19 个字没烘进去，界面上直接缺字）。门禁：`TMPFontAssetTests`。**字体资产与源 ttf 都不放 `Resources/`**。
 
@@ -78,7 +78,7 @@ AI 可以报告实现及已运行的自动化验证完成，但必须分别列�
 # 代码与仓库约定
 
 - 命名空间与程序集：`MergeWater.Core` / `.Field` / `.Session` / `.Aim` / `.Presentation` / `.Meta` / `.Bootstrap` / `.Editor`；每个模块一个 `.asmdef`，目录与程序集同名。测试程序集 `MergeWater.Tests.EditMode` / `MergeWater.Tests.PlayMode`。
-- 目录和序列化：运行时代码放 `Assets/Scripts/<Module>/`，测试放 `Assets/Tests/{EditMode,PlayMode}/<Module>/`，编辑器工具放 `Assets/Scripts/Editor/`（含 UI 生成器 `HudBuilder.cs`），占位美术放 `Assets/Resources/Placeholder/`，正式水果美术放 `Assets/Resources/kenney_planets/Planets/`（`planet00..09` 按等级 1..10 依次对应），素材包其余部分放 `Assets/Art/kenney_planets/`（刻意不进包），UI 美术放 `Assets/UI/Art/`，配置资产放 `Assets/Config/`，中文字体与字符收集文件放 `Assets/Fonts/`（`TMPCharacters.txt` + `ChineseUI SDF.asset`），主场景 `Assets/Scenes/Main.unity`（UI 由 `MergeWater/Rebuild UI In Open Scene` 局部重建，或 `MergeWater/Build Main Scene` 整场重建）。
+- 目录和序列化：运行时代码放 `Assets/Scripts/<Module>/`，测试放 `Assets/Tests/{EditMode,PlayMode}/<Module>/`，编辑器工具放 `Assets/Scripts/Editor/`（**已无 UI 生成器**：只剩字体烘焙/字符收集、配置资产生成、占位美术生成、地面调参窗口，以及只含常量的 `MainSceneAsset.cs` / `UiDesignSpec.cs`），占位美术放 `Assets/Resources/Placeholder/`，正式水果美术放 `Assets/Resources/kenney_planets/Planets/`（`planet00..09` 按等级 1..10 依次对应），素材包其余部分放 `Assets/Art/kenney_planets/`（刻意不进包），UI 美术放 `Assets/UI/Art/`，配置资产放 `Assets/Config/`，中文字体与字符收集文件放 `Assets/Fonts/`（`TMPCharacters.txt` + `ChineseUI SDF.asset`），主场景 `Assets/Scenes/Main.unity`（**UI 全在该场景里手工维护**，没有重建菜单）。
 - 序列化字段使用 `[SerializeField] private`；公开只读状态用属性；不用 public 字段暴露可变状态。
 - 日志与错误处理：运行时报错用 `Debug.LogError` 且必须可降级；预期内的拒绝（库存不足、广告冷却）用返回值枚举表达并记 `Debug.Log`，不抛异常。
 - 提交格式：`feat(<module>): 描述` / `fix(<module>): 描述` / `docs(<area>): 描述` / `test(<module>): 描述`；功能连同测试一起提交。

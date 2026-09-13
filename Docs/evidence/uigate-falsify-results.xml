@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="3" result="Failed(Child)" total="3" passed="2" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 12:20:05Z" end-time="2026-09-13 12:20:12Z" duration="6.1835966">
+  <test-suite type="TestSuite" id="1168" name="MergeWater" fullname="MergeWater" runstate="Runnable" testcasecount="135" result="Failed" site="Child" start-time="2026-09-13 12:20:05Z" end-time="2026-09-13 12:20:12Z" duration="6.183597" total="3" passed="2" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="1328" name="MergeWater.Tests.EditMode.dll" fullname="E:/Unity/Projects/DemoProjects/MergeWater/Library/ScriptAssemblies/MergeWater.Tests.EditMode.dll" runstate="Runnable" testcasecount="135" result="Failed" site="Child" start-time="2026-09-13 12:20:05Z" end-time="2026-09-13 12:20:12Z" duration="6.163821" total="3" passed="2" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="30564" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestSuite" id="1329" name="MergeWater" fullname="MergeWater" runstate="Runnable" testcasecount="135" result="Failed" site="Child" start-time="2026-09-13 12:20:05Z" end-time="2026-09-13 12:20:12Z" duration="6.158257" total="3" passed="2" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="TestSuite" id="1330" name="Tests" fullname="MergeWater.Tests" runstate="Runnable" testcasecount="135" result="Failed" site="Child" start-time="2026-09-13 12:20:05Z" end-time="2026-09-13 12:20:12Z" duration="6.154414" total="3" passed="2" failed="1" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-suite type="TestSuite" id="1331" name="EditMode" fullname="MergeWater.Tests.EditMode" runstate="Runnable" testcasecount="135" result="Failed" site="Child" start-time="2026-09-13 12:20:05Z" end-time="2026-09-13 12:20:12Z" duration="6.150585" total="3" passed="2" failed="1" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[One or more child tests had errors]]></message>
+            </failure>
+            <test-suite type="TestSuite" id="1332" name="Presentation" fullname="MergeWater.Tests.EditMode.Presentation" runstate="Runnable" testcasecount="3" result="Failed" site="Child" start-time="2026-09-13 12:20:05Z" end-time="2026-09-13 12:20:12Z" duration="6.143290" total="3" passed="2" failed="1" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <failure>
+                <message><![CDATA[One or more child tests had errors]]></message>
+              </failure>
+              <test-suite type="TestFixture" id="1324" name="UiSourceOfTruthTests" fullname="MergeWater.Tests.EditMode.Presentation.UiSourceOfTruthTests" classname="MergeWater.Tests.EditMode.Presentation.UiSourceOfTruthTests" runstate="Runnable" testcasecount="3" result="Failed" site="Child" start-time="2026-09-13 12:20:05Z" end-time="2026-09-13 12:20:12Z" duration="6.141988" total="3" passed="2" failed="1" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <failure>
+                  <message><![CDATA[One or more child tests had errors]]></message>
+                </failure>
+                <test-case id="1327" name="HudViewFields_AreFilledFromTheSceneNotFromCode" fullname="MergeWater.Tests.EditMode.Presentation.UiSourceOfTruthTests.HudViewFields_AreFilledFromTheSceneNotFromCode" methodname="HudViewFields_AreFilledFromTheSceneNotFromCode" classname="MergeWater.Tests.EditMode.Presentation.UiSourceOfTruthTests" runstate="Runnable" seed="1920801945" result="Passed" start-time="2026-09-13 12:20:05Z" end-time="2026-09-13 12:20:05Z" duration="0.007966" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1326" name="RuntimeAssemblies_DoNotReferenceTheEditorAssembly" fullname="MergeWater.Tests.EditMode.Presentation.UiSourceOfTruthTests.RuntimeAssemblies_DoNotReferenceTheEditorAssembly" methodname="RuntimeAssemblies_DoNotReferenceTheEditorAssembly" classname="MergeWater.Tests.EditMode.Presentation.UiSourceOfTruthTests" runstate="Runnable" seed="1227166289" result="Passed" start-time="2026-09-13 12:20:05Z" end-time="2026-09-13 12:20:06Z" duration="0.002201" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1325" name="RuntimeSources_DoNotCreateUiComponents" fullname="MergeWater.Tests.EditMode.Presentation.UiSourceOfTruthTests.RuntimeSources_DoNotCreateUiComponents" methodname="RuntimeSources_DoNotCreateUiComponents" classname="MergeWater.Tests.EditMode.Presentation.UiSourceOfTruthTests" runstate="Runnable" seed="1724278850" result="Failed" start-time="2026-09-13 12:20:06Z" end-time="2026-09-13 12:20:12Z" duration="6.117911" asserts="0">
+                  <properties />
+                  <failure>
+                    <message><![CDATA[  运行时代码在创建 UI 组件——界面必须只来自 Assets/Scenes/Main.unity（在编辑器里手动维护），不要在代码里生成或拼装界面：
+Presentation/UiPanel.cs:32 AddComponent<Canvas>
+  Expected: <empty>
+  But was:  < "Presentation/UiPanel.cs:32 AddComponent<Canvas>" >
+]]></message>
+                    <stack-trace><![CDATA[at MergeWater.Tests.EditMode.Presentation.UiSourceOfTruthTests.RuntimeSources_DoNotCreateUiComponents () [0x00169] in E:\Unity\Projects\DemoProjects\MergeWater\Assets\Tests\EditMode\Presentation\UiSourceOfTruthTests.cs:79
+]]></stack-trace>
+                  </failure>
+                </test-case>
+              </test-suite>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

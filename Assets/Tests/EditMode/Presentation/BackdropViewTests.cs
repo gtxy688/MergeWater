@@ -116,7 +116,8 @@ namespace MergeWater.Tests.EditMode
         [Test]
         public void Backdrop_WithoutSprite_DoesNotThrow()
         {
-            // 美术缺失时的降级路径：不缩放、不抛异常，由相机清屏色兜底（HudBuilder 会关掉 renderer）。
+            // 美术缺失时的降级路径：不缩放、不抛异常，由相机清屏色兜底（无素材时场景里
+            // Backdrop 的 SpriteRenderer 是关闭状态）。
             var (renderer, camera) = CreateBackdrop(1080f / 1920f, null);
             var view = renderer.GetComponent<BackdropView>();
 

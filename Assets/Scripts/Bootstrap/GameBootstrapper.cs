@@ -315,14 +315,14 @@ namespace MergeWater.Bootstrap
 
             var missing = panels == null || hud == null || feedback == null || audio == null;
 
-            // UI 一律取自场景资产（由 `MergeWater/Build Main Scene` 生成，可直接在编辑器里调整）。
-            // 这里曾经有一条「缺引用就现场搭一套 HUD」的兜底（`HudBuilder.Build`），现予以移除：
+            // UI 一律取自场景资产（`Assets/Scenes/Main.unity` 里的实际对象，在编辑器里手工维护）。
+            // 这里曾经有一条「缺引用就现场搭一套 HUD」的兜底（已随 UI 生成器一并删除）：
             // 它让「编辑器里看到的」与「运行时看到的」可能不是同一套界面，布局/美术调整也必须先改代码。
             // 现在缺失即配置错误——明确报错，而不是悄悄换一套 UI 掩盖问题。
             if (missing)
                 Debug.LogError("[GameBootstrapper] 场景缺少表现层引用（PanelController/HudBinder/" +
                                "FeedbackDirector/AudioDirector 至少一项为空）。" +
-                               "请运行菜单 MergeWater/Build Main Scene 重建主场景。");
+                               "请在 Assets/Scenes/Main.unity 里重新接线 GameRoot 上的引用。");
         }
 
         private GameContext BuildContext()
@@ -347,7 +347,7 @@ namespace MergeWater.Bootstrap
             if (panels == null || hud == null || audio == null || feedback == null)
             {
                 Debug.LogError("[GameBootstrapper] 场景缺少表现层引用（PanelController/HudBinder/" +
-                               "AudioDirector/FeedbackDirector）。请运行菜单 MergeWater/Build Main Scene 重建主场景。");
+                               "AudioDirector/FeedbackDirector）。请在 Assets/Scenes/Main.unity 里重新接线。");
                 return null;
             }
 

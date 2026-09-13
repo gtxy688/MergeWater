@@ -56,7 +56,7 @@ namespace MergeWater.Tests.EditMode
         [Test]
         public void SceneSlicedImages_DoNotClampTheirBordersIntoTheWholeRect()
         {
-            var scene = EditorSceneManager.OpenScene(MergeWater.Editor.SceneBuilder.ScenePath, OpenSceneMode.Additive);
+            var scene = EditorSceneManager.OpenScene(MergeWater.Editor.MainSceneAsset.Path, OpenSceneMode.Additive);
 
             try
             {

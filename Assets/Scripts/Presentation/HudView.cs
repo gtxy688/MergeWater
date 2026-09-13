@@ -27,8 +27,8 @@ namespace MergeWater.Presentation
 
     /// <summary>
     /// 对局 HUD 的引用容器（GDD §6.2）。不含逻辑，允许部分引用为空并降级。
-    /// 这些引用指向场景里**实际存在**的 UI 对象（由编辑器菜单 `MergeWater/Build Main Scene` 生成，
-    /// 之后可直接在编辑器里调整）；运行时不生成界面，详见 <c>MergeWater.Editor.HudBuilder</c>。
+    /// 这些引用指向场景里**实际存在**的 UI 对象（`Assets/Scenes/Main.unity` 的 `GameRoot/Presentation`
+    /// 子树，在编辑器里手工维护）；运行时不生成界面，工程里也**没有**生成界面的编辑器工具。
     ///
     /// <para>文本一律使用 TextMeshPro（<see cref="TextMeshProUGUI"/>）：WebGL / 微信小游戏
     /// 无法访问系统字体，legacy <c>Text</c> + 动态系统字体在真机上会显示为方块（决策 D16）。</para>

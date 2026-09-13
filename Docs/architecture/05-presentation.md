@@ -25,13 +25,15 @@
 
 UI 文本一律使用 **TextMeshPro**（`TextMeshProUGUI` / 世界空间 `TextMeshPro`），字体是随包分发的 `Assets/Fonts/ChineseUI SDF.asset`（决策 **D16**）：字形在编辑期静态烘进图集，运行时零字形生成。**原 legacy `Text` + 运行时系统字体方案已废弃**——目标平台微信小游戏跑在 WebGL 派生运行时上，无法访问系统字体，`Font.CreateDynamicFontFromOSFont` 在真机上会让中文显示为方块（`UiFontProvider` 已删除）。新增文案若用到新字，必须重跑 `MergeWater/Font/1. 收集字符 → TMPCharacters.txt` + `MergeWater/Font/2. 烘焙中文 TMP 字体资产`（字形集合的唯一来源是 `Assets/Fonts/TMPCharacters.txt`）；门禁是 `TMPFontAssetTests`。
 
-### UI 来源：场景资产，运行时不生成（2026-09-12 重构）
+### UI 来源：场景资产 + 手工编辑，工程里没有生成器（2026-09-12 重构，2026-09-13 移除生成器）
 
 界面对象（HUD、面板、加载页、Toast、引导箭头等，共约 134 个 GameObject）全部是 `Assets/Scenes/Main.unity` 里 `GameRoot/Presentation` 子树下的**真实对象**，运行前就存在，运行时不再生成：
 
-- 生成器 `HudBuilder` 位于 `Assets/Scripts/Editor/HudBuilder.cs`，属于 **Editor 平台程序集**（`MergeWater.Editor`）。运行时程序集（`MergeWater.Presentation` / `MergeWater.Bootstrap`）在编译期无法引用它——这是结构性保证，不是约定。守卫：`UiSourceOfTruthTests`（3 项：运行时程序集不得包含生成器、不得引用 `MergeWater.Editor`、`HudView` 不得有 setter）。
+- **改 UI 只有一条路：在场景里改。** 加/删控件、改锚点与布局、换图、调色、改字号文案、连引用，都在编辑器的 Hierarchy / Inspector / Scene 视图里完成，改完保存场景即可——没有「改代码再重建界面」的步骤。
+- 2026-09-13 需求方要求「以后只手动编辑 UI，不要程序自动生成」，因此三个程序化改界面的编辑器工具**已全部删除**：UI 生成器 `HudBuilder.cs`（含 `MergeWater/Assign Backdrop Art (No UI Rebuild)` 与「选中 Backdrop 节点」两个菜单）、场景构建器 `SceneBuilder.cs`（`MergeWater/Build Main Scene` / `MergeWater/Rebuild UI In Open Scene`）、一次性 TMP 迁移工具 `UiTmpMigrator.cs`。保留的编辑器工具都与界面结构无关：字体字符收集/烘焙（`TMPFontBuilder` / `TMPFontReferenceTool`）、配置资产生成（`ConfigAssetGenerator`）、占位美术生成（`PlaceholderArtGenerator`）、地面调参窗口（`FloorTuningWindow`），外加两个**只含常量**的类：`MainSceneAsset.cs`（主场景路径）与 `UiDesignSpec.cs`（1080×1920 画布、微信胶囊区、底部净空、相机清屏底色）。
 - `GameBootstrapper` 原先有一条「缺表现层引用就现场搭一套 HUD」的兜底，已移除：缺失即明确 `Debug.LogError` 并停止初始化（避免「编辑器里看到的」与「运行时看到的」是两套界面）。
-- 改 UI 的三种方式：① 位置/颜色/文字/字号等微调 → 直接在场景里改；② 结构性布局 → 改 `HudBuilder.cs` 后执行 `MergeWater/Rebuild UI In Open Scene`（只重建 UI 子树，场景其余部分与手工调整保留）；③ 整场重置才用 `MergeWater/Build Main Scene`（会重建整个场景，菜单会先确认）。
+- 门禁：`UiSourceOfTruthTests`（运行时代码不得 `AddComponent` 任何 UI 组件；运行时程序集不得引用 `MergeWater.Editor`；`HudView` 不得有 setter）；场景侧的完整性由 `SceneAssetTests` / `HudLayoutTests` / `TMPFontAssetTests` / `UiArtSlicingTests` 守住。
+- 接线规则：Inspector 里手工连的事件（持久监听）**会**随场景序列化；代码里 `AddListener` 只在该代码运行时生效。需要「随值同步的联动」（如音量条的填充）必须在运行时装配，见 `PanelController.HookButtons` 的注释。
 - 仍有少量世界空间对象按事件在运行时创建：飘字 `FloatingText`（`FloatingTextSpawner.Spawn` 每次一个 `TextMesh`）与合成粒子（`ParticleBurst` 用常驻 `ParticleSystem` + `Emit`，不实例化）。这些是「一次性的瞬时特效」，不是界面结构。
 
 占位音效由 `PlaceholderAudioFactory` 在运行时用正弦/方波包络合成短音（投放、合成、连击音阶、越线心跳、失败、按钮、领取、复活），无需音频资产；未指派真实 `AudioClip` 时优先使用占位音。BGM 槽位为可选：未指派时静默并在启动时记录一次日志（诚实降级，不假装有音乐）。
@@ -56,12 +58,12 @@ UI 文本一律使用 **TextMeshPro**（`TextMeshProUGUI` / 世界空间 `TextMe
 
 ### 对局背景
 
-- 触发条件：`HudBuilder.Build` 构建表现层时（编辑器构建场景与运行时兜底共用这条路径）。
+- 触发条件：`BackdropView.LateUpdate`——相机宽高比或正交尺寸变化时按 cover 重贴合（`Backdrop` 节点常驻场景，运行时不创建对象；`viewCamera` 为空时回落 `Camera.main`）。
 - 当前状态（2026-09-13）：**已启用背景素材 `bg_star`**（`Assets/UI/Art/bg_star.png`，941×1672 竖版星体主视觉）。场景里 `Backdrop` 节点的 `SpriteRenderer` 已启用、排序值 −100。
-- 处理顺序（启用素材时）：在**世界空间**创建 `Backdrop`（`SpriteRenderer` + `BackdropView`），素材由 `HudBuilder.BackdropArtName` 指定；`BackdropView` 按「cover」缩放——取 `max(视口宽/素材宽, 视口高/素材高)` 乘 2% overscan，并把 sprite 居中到相机位置；排序值 -100，低于全部对局元素（场地视觉 -10、水果 100+、预览 300+、线 400+、粒子 550、飘字 600）；相机宽高比或正交尺寸变化时下一帧自动重贴合。
+- 处理顺序：`Backdrop` 节点（**世界空间** `SpriteRenderer` + `BackdropView`，挂在 `GameRoot/Presentation` 下、与 `Canvas` **平级**）持有素材；`BackdropView` 按「cover」缩放——取 `max(视口宽/素材宽, 视口高/素材高)` 乘 2% overscan，并把 sprite 居中到相机位置；排序值 -100，低于全部对局元素（场地视觉 -10、水果 100+、预览 300+、线 400+、粒子 550、飘字 600）。
 - 成功结果：任意屏幕比例下背景铺满整屏且不遮挡任何对局元素。`bg_star` 宽高比 0.5628 ≈ 9:16，竖屏下几乎 1:1 贴合（cover 仅放大约 1.15×），裁切接近零。
 - 失败与边界：素材名为空或素材缺失时关闭 `SpriteRenderer`（不告警、不抛异常），由相机纯色清屏兜底。
-- 换背景图（**不要用整场重建**）：把图放进 `ArtSpriteRoot`（`Assets/UI/Art/`），在 `HudBuilder.BackdropArtName` 填资源名，再执行菜单 `MergeWater/Assign Backdrop Art (No UI Rebuild)`——它只改 `Backdrop` 一个节点并保存场景。`Rebuild UI In Open Scene` 会重建整个 UI 子树、覆盖手工调整过的加载页与 HUD，换背景不必付这个代价。
+- 换背景图（全手动三步）：① 把图放进 `Assets/UI/Art/`（**不要放 `Resources/`**——那里的资源会被无条件打进包）；② 在场景里选中 `GameRoot/Presentation/Backdrop`，把 Sprite 拖到它的 `SpriteRenderer` 上并勾上渲染器（素材为空或被禁用时由相机纯色清屏兜底，不报错也不抛异常）；③ 想压暗就调同一个 `SpriteRenderer` 的 `Color` 乘色（例如 0.55/0.55/0.62）。**不要手改这个节点的 Transform**——缩放每帧由 `BackdropView` 按 cover 覆盖。该节点没素材时在 Scene 视图里完全看不见，可在 Hierarchy 搜索框里搜 `Backdrop` 定位。
 - 可读性风险（观感类，需人工判断）：这张主视觉顶部带游戏标题、整体高对比高饱和，对局中它位于顶栏与水果之后，可能削弱落点预览线与警戒线的可读性。若观感上打架，直接在场景里调 `Backdrop` 的 `SpriteRenderer.Color` 乘色压暗（例如 0.55/0.55/0.62）即可，不必改代码。
 - 决策：D14（不用 Canvas 底板的原因见该条与「HUD 实现约束」）。
 
@@ -72,16 +74,15 @@ UI 文本一律使用 **TextMeshPro**（`TextMeshProUGUI` / 世界空间 `TextMe
 - 成功结果：进入对应页面后红点被清除（由 M7 调用）。
 - 失败与边界：同时请求多个面板时后请求者优先，不叠层。
 - 设置面板的三个开关（音效/音乐/震动）保持行高 84，其中**音效/音乐两行在行内右侧各带一条音量条**（勾选框 46..110、文字 110..260、滑条 270..660），因此补回音量条不占用额外纵向空间。音量条由美术包 Medium 版 `sound-bar-container`（390×44，轨道）与 `sound-bar-full`（376×24，分段填充）拼成，滑钮复用分段素材（34×34）。
-- 音量条的**填充不交给 `Slider.fillRect`**：`Slider` 会改 fill 的锚点把整条分段压扁；改为运行时监听 `onValueChanged` 写 `Image.fillAmount`（`Image.Type.Filled`，水平、从左）。该监听必须挂在运行时装配的 `PanelController.HookButtons` 里——`HudBuilder` 在编辑器期挂的监听不会被序列化进场景（与按钮监听是同一个坑）。
+- 音量条的**填充不交给 `Slider.fillRect`**：`Slider` 会改 fill 的锚点把整条分段压扁；改为运行时监听 `onValueChanged` 写 `Image.fillAmount`（`Image.Type.Filled`，水平、从左）。该监听必须挂在运行时装配的 `PanelController.HookButtons` 里：`Image.fillAmount` 与 `Slider.value` 的同步不是拖一个 Inspector 持久监听就能表达的联动（历史缺陷正是「只在编辑器期用代码挂监听」——运行时监听不随场景序列化，表现为「音量真的变了、填充条却一直满格」）。
 - 音量条与开关正交：开关只静音，音量值保留；**取消勾选时对应音量条不可调**（`Slider.interactable = false`，靠 `DisabledColor` 变暗提示；勾回来恢复可调且档位保持原值 —— 需求方 2026-09-12「取消勾选时应该禁止调节大小」）。音量写入存档（`SaveData.settingsSfxVolume/settingsMusicVolume`，缺字段默认 100%，无需 schema 迁移），由 `GameContext.ApplySettingsToAudio` 统一应用到 `AudioDirector`（音乐基准增益 0.4，音效 1.0）。
 - 面板与 UI 的调参入口（都在 Editor 程序集，运行时不可用）：
   - `MergeWater/Font/1. 收集字符 → TMPCharacters.txt`：扫描场景 / Prefab / C# 字面量（排除 `Assets/Art` 第三方素材包与 `Editor/` 下的日志与菜单文案），把真实会用到的文案写进 `Assets/Fonts/TMPCharacters.txt`；`#` 注释行不参与烘焙，其余行**每个字符**都会被烘，因此不需要去重。
   - `MergeWater/Font/2. 烘焙中文 TMP 字体资产`：读上面的 txt 烘出 Static 字体资产。候选顺序 1024² → 2048²@75pt → 2048²@68pt → 2048²@64pt → 允许多图集（最后手段）；实测本项目 1024² 装不下（缺 296 字），最终 2048² 单图集、占用率 51%、0 缺字。注意 TMP 运行时 API（`TryAddCharacters`）内部写死 `GlyphPackingMode.BestShortSideFit`（= Creator 窗口里的 Fast），Creator 的 Optimum 对应 `ContactPointRule`，没有参数可切——所以本工具用「单图集是否装得下 + 占用率」实测验收，而不是宣称用了 Optimum。
   - `MergeWater/Font/3. 重指到随包中文字体（可选）` + `MergeWater/Font/审计 TMP 字体引用`：把场景 / Prefab / TMP Settings 的字体与材质引用一次性指到目标字体资产，并修掉悬空引用（含世界空间 TMP 的 `MeshRenderer.m_Materials`——重建字体资产会换掉材质子资产 fileID，组件字段不会自动跟着变）。**只改字体与材质引用**，不动布局、字号、颜色、对齐、换行。
-  - `MergeWater/Migrate UI To TMP (In Open Scene)`：把场景里的 legacy `Text` 就地换成 TMP、给面板挂 `UiPanel`、并预置飘字池。**只换组件类型，不动布局数值**（用于已有手工调整的场景）。
   - `MergeWater/Floor Tuning (Play Mode)`：地面高度实时滑杆。地面在 `Awake` 由相机算出（`屏幕底边 + FloorScreenInset`），**场景里手工挪 `Floor` 无效**——运行时 `EnsureArena` 会覆盖。调好可一键写回：同时改 `GameBalance.cs` 的字段默认值**并直接改资产 `GameBalance.asset` 的序列化字段**。**不要在这里改成调 `ConfigAssetGenerator.GenerateMenu()`**——生成器用 `ScriptableObject.CreateInstance` 取代码默认值，而写盘 .cs 的同一帧 Unity 还没重编译，程序集里的默认值仍是旧的，会把旧值原样写回资产（2026-09-13「参数调好了却没起作用」即此：.cs=0.06、资产=0.55）。
 - 面板根节点挂 `UiPanel`（项目自定义基类，需求方要求「给 UI 面板搞个父类」）：把「可见」的定义收敛到一处（alpha + blocksRaycasts + interactable + activeSelf 必须同时正确），并提供 `Show()/Hide()/SetVisible()`。**场景里面板的初始状态是 alpha=1 且 active=false**——这样在编辑器里手动勾上 active 就能直接看到面板内容调布局；早期 alpha 被序列化成 0，勾 active 也看不见（需求方实际踩到的坑）。`UiPanel.OnEnable` 在非播放态被手动激活时会自动补 alpha=1，进一步避免该问题。
-- 面板底板与按钮底用的是 `Assets/Resources/Art` 的九宫格素材，**必须按 PPU=100（= `Canvas.referencePixelsPerUnit`）导入**：`Image.Type.Sliced` 的边框设计单位 = `边框像素 × referencePixelsPerUnit ÷ 素材 PPU ÷ pixelsPerUnitMultiplier`，PPU 越小边框越大（`100/PPU` 倍），一旦边框超过元素尺寸，Unity 会把边框压满整个 RectTransform、素材被整体拉伸（2026-09-12 的「设置面板变成大白椭圆」即此）。门禁：`UiArtSlicingTests`。面板底是深紫，因此直接落在面板上的文字用 `HudBuilder.PanelTextColor` / `PanelTextMutedColor` / `PanelScoreColor`，按钮内部文字仍用 `TextColor`。
+- 面板底板与按钮底用的是 `Assets/Resources/Art` 的九宫格素材，**必须按 PPU=100（= `Canvas.referencePixelsPerUnit`）导入**：`Image.Type.Sliced` 的边框设计单位 = `边框像素 × referencePixelsPerUnit ÷ 素材 PPU ÷ pixelsPerUnitMultiplier`，PPU 越小边框越大（`100/PPU` 倍），一旦边框超过元素尺寸，Unity 会把边框压满整个 RectTransform、素材被整体拉伸（2026-09-12 的「设置面板变成大白椭圆」即此）。门禁：`UiArtSlicingTests`。面板底是深紫，因此直接落在面板上的文字都是浅色（标题/正文为暖白、次要文字为浅紫灰、分数高亮为暖黄），按钮内部文字仍是深棕——这些颜色现在只存在于场景里的 TMP 组件上，直接选中文本对象改即可。
 
 ### 音阶与占位音
 

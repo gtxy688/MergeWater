@@ -151,9 +151,10 @@ namespace MergeWater.Presentation
 
             if (view.vibrateToggle != null)
                 view.vibrateToggle.onValueChanged.AddListener(value => VibrateToggled?.Invoke(value));
-            // 音量条的分段填充必须在**运行时**接线：HudBuilder 在编辑器期挂的监听不会被序列化进场景
-            //（与按钮监听是同一个坑，见 BootstrappedSceneTests 里这两类缺陷的回归守卫）。
-            // 只接 HudBuilder 里的监听会出现「音量真的变了、填充条却一直满格」，玩家看不出当前档位。
+            // 音量条的分段填充必须在**运行时**接线：填充用的是 Image.fillAmount，与 Slider.value 的
+            // 同步关系没法靠 Inspector 里拖一个持久监听搞定。历史缺陷正是「只在编辑器期用代码挂监听」——
+            // 运行时监听不会被序列化进场景，表现为「音量真的变了、填充条却一直满格」（见
+            // BootstrappedSceneTests 里这一类缺陷的回归守卫）。
             if (view.sfxSlider != null)
             {
                 view.sfxSlider.onValueChanged.AddListener(value =>

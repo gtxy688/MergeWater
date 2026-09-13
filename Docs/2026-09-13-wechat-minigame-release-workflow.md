@@ -156,7 +156,7 @@
 
 **本项目最大的包体风险曾是 URP** —— 2026-09-13 已按 V2.48 **切回 Built-in RP** 解决（URP 会带进一整套 shader 变体与管线代码，而本工程一个 URP 特性都没用）。当时的核对结论留档：
 
-1. 场景里的 3 处 shader 引用**全是内置 shader**（GUID `0000…f000…`）；`HudBuilder.CreateSpriteMaterial` 本来就是**优先** `Sprites/Default`、URP 只作备选；
+1. 场景里的 3 处 shader 引用**全是内置 shader**（GUID `0000…f000…`）；当时还存在的 UI 生成器 `HudBuilder.CreateSpriteMaterial` 本来就是**优先** `Sprites/Default`、URP 只作备选（该生成器已于 2026-09-13 随 V2.51 删除）；
 2. 工程内**只有 TMP 自带的两个示例材质**（`.mat`），没有任何项目材质依赖 URP shader；
 3. URP 的**唯一**绑定点是 `GraphicsSettings.m_CustomRenderPipeline`（QualitySettings 各档全是 `{fileID: 0}`）—— 所以切换只需两处改动。
 
@@ -315,6 +315,6 @@ SDK 的 `Editor/Node` 只带 `binaryen`，需系统 Node。本机 v26.7.0 属于
 | 构建场景列表 | `File > Build Settings`（**移除 SampleScene**） |
 | 重新生成配置资产 | 菜单 `MergeWater/Generate Config Assets`（改过 `GameBalance` 默认值后必跑） |
 | 字体收集 + 烘焙 | 菜单 `MergeWater/Font/1. 收集字符` → `/2. 烘焙中文 TMP 字体资产` |
-| 重建主场景 | 菜单 `MergeWater/Rebuild UI In Open Scene`（保手工调整）/ `Build Main Scene`（整场重置） |
+| 场景与 UI 改动 | **在编辑器里手工改 `Assets/Scenes/Main.unity` 并保存**（2026-09-13 V2.51 起无生成器：原 `Rebuild UI In Open Scene` / `Build Main Scene` 菜单已删除） |
 | EditMode 测试 | `Unity.exe -batchmode -nographics -projectPath <工程> -runTests -testPlatform editmode -testResults Logs/editmode-results.xml -logFile Logs/editmode.log` |
 | PlayMode 测试 | 同上，`-testPlatform playmode` |

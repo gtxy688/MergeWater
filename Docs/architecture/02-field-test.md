@@ -30,7 +30,7 @@
 
 ## 手动验收前置条件
 
-- 场景、Prefab 与配置：`Main.unity` 已由 `MergeWater/Build Main Scene` 生成；水果贴图与染色由 M7 在运行时通过 `FruitArt` 注入（`GameField.SetFruitArt`），**不需要重建场景**。
+- 场景、Prefab 与配置：直接使用已提交的 `Assets/Scenes/Main.unity`（**手工维护，没有场景生成器**）；水果贴图与染色由 M7 在运行时通过 `FruitArt` 注入（`GameField.SetFruitArt`），**不需要改场景**。
 - 依赖模块状态：M1 数值资产存在（`Assets/Config/GameBalance.asset`）。
 - 目标设备与画质档位：Editor Play Mode；真机项见 `07-bootstrap-test.md`。
 

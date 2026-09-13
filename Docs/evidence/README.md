@@ -488,6 +488,7 @@ floorY = camera.transform.position.y - camera.orthographicSize   // 正好是屏
 
 - 只是挪位置/改颜色/改文字/换字号 → **直接在场景里改**，不需要动代码、不需要重建。
 - 改结构性布局（加/删控件、改锚点） → 改 `Assets/Scripts/Editor/HudBuilder.cs` 后执行 `MergeWater/Rebuild UI In Open Scene`。
+  > **2026-09-13 已失效（V2.51）**：`HudBuilder` 与两个重建菜单已删除，结构性布局同样在场景里手工改。见文末「删除全部程序化 UI 工具」。
 - 运行时仍会创建的只有瞬时特效：飘字（每次一个 `TextMesh`）与合成粒子（常驻 `ParticleSystem` + `Emit`）。
 
 ## 追加：UI 全面迁移 TextMeshPro + 面板基类 + 运行时不生成 UI（2026-09-12，D16）
@@ -824,6 +825,78 @@ URP 包**保留安装**（`com.unity.feature.2d` 依赖它，卸载会连带报�
 结果：副本**编译无错**（`WxEditor.asmdef` 里的 `Unity.InstantGame.Editor` 引用在真工程里同样找不到、也不影响编译，说明它只在 `UNITY_INSTANTGAME` 版本定义下才需要）、`MainScene_HasNoReferencesToMissingScripts` 恢复通过、EditMode 127/128。
 
 **副本身份随之升级**：它现在不仅能验证依赖插件的场景，还具备**在副本里试跑微信小游戏导出**的条件（不必占用真工程的编辑器）——这条路径以前走不通。
+
+## 追加：删除全部程序化 UI 工具（2026-09-13，V2.51）
+
+需求方：「帮我把这个编辑器工具删除，以后只通过手动编辑 UI，而不是程序自动生成。」
+
+**删了什么**（三个编辑器工具，都靠程序改场景里的界面）：
+
+| 删除对象 | 原用途 | 为什么必须一起删 |
+|----------|--------|------------------|
+| `Assets/Scripts/Editor/HudBuilder.cs`（1408 行） | 程序化构建整个 HUD/面板/加载页/Toast/引导箭头，并生成 `Backdrop` 节点；另含菜单 `Assign Backdrop Art (No UI Rebuild)` 与「背景：选中 Backdrop 节点」 | 它就是「程序自动生成 UI」本身 |
+| `Assets/Scripts/Editor/SceneBuilder.cs` | 菜单 `Build Main Scene`（`NewScene(EmptyScene)` 整场重建）与 `Rebuild UI In Open Scene`（删掉重建 `GameRoot/Presentation`） | 两者都调用 `HudBuilder.Build`：删掉生成器后 `Build Main Scene` 只会产出**没有 UI 的废场景**，留着比删掉更危险 |
+| `Assets/Scripts/Editor/UiTmpMigrator.cs` | 2026-09-12 的一次性 legacy `Text`→TMP 迁移 | 同样是「按名字批量改场景 UI」的程序化工具，且依赖 `HudBuilder` 的字体路径与飘字池常量；迁移已完成 |
+
+**留下了什么**（都与界面结构无关）：字体字符收集/烘焙（`TMPFontBuilder` / `TMPFontReferenceTool`）、配置资产生成（`ConfigAssetGenerator`）、占位美术生成（`PlaceholderArtGenerator`）、地面调参窗口（`FloorTuningWindow`）。另新增两个**只含常量、没有生成逻辑**的类，供门禁与工具定位场景／校验规格：
+
+| 新增 | 内容 | 承接自 |
+|------|------|--------|
+| `Assets/Scripts/Editor/MainSceneAsset.cs` | `Path = "Assets/Scenes/Main.unity"` | `SceneBuilder.ScenePath`（5 处引用：4 个 EditMode 测试 + `TMPFontReferenceTool`） |
+| `Assets/Scripts/Editor/UiDesignSpec.cs` | `ReferenceWidth/Height`（1080×1920）、`CapsuleZoneWidth/Height`（300×115）、`BottomClearance`（60）、`BackgroundColor` | `HudBuilder` 的同名常量，**取值一字未改**——`HudLayoutTests` 断言的仍是同一套规格 |
+
+**门禁改造（关键）**：`UiSourceOfTruthTests` 的前两项原本是「按类型名扫运行时程序集的反射」（找 `HudBuilder`）。生成器删除后这两条会退化成**永远通过的空断言**，因此改为：
+
+| 用例 | 现在断言什么 |
+|------|--------------|
+| `RuntimeSources_DoNotCreateUiComponents` | **扫描 `Assets/Scripts/**` 源码（跳过 `/Editor/`）**：任何 `AddComponent<Canvas/CanvasScaler/GraphicRaycaster/EventSystem/Image/Button/Toggle/Slider/TMP/HudView/PanelController/UiPanel/布局组件…>` 都失败 |
+| `RuntimeAssemblies_DoNotReferenceTheEditorAssembly` | 运行时程序集不得引用 `MergeWater.Editor`（原样保留，与生成器是否存在无关） |
+| `HudViewFields_AreFilledFromTheSceneNotFromCode` | `HudView` 不得有带参构造与属性 setter（原样保留） |
+
+**一个刻意的例外**：`CanvasGroup` **不在**禁用清单里。`UiPanel.cs` 在缺组件时会 `gameObject.AddComponent<CanvasGroup>()` 自愈——它只是透明度载体，不产生任何界面元素，禁掉它会逼出一个没必要的改动。例外已写进用例注释，避免后来者误以为是漏网。
+
+**连带修正**：`TMPFontBuilder.ScriptScanAllowlist` 原为 `{ "Assets/Scripts/Editor/HudBuilder.cs" }`（玩家可见文案当时写在生成器里，作为 `Editor/` 排除规则的唯一例外），现改为**空**——玩家可见文案全部随 UI 对象存在于 `Main.unity`，第 4 步的场景扫描已经覆盖。
+
+**未动的东西**：`Assets/Scenes/Main.unity` 一个字节都没改（本次只删编辑器工具、改注释与文档）。加载页、HUD、面板的既有手工调整原样保留。
+
+**验证**（真工程本体，编辑器关闭后用批处理跑；本机 Unity `2022.3.62f3`）：
+
+| 项 | 命令 | 结果 |
+|----|------|------|
+| EditMode | `-batchmode -nographics -projectPath … -runTests -testPlatform editmode -testResults Logs\editmode-results.xml` | **134 / 135**，退出码 2（唯一失败是既存的面板几何，见下） |
+| PlayMode | 同上换 `playmode` | **87 / 87**，`failed=0`，退出码 0 |
+| 结果归档 | — | `Docs/evidence/editmode-results.xml`、`playmode-results.xml` |
+
+唯一失败项 `HudLayoutTests.SettingsPanel_BottomBlock_SitsAboveTheBottomEdgeWithBalancedSpacing`（`关闭按钮下沿距面板底 216 过大`）**与本轮无关**：它是场景侧的手工编辑（`CloseButton` y 从 V2.41 的 100 被改成 216，门槛是 90–200），`Docs/progress.md` 的「待裁定」条目早已记录，等需求方决定改回 100 还是改门槛。本轮**没有碰过 `Main.unity`**。
+
+**反证（新门禁真的能拦住回归）**：往 `Assets/Scripts/Presentation/UiPanel.cs` 的 `Group` getter 里临时插一行 `gameObject.AddComponent<Canvas>();`，只跑该 fixture：
+
+```
+-runTests -testPlatform editmode -testFilter MergeWater.Tests.EditMode.Presentation.UiSourceOfTruthTests
+→ 2 passed / 1 failed：RuntimeSources_DoNotCreateUiComponents
+  消息：Presentation/UiPanel.cs:32 AddComponent<Canvas>
+```
+
+随后删除该行、复跑恢复通过（反证证据 `Docs/evidence/uigate-falsify-results.xml`）。
+
+**过程中查清的一件事：字符集少了 25 个字、又多了 2 个字**
+
+删除 `HudBuilder.cs` 白名单后重跑 `MergeWater/Font/1. 收集字符`，去重字符 **492 → 464**。为确认没有把玩家可见的字删掉，逐个核对了被移除的 25 个字（龄 参 烘 焙 文 体 资 产 回 退 白 支 付 将 启 统 计 验 证 留 随 详 情 或 并）：
+
+| 检查 | 结果 |
+|------|------|
+| 是否出现在 `Main.unity`（含 `\uXXXX` 转义形式） | **0 个**——场景里根本不存在这些字 |
+| 是否出现在任何 `.prefab` | **0 个** |
+| 是否出现在运行时代码的**字符串字面量**里 | **0 个**（它们只出现在注释与 `Debug.Log` 行，而这两类本来就被收集器跳过） |
+
+结论：这 25 个字是旧文件从 `HudBuilder` 的**非玩家可见字面量**（对象名、编辑器提示等）里收进来的噪音，删掉不损失任何玩家可见字形。
+另 2 个新增字（把、派）来源查明是**本次改动自己引入的**：新写的 `Debug.LogError` 文案「…里把 GameRoot 上的引用重新指派上」跨了两行，而行级过滤只跳过**含 `Debug.Log` 的那一行**，续行因此被当成玩家文案收进去。这两句报错文案已改成不含新字的措辞（并顺带修掉另一处仍在提示「请运行菜单 `MergeWater/Build Main Scene` 重建主场景」的过期报错——那个菜单已删除）。
+
+改完后复核不变量「**收集字符 ⊆ 已烘字形**」：**464 ⊆ 508，缺失 0**。**刻意没有重烘字体**：修正后没有任何玩家可见字符缺字形，而重烘会换掉字体材质子资产的 fileID（历史坑：重烘后 39/52 个 TMP 组件材质悬空）。收集文件改动前的内容留档在 `Docs/evidence/TMPCharacters.before-2026-09-13.txt`。
+
+> 已知小瑕疵（本次未改）：`TMPFontBuilder` 的 `Debug.Log` 过滤是**行级**的，跨行日志的续行会被当成玩家文案收进字符文件——只会多收用不到的字（无功能影响），要修就得改过滤为「整条语句」级别，风险大于收益，留待需要时再动。
+
+
 
 ## 尚未完成
 

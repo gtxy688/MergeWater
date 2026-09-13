@@ -18,7 +18,7 @@
 | A8 | EditMode | `Assets/Tests/EditMode/Presentation/UiArtSlicingTests.cs::ArtWithNineSliceBorder_IsImportedAtCanvasReferencePixelsPerUnit`、`SceneSlicedImages_DoNotClampTheirBordersIntoTheWholeRect` | 九宫格 UI 素材必须以 PPU=100（= `Canvas.referencePixelsPerUnit`）导入；场景里任何 `Image.Type.Sliced` 的边框换算后不得接近/超过元素最小边的一半（否则 Unity 把边框压满整个 Rect，素材被整体拉伸） | **修复「设置面板被拉伸成大白椭圆」后新增**（V2.40）：此前无任何九宫格缩放约束，素材 PPU 被设成 1/2，边框实际放大 100/50 倍 | PASS |
 | A9 | PlayMode | `Assets/Tests/PlayMode/Presentation/UiScreenshotDiagnostics.cs::CapturePanels_ForVisualReview` | 把加载页/设置/隐私/结算四个面板渲染成 `Logs/Diagnostics/ui-0X-*.png`（Canvas 临时切 ScreenSpaceCamera + 独立相机 → RenderTexture），供人工与多模态复核；`-nographics` 下写 `.skipped.txt` 而不崩溃 | UI 观感只能靠看图判断（与 `PhysicsAndPreviewDiagnostics` 同类诊断测试） | PASS |
 | A13 | EditMode | `Assets/Tests/EditMode/Bootstrap/HudLayoutTests.cs::SettingsPanel_BottomBlock_SitsAboveTheBottomEdgeWithBalancedSpacing` | 设置面板底部块（版本/关闭）几何不变量：关闭按钮下沿距面板底 90–200（V2.41 上移后为 100）、底部块与「清除缓存」空档 80–200（上移后为 94）、版本号在关闭按钮之上 | 需求方（2026-09-12）「把底部上移一点」：原值 60 导致重心偏低（上方空档 134 / 下方仅 60）。**反证**：把场景里的 y 改回 60 后该用例失败（`Expected ≥ 90.0f, But was 60.0f`） | PASS |
-| A14 | EditMode | `Assets/Tests/EditMode/Presentation/UiSourceOfTruthTests.cs`（3 项：`RuntimeAssemblies_DoNotContainTheUiBuilder`、`RuntimeAssemblies_DoNotReferenceTheUiBuilder`、`HudViewFields_AreFilledFromTheSceneNotFromCode`） | UI 来源不变量：界面只来自场景资产，运行时不生成——运行时程序集不得包含/引用 UI 生成器 `HudBuilder`，`HudView` 不得有属性 setter（UI 引用只能由场景序列化提供） | **UI 改为「运行前就存在」后新增**（2026-09-12 需求方要求方便调整）；**反证**：把 `HudBuilder` 移回 `MergeWater.Presentation` 后该用例失败（`UI 生成器存在于运行时程序集…MergeWater.Presentation.HudBuilder`） | PASS |
+| A14 | EditMode | `Assets/Tests/EditMode/Presentation/UiSourceOfTruthTests.cs`（3 项：`RuntimeSources_DoNotCreateUiComponents`、`RuntimeAssemblies_DoNotReferenceTheEditorAssembly`、`HudViewFields_AreFilledFromTheSceneNotFromCode`） | UI 来源不变量：界面只来自场景资产、**只靠手动编辑**——运行时代码不得 `AddComponent` 任何 UI 组件（`Canvas`/`Image`/`Button`/`Toggle`/`Slider`/TMP/`HudView`/`PanelController`…），运行时程序集不得引用 `MergeWater.Editor`（编辑器工具不进运行时装配），`HudView` 不得有属性 setter（UI 引用只能由场景序列化提供） | **UI 改为「运行前就存在」后新增**（2026-09-12 需求方要求方便调整）；2026-09-13 生成器被删除后，前两项从「按类型名扫反射」改为**源码扫描**门禁——生成器不存在了，扫反射会变成空断言 | PASS |
 | A10 | EditMode | `Assets/Tests/EditMode/Presentation/BackdropViewTests.cs`（5 项：`Backdrop_CoversWholeCameraView_竖屏/横屏/正方形`、`Backdrop_RefitsWhenCameraAspectChanges`、`Backdrop_WithoutSprite_DoesNotThrow`） | 背景必须按 cover 盖满任意宽高比的视口（1080×1920 / 1920×1080 / 1:1）、居中于相机、缩放贴近理论 cover 值；超宽屏（2.2:1）重新贴合后仍盖满；素材缺失时不抛异常且不动 Transform | **2026-09-12 需求方「背景图太丑，换一个」后新增**（D14）：cover 逻辑写错就会露出相机清屏色边带，逻辑测试抓不到 | PASS |
 | A11 | EditMode | `Assets/Tests/EditMode/Bootstrap/SceneAssetTests.cs::Backdrop_IsBehindEveryWorldElement`、`HudView_RequiredElementsAreWired`（本次扩充） | 场景必须有背景节点且排序值为负（低于场景里每一个 `SpriteRenderer`/`LineRenderer`，否则挡住玩法画面）；指派了素材时渲染器必须启用。设置页必须有音效/音乐两条音量条与分段填充，取值范围 0..1 | **同上新增**：需求方反馈「音量条丢失」；背景断言随后改为兼容「换回原来的纯色底」 | PASS |
 | A12 | PlayMode | `Assets/Tests/PlayMode/Bootstrap/BootstrappedSceneTests.cs::VolumeSliders_AreWiredAtRuntime_AndChangeAudio`、`Backdrop_CoversViewport_AndSitsBehindTheGameplay` | 真场景端到端：拖动音量条必须立刻改 `AudioDirector` 音量、写入存档、并让分段填充跟随；**取消勾选对应开关后音量条必须不可调、勾回来恢复且档位保留**。背景节点必须在场且排序在水果之前；指派了素材时还要盖满视口并在宽高比变化后重贴合（**2026-09-13 起走「有素材」分支**：`bg_star` 已启用） | **同上新增**（R25「即时生效并写入存档」+ 2026-09-12「取消勾选时禁止调节大小」） | PASS（2026-09-13 启用背景素材后复跑仍全绿） |
@@ -33,11 +33,13 @@
 | 2026-09-12 | 同上 / Play 模式运行时脚本 | `exec_runtime_script` 复验真场景（编辑器正开，PlayMode 套件需关闭编辑器跑批处理，本次未跑） | `Temp/verify-settings-disabled.png` 等 | PASS — 背景 `sprite=null / enabled=False / 相机清屏色=米色`；音量条 0.45 → 取消勾选音效后 `interactable=False` 且存档保留 0.45 → 重新勾选后 `interactable=True`、值 0.45、填充 0.45；取消勾选音乐后 `interactable=False` |
 | 2026-09-12 | Unity 2022.3.62f3 / Windows 10 / 隔离副本 `-batchmode -nographics` | EditMode 与 PlayMode 全量（设置面板底部块上移 V2.41 后） | `Logs\editmode-results.xml`、`Logs\playmode-results.xml` | PASS — EditMode **113/113**、PlayMode **83/83**，`failed=0`；补上了上一条遗留的「PlayMode 未跑」缺口 |
 
+| 2026-09-13 | Unity 2022.3.62f3 / Windows 10 / **真工程本体** `-batchmode -nographics`（编辑器已关闭） | EditMode 与 PlayMode 全量（删除全部程序化 UI 工具 + 重收字符集后，V2.51） | `Docs/evidence/editmode-results.xml`、`Docs/evidence/playmode-results.xml`、`Docs/evidence/uigate-falsify-results.xml` | EditMode **134/135**（唯一失败是既存的面板几何 —— 场景里 `CloseButton` 被手工改到 216、门槛上限 200，与本轮无关）、PlayMode **87/87**、PlayMode `failed=0`。A14 的源码门禁另做了**反证**：临时插入 `AddComponent<Canvas>()` 后立刻失败并报出 `Presentation/UiPanel.cs:32`；字符集核对「收集 ⊆ 已烘」= 464 ⊆ 508、缺失 0 |
+
 > 环境说明：先在由真工程同步出的隔离副本上运行，随后 MCP 直连真工程本体复跑。最近一轮（2026-09-12，含九宫格 PPU 门禁、面板截图诊断与设置面板底部块上移 V2.41）为批处理全量运行：EditMode 113/113、PlayMode 83/83，`failed=0`。详见 `Docs/evidence/README.md`。
 
 ## 手动验收前置条件
 
-- 场景、Prefab 与配置：由 `MergeWater/Build Main Scene` 生成的 `Main.unity`；竖屏 1080×1920 参考分辨率。
+- 场景、Prefab 与配置：已提交的 `Assets/Scenes/Main.unity`（**UI 在该场景里手工维护，没有生成器**）；竖屏 1080×1920 参考分辨率。
 - 依赖模块状态：M1/M2/M3/M4/M6 已实现并可开局。
 - 目标设备与画质档位：Editor Play Mode；真机（中端）。
 
@@ -66,9 +68,10 @@
 | E4 | 贴边元素的 pivot 与锚点不一致 | 元素被裁出画布（**实际发生**：设置按钮顶部 −4 单位） | 自动 | PASS | `HudLayoutTests.TopAnchoredElements_UseSameSidePivot_SoTheyAreNotClipped`、`AllVisibleHudElements_FitInsideDesignCanvas` |
 | E5 | 顶栏元素进入微信胶囊保留区 | 与系统胶囊重叠、设置入口被遮挡（**实际风险**：原设计右侧仅留 190 单位，胶囊区需约 300） | 自动 | PASS | `HudLayoutTests.TopBar_DoesNotEnterWeChatCapsuleZone` |
 | E6 | 手感反馈组件引用未接线 | R22 的粒子/顿帧/慢放/震屏/飘字全部静默空转（**实际发生**：`HudBuilder` 从未调用 `FeedbackDirector.Configure`） | 自动 | PASS | `BootstrappedSceneTests.Merge_ProducesVisibleFeedback`（真场景）；静态接线见 `HudLayoutTests` 同批自检 |
-| E7 | 背景素材缺失（`Art/bg_star` 未导入/被删） | 不能崩：关闭背景渲染器并回落相机 SolidColor。`BuildBackdrop` 在素材名非空但取不到图时告警一次；而菜单 `Assign Backdrop Art (No UI Rebuild)` 找不到素材时**报错且不做任何改动**，不会留下「渲染器开着但没图」的半套状态 | 自动 | PASS | `BackdropViewTests.Backdrop_WithoutSprite_DoesNotThrow`；`SceneAssetTests.Backdrop_IsBehindEveryWorldElement`（素材为空即失败提醒） |
-| E8 | 只修 `HudBuilder` 而忘记重建 `Main.unity` | HUD 是场景序列化产物，新控件（音量条/背景）在真场景里不会出现——「改了没反应」 | 自动 | PASS | `SceneAssetTests.HudView_RequiredElementsAreWired`（断言音量条存在）+ `Backdrop_IsBehindEveryWorldElement`；两者在未重建场景时会失败 |
-| E9 | 音量条填充只由 `HudBuilder` 挂监听 | 编辑器期监听不会被序列化：**音量真的变了、填充条却一直满格**（本次实现中实际复现过） | 自动 | PASS | 运行时脚本复验（填充 0.80 跟随）；`BootstrappedSceneTests.VolumeSliders_AreWiredAtRuntime_AndChangeAudio` 断言 `fillAmount` |
+| E7 | 背景素材缺失（`Art/bg_star` 未导入/被删），或场景里 `Backdrop` 的 Sprite 为空、渲染器被关 | 不能崩：不缩放、不抛异常，由相机 SolidColor 清屏兜底（运行时不创建对象、也不去找素材） | 自动 | PASS | `BackdropViewTests.Backdrop_WithoutSprite_DoesNotThrow`；`SceneAssetTests.Backdrop_IsBehindEveryWorldElement`（节点在 + 排序为负 + 有素材时渲染器必须启用） |
+| E8 | 场景里删掉/改坏了必需的 UI 元素（历史上是「只改了生成器却忘记重建 `Main.unity`」） | 真场景缺控件或布局越界 → 运行时静默失效（「改了没反应」）。UI 现在**只在场景里维护**，`Main.unity` 与这几道门禁就是唯一防线 | 自动 | PASS | `SceneAssetTests.HudView_RequiredElementsAreWired`（音量条等在位）+ `HudLayoutTests`（画布内/胶囊避让/底部净空）+ `TMPFontAssetTests.EveryTmpText_InMainScene_UsesBundledFont` |
+| E9 | 音量条填充没有运行时接线（历史上是「只在编辑器期用代码挂监听」） | 编辑器期挂的运行时监听不随场景序列化：**音量真的变了、填充条却一直满格**（实际复现过） | 自动 | PASS | `BootstrappedSceneTests.VolumeSliders_AreWiredAtRuntime_AndChangeAudio` 断言 `fillAmount`；接线点在 `PanelController.HookButtons` |
+| E10 | 有人把 UI 生成逻辑写回运行时代码（又造一个「Builder」） | 界面重新出现两套来源，「编辑器里看到的」不再是最终效果 | 自动 | PASS | `UiSourceOfTruthTests.RuntimeSources_DoNotCreateUiComponents`（源码扫描）+ `RuntimeAssemblies_DoNotReferenceTheEditorAssembly` |
 
 ## 回归范围
 

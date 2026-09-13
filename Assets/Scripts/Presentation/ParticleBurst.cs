@@ -4,7 +4,7 @@ namespace MergeWater.Presentation
 {
     /// <summary>
     /// 合成粒子爆发（R22）。用一个常驻 <see cref="ParticleSystem"/>（发射率为 0）按需 Emit，
-    /// 避免每次合成实例化对象。占位贴图由 HudBuilder 指派。
+    /// 避免每次合成实例化对象。粒子贴图由场景里这个常驻对象指派（在编辑器里手工换）。
     /// </summary>
     public sealed class ParticleBurst : MonoBehaviour
     {
