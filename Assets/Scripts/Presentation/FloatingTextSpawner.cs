@@ -2,88 +2,50 @@ using UnityEngine;
 
 namespace MergeWater.Presentation
 {
-    /// <summary>飘字（R22）：连击/得分飘字，punch 缩放后上浮淡出。</summary>
+    /// <summary>
+    /// 飘字（R22）：连击/得分飘字，punch 缩放后上浮淡出。
+    ///
+    /// <para><b>运行时不生成 UI 对象</b>（需求方 2026-09-12 要求）：飘字条目全部是
+    /// <c>Main.unity</c> 里预先建好的对象（`Presentation/FloatingText/Pool` 下的若干条），
+    /// 运行时只做「取一条、激活、播完归还」。早期实现每次飘字都 <c>new GameObject</c> +
+    /// <c>AddComponent&lt;TextMesh&gt;</c>，既违反这条约束，也在连击时产生 GC 峰值。</para>
+    /// </summary>
     public sealed class FloatingTextSpawner : MonoBehaviour
     {
-        [SerializeField] private Font font;
-        [SerializeField] private float defaultCharacterSize = 0.14f;
+        [Tooltip("池子容量；超出时复用最早的那条（同时最多显示这么多条飘字）。")]
+        [SerializeField] private int poolSize = 12;
 
-        public void SetFont(Font textFont) => font = textFont;
+        [Tooltip("单条飘字对象（预先建好，挂 TextMeshPro + FloatingTextItem）。")]
+        [SerializeField] private FloatingTextItem[] pool;
 
+        // 轮转游标：飘字是短命特效，直接覆盖最早的一条比排队更符合「即时反馈」。
+        private int _next;
+
+        /// <summary>池子里可用的条目数（供测试断言「预置而非运行时生成」）。</summary>
+        public int PoolCount => pool?.Length ?? 0;
+
+        public void Configure(FloatingTextItem[] items) => pool = items;
+
+        /// <summary>字体的统一来源：场景里预置的 TMP 文本已引用 SIMYOU SDF，这里不再运行时解析字体。</summary>
         public void Spawn(Vector2 worldPosition, string text, Color color, float sizeMultiplier = 1f)
         {
             if (string.IsNullOrEmpty(text))
                 return;
 
-            var go = new GameObject("FloatingText");
-            go.transform.SetParent(transform, false);
-            go.transform.position = new Vector3(worldPosition.x, worldPosition.y, 0f);
-
-            var mesh = go.AddComponent<TextMesh>();
-            mesh.font = font != null ? font : UiFontProvider.Resolve();
-            mesh.text = text;
-            mesh.color = color;
-            mesh.anchor = TextAnchor.MiddleCenter;
-            mesh.alignment = TextAlignment.Center;
-            mesh.fontSize = 72;
-            mesh.characterSize = defaultCharacterSize * Mathf.Max(0.1f, sizeMultiplier);
-
-            var renderer = go.GetComponent<MeshRenderer>();
-            if (renderer != null)
+            if (pool == null || pool.Length == 0)
             {
-                if (mesh.font != null)
-                    renderer.sharedMaterial = mesh.font.material;
-
-                renderer.sortingOrder = 600;
+                Debug.LogWarning("[FloatingTextSpawner] 飘字池为空：请用 MergeWater/Build Main Scene 重建场景。");
+                return;
             }
 
-            var item = go.AddComponent<FloatingTextItem>();
-            item.Play(duration: 0.8f, rise: 1.0f * Mathf.Max(0.1f, sizeMultiplier));
-        }
-    }
+            var item = pool[_next];
+            _next = (_next + 1) % pool.Length;
 
-    /// <summary>单条飘字的生命周期：上浮 + 淡出 + punch 缩放。</summary>
-    public sealed class FloatingTextItem : MonoBehaviour
-    {
-        private TextMesh _mesh;
-        private Color _baseColor;
-        private float _duration = 0.8f;
-        private float _remaining;
-        private float _rise;
-        private float _scaleBase = 1f;
-
-        public void Play(float duration, float rise)
-        {
-            _mesh = GetComponent<TextMesh>();
-            _baseColor = _mesh != null ? _mesh.color : Color.white;
-            _duration = Mathf.Max(0.05f, duration);
-            _remaining = _duration;
-            _rise = rise;
-        }
-
-        private void Update()
-        {
-            if (_remaining <= 0f)
+            if (item == null)
                 return;
 
-            var unscaled = Time.unscaledDeltaTime;
-            _remaining = Mathf.Max(0f, _remaining - unscaled);
-            var progress = 1f - _remaining / _duration;
-
-            transform.position += Vector3.up * (_rise * unscaled / _duration);
-
-            if (_mesh != null)
-            {
-                var color = _baseColor;
-                color.a = Mathf.Clamp01(1f - progress * progress);
-                _mesh.color = color;
-            }
-
-            var punch = 1f + Mathf.Sin(Mathf.Clamp01(progress * 3f) * Mathf.PI) * 0.35f;
-            transform.localScale = Vector3.one * punch;
-
-            if (_remaining <= 0f)
-                Destroy(gameObject);
+            item.transform.position = new Vector3(worldPosition.x, worldPosition.y, 0f);
+            item.Play(text, color, sizeMultiplier);
         }
     }
 }

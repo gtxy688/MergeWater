@@ -90,8 +90,11 @@ namespace MergeWater.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator MergeResult_PopsUpward_SoItDoesNotImmediatelyReMerge()
+        public IEnumerator MergeResult_PushedSidewaysAtMidpoint()
         {
+            // V2.31b（需求方要求）：合成结果不再向上蹦，而是「左右推开」——
+            // 位置仍是两颗的中点，但会获得水平初速（方向按 id 左右交替），
+            // 把邻居朝两侧推、腾出继续合成的空间。
             _rig = new FieldTestRig(gravity: 0f);
 
             var radius = _rig.Radius(1);
@@ -101,9 +104,48 @@ namespace MergeWater.Tests.PlayMode
             yield return new WaitForSeconds(0.25f);
 
             var survivor = _rig.Root.transform.Find("Fruit_2_2");
-            Assert.That(survivor, Is.Not.Null);
-            Assert.That(survivor.GetComponent<FruitBody>().Body.velocity.y, Is.GreaterThan(0f),
-                "结果水果应有向上初速（V2.21 后脱离堆叠）");
+            Assert.That(survivor, Is.Not.Null, "应生成 2 级结果水果");
+
+            var body = survivor.GetComponent<FruitBody>();
+            Assert.That(body.Body.velocity.y, Is.LessThanOrEqualTo(0.05f), "结果水果不应向上蹦（需求方要求）");
+            Assert.That(Mathf.Abs(body.Body.velocity.x), Is.GreaterThan(0.05f), "结果水果应获得水平推力");
+            Assert.That(Mathf.Abs(survivor.position.x), Is.GreaterThan(0.02f), "结果水果应已向侧面移动");
+            Assert.That(survivor.position.y, Is.EqualTo(0f).Within(0.05f), "不应向上移动");
+        }
+
+        [UnityTest]
+        public IEnumerator MergeResult_SidePushEqualsConfiguredImpulse()
+        {
+            // 需求方（2026-09-12）：「水果合成后，给的力度太吝啬」——合成结果必须真的拿到
+            // V2.31b 配置的水平初速（最初 0.45 时几乎立刻被阻尼磨平，看不出被推开）。
+            // 在 Merged 当帧读取速度，避免结论变成「测了多久」的函数。
+            _rig = new FieldTestRig(gravity: 0f);
+
+            var pushed = Vector2.zero;
+            var captured = false;
+            _rig.Field.Merged += evt =>
+            {
+                foreach (Transform child in _rig.Root.transform)
+                {
+                    if (!child.name.StartsWith($"Fruit_{evt.ResultLevel}_"))
+                        continue;
+
+                    pushed = child.GetComponent<Rigidbody2D>().velocity;
+                    captured = true;
+                    break;
+                }
+            };
+
+            var radius = _rig.Radius(1);
+            _rig.Field.SpawnAt(1, new Vector2(-radius + 0.01f, 0f), out _);
+            _rig.Field.SpawnAt(1, new Vector2(radius - 0.01f, 0f), out _);
+
+            yield return new WaitForSeconds(0.2f);
+
+            Assert.That(captured, Is.True, "两颗同级水果接触后应发生合成");
+            Assert.That(Mathf.Abs(pushed.x), Is.EqualTo(_rig.Balance.MergeResultSideImpulse).Within(1e-3f),
+                "合成结果应获得 V2.31b 配置的水平初速（需求方：力度太吝啬）");
+            Assert.That(Mathf.Abs(pushed.y), Is.LessThan(1e-3f), "合成结果不得向上蹦（V2.31b）");
         }
     }
 }

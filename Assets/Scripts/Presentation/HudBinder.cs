@@ -23,14 +23,19 @@ namespace MergeWater.Presentation
         private ISessionView _session;
         private IAimSource _aim;
         private GameBalance _balance;
-        private StageProgress _stageProgress;
         private int _lastScore = -1;
         private int _lastBestScore = -1;
         private int _lastCurrentLevel = -1;
-        private int _lastNextLevel = -1;
         private bool _subscribed;
+        private float _playHalfWidth = -1f;
 
         public ISessionView Session => _session;
+
+        /// <summary>
+        /// 方案 B：场地有效半宽由相机可视宽度决定（M7 在运行时注入）。
+        /// 未注入时回退到数值表的设计半宽（EditMode/脚手架测试即该路径）。
+        /// </summary>
+        public void SetPlayAreaHalfWidth(float halfWidth) => _playHalfWidth = halfWidth > 0f ? halfWidth : -1f;
 
         public void Configure(HudView hudView, PanelController panelController, FeedbackDirector feedbackDirector,
             AimPreviewView aimPreview, DangerLineView lineView, Sprite sprite)
@@ -60,13 +65,12 @@ namespace MergeWater.Presentation
             _lastScore = -1;
             _lastBestScore = -1;
             _lastCurrentLevel = -1;
-            _lastNextLevel = -1;
-            _stageProgress = _balance != null ? new StageProgress(_balance) : null;
 
             _session.Events.DropPerformed += OnDropPerformed;
             _session.Events.Merged += OnMerged;
             _session.Events.Scored += OnScored;
-            _session.Events.ComboChanged += OnComboChanged;
+            // 需求方（2026-09-12）：连击提示不再走顶栏文本，改为在合成位置由
+            // FeedbackDirector.PlayScore 用飘字给出更强反馈，因此这里不再订阅 ComboChanged。
             _session.Events.DangerStarted += OnDangerStarted;
             _session.Events.DangerEnded += OnDangerEnded;
             _session.Events.PhaseChanged += OnPhaseChanged;
@@ -74,10 +78,22 @@ namespace MergeWater.Presentation
             _subscribed = true;
 
             if (dangerLine != null && _balance != null)
-                dangerLine.SetLine(_balance.DangerLineY, _balance.FieldHalfWidth + _balance.WallThickness, 0.05f);
+            {
+                // 方案 B：场地边界跟随屏幕，危险线要横跨整个可玩宽度（未注入时回退设计值）。
+                var lineHalfWidth = (_playHalfWidth > 0f ? _playHalfWidth : _balance.FieldHalfWidth)
+                                    + _balance.WallThickness;
+                dangerLine.SetLine(_balance.DangerLineY, lineHalfWidth, 0.05f);
+            }
 
             if (preview != null)
-                preview.SetPendingVisible(true);
+            {
+                if (_balance != null)
+                    preview.ConfigureReveal(_balance.NextFruitRevealDelaySeconds,
+                        _balance.NextFruitRevealDurationSeconds);
+
+                // 开局第一颗也走「渐显」出现，节奏与后续投放一致（延迟为 0）。
+                preview.BeginPendingReveal(0f);
+            }
 
             RefreshSnapshot(force: true);
         }
@@ -89,7 +105,6 @@ namespace MergeWater.Presentation
                 _session.Events.DropPerformed -= OnDropPerformed;
                 _session.Events.Merged -= OnMerged;
                 _session.Events.Scored -= OnScored;
-                _session.Events.ComboChanged -= OnComboChanged;
                 _session.Events.DangerStarted -= OnDangerStarted;
                 _session.Events.DangerEnded -= OnDangerEnded;
                 _session.Events.PhaseChanged -= OnPhaseChanged;
@@ -117,7 +132,9 @@ namespace MergeWater.Presentation
 
         private void OnDropPerformed(DropPerformedEvent evt)
         {
-            preview?.SetPendingVisible(true);
+            // 下一颗待投水果稍等片刻再从屏幕中央渐显出现（V2.33/V2.34），
+            // 而不是上一颗刚离手就立刻冒出。
+            preview?.BeginPendingReveal();
         }
 
         private void OnMerged(MergeEvent evt)
@@ -141,14 +158,7 @@ namespace MergeWater.Presentation
                 view.bestScoreText.text = $"最高分：{_lastBestScore}";
         }
 
-        private void OnComboChanged(int combo)
-        {
-            if (view?.comboText == null || _session == null)
-                return;
-
-            var multiplier = _session.Snapshot.Multiplier;
-            view.comboText.text = combo >= 2 ? $"{combo} 连击  x{multiplier:0.0}" : string.Empty;
-        }
+        // 连击提示已改为在合成位置飘字（FeedbackDirector.PlayScore），顶栏不再有 comboText。
 
         private void OnDangerStarted(DangerViolation violation)
         {
@@ -164,8 +174,8 @@ namespace MergeWater.Presentation
 
         private void OnMilestoneReached(StageMilestone milestone)
         {
-            feedback?.PlayClaim();
-            panels?.ShowToast($"达到 {milestone.Score} 分，获得 1 个{milestone.Reward}");
+            // 需求方（2026-09-12）：里程碑不再发放奖励（奖励只通过广告获取），
+            // 因此也不再弹「获得道具」飘字与 Toast；事件本身仍会发布，供埋点使用。
         }
 
         private void OnPhaseChanged(RoundPhase from, RoundPhase to)
@@ -228,23 +238,10 @@ namespace MergeWater.Presentation
                 if (view?.bestScoreText != null)
                     view.bestScoreText.text = $"最高分：{snapshot.BestScore}";
 
-                if (view?.stageProgressFill != null && _stageProgress != null)
-                    view.stageProgressFill.fillAmount = _stageProgress.GetNormalizedProgress(snapshot.Score);
-
-                if (view?.stageProgressLabel != null)
-                    view.stageProgressLabel.text = StageLabel(snapshot);
+                // 需求方（2026-09-12）：删去「阶段目标 + 进度条」，顶栏只显示总分，故这里不再刷新阶段 UI。
             }
 
-            if (force || snapshot.NextLevel != _lastNextLevel)
-            {
-                _lastNextLevel = snapshot.NextLevel;
-
-                if (view?.nextFruitLabel != null)
-                    view.nextFruitLabel.text = TierName(snapshot.NextLevel);
-
-                if (view?.nextFruitIcon != null)
-                    view.nextFruitIcon.color = FruitPalette.ForLevel(snapshot.NextLevel);
-            }
+            // 需求方（2026-09-12）：删去右上角「NEXT 下一个水果」预览，故不再刷新 next 图标/文字。
 
             if (_balance != null && preview != null && (force || snapshot.CurrentLevel != _lastCurrentLevel))
             {
@@ -288,18 +285,6 @@ namespace MergeWater.Presentation
 
             var tier = _balance.GetTier(level);
             return tier.IsValid ? tier.DisplayName : level.ToString();
-        }
-
-        private string StageLabel(RoundSnapshot snapshot)
-        {
-            if (_balance == null)
-                return string.Empty;
-
-            var progress = new StageProgress(_balance);
-            if (progress.TryGetNext(out var next))
-                return $"阶段目标 {snapshot.Score}/{next.Score}";
-
-            return "阶段目标已全部达成";
         }
     }
 }

@@ -58,9 +58,10 @@ namespace MergeWater.Tests.PlayMode
             second.RaiseScored(80, 80, 1.0f, 1);
             Assert.That(_harness.View.scoreText.text, Is.EqualTo("80"), "新局事件应生效");
 
-            // 重新绑定不应重复订阅：一次事件只刷新一次（用连击文本验证不会叠加）。
-            second.RaiseComboChanged(3);
-            Assert.That(_harness.View.comboText.text, Is.EqualTo("3 连击  x1.0"));
+            // 需求方（2026-09-12）把连击提示移到了合成位置的飘字，因此这里用分数文本验证「不重复订阅」：
+            // 旧局再抬分不应影响 HUD（新局事件已生效且只订阅一次）。
+            first.RaiseScored(99, 99, 1.0f, 1);
+            Assert.That(_harness.View.scoreText.text, Is.EqualTo("80"), "旧局事件不应再更新 HUD");
         }
 
         [Test]
@@ -116,19 +117,24 @@ namespace MergeWater.Tests.PlayMode
         }
 
         [Test]
-        public void MilestoneReached_ShowsClaimToast()
+        public void MilestoneReached_ShowsNoClaimToast()
         {
             var binder = _harness.CreateBinder();
             binder.Bind(_session, _aim, GameBalance.CreateDefault(), 0);
 
+            // 清掉可能存在的旧 Toast，避免误判
+            _harness.Panels.ShowToast(string.Empty, 0.01f);
             _session.RaiseMilestone(new StageMilestone(200, ItemKind.Undo));
 
-            Assert.That(_harness.View.toastText.text, Does.Contain("200"), "阶段目标达成应有提示（R10）");
-            Assert.That(_harness.View.toastGroup.alpha, Is.GreaterThan(0f));
+            // 需求方（2026-09-12）：里程碑不再发奖励，因此也不再有「获得道具」提示（V2.38）。
+            Assert.That(_harness.View.toastText.text, Does.Not.Contain("200"),
+                "里程碑达成不应再弹奖励提示（奖励只通过广告获取）");
+            Assert.That(_harness.View.toastText.text, Does.Not.Contain("获得"),
+                "不应出现「获得道具」类提示");
         }
 
         [UnityTest]
-        public IEnumerator Update_RefreshesNextPreviewAndPendingFruit()
+        public IEnumerator Update_RefreshesPendingFruit()
         {
             var binder = _harness.CreateBinder();
             _session.Score = 0;
@@ -137,9 +143,8 @@ namespace MergeWater.Tests.PlayMode
 
             yield return null;
 
-            Assert.That(_harness.View.nextFruitLabel.text, Is.EqualTo("猕猴桃"), "next 预览应显示等级 5 的名称");
-            Assert.That(_harness.View.nextFruitIcon.color, Is.EqualTo(FruitPalette.ForLevel(5)),
-                "next 图标颜色应与等级一致");
+            // 需求方（2026-09-12）已移除右上角 NEXT 预览：HudBinder 不再刷新 nextFruitIcon/Label
+            //（脚手架仍保留这两个字段以兼容旧用例；真场景里它们不会被创建，见 SceneAssetTests）。
             Assert.That(_harness.Preview.PendingVisible, Is.True, "对局中应显示待投水果");
         }
 

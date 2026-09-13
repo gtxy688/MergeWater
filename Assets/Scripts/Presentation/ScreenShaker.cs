@@ -20,6 +20,9 @@ namespace MergeWater.Presentation
 
         public bool IsShaking => _remaining > 0f;
 
+        /// <summary>是否已绑定抖动目标；未绑定时 <see cref="Shake"/> 会静默失效。</summary>
+        public bool HasTarget => target != null;
+
         public void SetTarget(Transform shakeTarget)
         {
             Restore();

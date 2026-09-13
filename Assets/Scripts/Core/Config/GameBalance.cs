@@ -66,18 +66,45 @@ namespace MergeWater.Core
         [SerializeField] private float fieldHalfWidth = 2.2f;
         [SerializeField] private float wallThickness = 0.4f;
         [SerializeField] private float fieldFloorY = -4.2f;
-        [SerializeField] private float dropSpawnY = 5.2f;
+        /// <summary>
+        /// 屏幕地面相对屏幕底边抬起的距离（V2.42）。方案 B「屏幕即边框」原先把地面精确放在
+        /// 屏幕底边（`floorY = 相机 y − 正交半高`），水果落地后紧贴最后一行像素，
+        /// 观感上像被下边缘切掉（需求方 2026-09-12 截图指认）。
+        /// 抬起这段距离后，堆叠底部与屏幕底之间留出可见空隙；与 `KillY` 的落差也仍然足够。
+        /// </summary>
+        [SerializeField] private float floorScreenInset = 0.06f;
+        // 生成高度必须落在「HUD 顶栏之下、警戒线之上」这一段可见区间里：
+        // 相机正交半高 5.6、中心 y=0.4 → 视口世界 y 范围 [-5.2, 6.0]；
+        // HUD 顶栏占屏幕顶部约 15%（对应世界 y≈4.3 以上），警戒线在 3.4。
+        // 取 4.0 时待投水果位于屏幕顶部约 18% 处，既不被顶栏遮挡，也在警戒线之上。
+        [SerializeField] private float dropSpawnY = 4.0f;
         [SerializeField] private float dangerLineY = 3.4f;
         [SerializeField] private float killY = -6.5f;
         [SerializeField] private int maxLiveFruits = 120;
         [SerializeField] private float maxLinearVelocity = 20f;
         [SerializeField] private float dropCooldownSeconds = 0.20f;
         [SerializeField] private float spawnJitter = 0.02f;
-        [SerializeField] private float mergeResultUpwardImpulse = 0.6f;
+        [SerializeField] private float mergeResultUpwardImpulse = 0f;   // V2.31b：不再向上蹦（需求方要求）
+        [SerializeField] private float mergeResultSideImpulse = 1.5f;   // V2.31b：向左右推开；2026-09-12 需求方「力度太吝啬」后 0.45→1.5
         [SerializeField] private float shakeImpulse = 1.6f;
-        [SerializeField] private float fruitFriction = 0.45f;
-        [SerializeField] private float fruitBounciness = 0.02f;
-        [SerializeField] private float fruitLinearDrag = 0.05f;
+        // 物理手感参数（2026-09-12 第三轮，按需求方「往左右移动、别往上蹦」的反馈）：
+        // 弹性压低，避免落地/碰撞后向上弹；摩擦与阻尼再降一点，让水果更愿意横向滑动去找同级水果。
+        // 注意别把阻尼降到接近 0，否则会回到「一路滚到墙角、摊平成一层」的老问题（V2.27 的教训）。
+        [SerializeField] private float fruitFriction = 0.35f;
+        [SerializeField] private float fruitBounciness = 0.25f;
+        [SerializeField] private float fruitLinearDrag = 1.1f;
+        [SerializeField] private float fruitAngularDrag = 0.05f;
+
+        /// <summary>重力倍率随等级线性递增（V2.28）：大果下落更快、重果沉底压住堆叠。</summary>
+        [SerializeField] private float minGravityScale = 1.6f;
+        [SerializeField] private float maxGravityScale = 3.6f;
+
+        // ── V2.33/V2.34 待投水果重现节奏、V2.35 加载页 ─────────────────
+        // 投放后不要立刻冒出下一颗（玩家来不及看清刚投下的结果）：先等一小会，
+        // 再让下一颗水果从屏幕中央「渐显」出现（缩放 + 淡入）。
+        [SerializeField] private float nextFruitRevealDelaySeconds = 0.45f;
+        [SerializeField] private float nextFruitRevealDurationSeconds = 0.25f;
+        [SerializeField] private float loadingMinSeconds = 2.0f;
 
         public FruitTierDefinition[] Tiers => tiers;
         public int TierCount => tiers?.Length ?? 0;
@@ -125,6 +152,9 @@ namespace MergeWater.Core
         public float FieldHalfWidth => fieldHalfWidth;
         public float WallThickness => wallThickness;
         public float FieldFloorY => fieldFloorY;
+
+        /// <summary>V2.42：运行时地面相对屏幕底边抬起的距离，避免水果贴屏底被切。</summary>
+        public float FloorScreenInset => floorScreenInset;
         public float DropSpawnY => dropSpawnY;
         public float DangerLineY => dangerLineY;
         public float KillY => killY;
@@ -133,10 +163,32 @@ namespace MergeWater.Core
         public float DropCooldownSeconds => dropCooldownSeconds;
         public float SpawnJitter => spawnJitter;
         public float MergeResultUpwardImpulse => mergeResultUpwardImpulse;
+
+        /// <summary>V2.31b：合成结果的水平初速（左右交替，单位 m/s），把结果推开而不是向上蹦。</summary>
+        public float MergeResultSideImpulse => mergeResultSideImpulse;
         public float ShakeImpulse => shakeImpulse;
         public float FruitFriction => fruitFriction;
         public float FruitBounciness => fruitBounciness;
         public float FruitLinearDrag => fruitLinearDrag;
+
+        public float FruitAngularDrag => fruitAngularDrag;
+
+        /// <summary>V2.33：投放后下一颗待投水果的出现延迟（秒），让玩家先看清本次结果。</summary>
+        public float NextFruitRevealDelaySeconds => nextFruitRevealDelaySeconds;
+
+        /// <summary>V2.34：待投水果渐显（缩放 + 淡入）时长（秒）。</summary>
+        public float NextFruitRevealDurationSeconds => nextFruitRevealDurationSeconds;
+
+        /// <summary>V2.35：加载页最短展示时长（秒）。</summary>
+        public float LoadingMinSeconds => loadingMinSeconds;
+
+        /// <summary>该等级的重力倍率（V2.28，按 1..11 级线性插值）。</summary>
+        public float GetGravityScale(int level)
+        {
+            var span = Mathf.Max(1, TierCount - 1);
+            var t = Mathf.Clamp01((level - MinTier) / (float)span);
+            return Mathf.Lerp(minGravityScale, maxGravityScale, t);
+        }
 
         /// <summary>按等级取定义；越界返回结构体默认值（IsValid 为 false），不抛异常。</summary>
         public FruitTierDefinition GetTier(int level)

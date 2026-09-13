@@ -6,7 +6,11 @@ using UnityEngine.TestTools;
 
 namespace MergeWater.Tests.PlayMode
 {
-    /// <summary>M7 验收 A7 与 R10：阶段目标奖励发放一次并落库。</summary>
+    /// <summary>
+    /// R10 变更后的回归（需求方 2026-09-12）：
+    /// **连续合成不再发放奖励**——道具只能通过（激励视频）广告获取。
+    /// 里程碑事件仍会发布（供埋点/阶段推进），但不再授予任何道具、也不落库。
+    /// </summary>
     public sealed class MilestoneRewardTests
     {
         private BootstrapTestHarness _harness;
@@ -30,10 +34,12 @@ namespace MergeWater.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator MilestoneReached_GrantsItemOnceAndPersists()
+        public IEnumerator MilestoneReached_DoesNotGrantFreeItem()
         {
             _harness = BootstrapTestHarness.Create(privacyAccepted: true);
             yield return _harness.Activate();
+
+            var undoBefore = _harness.Context.Economy.ItemCount(ItemKind.Undo);
 
             _harness.DropOnce();
             yield return null;
@@ -45,25 +51,28 @@ namespace MergeWater.Tests.PlayMode
             var session = _harness.Context.Session;
             Assert.That(session.Score, Is.EqualTo(221), "105 + 116（连击倍率 1.1）= 221");
 
-            Assert.That(_harness.Context.Economy.ItemCount(ItemKind.Undo), Is.EqualTo(1),
-                "越 200 分里程碑应发放 1 个撤销（V2.18）");
+            Assert.That(_harness.Context.Economy.ItemCount(ItemKind.Undo), Is.EqualTo(undoBefore),
+                "越过 200 分里程碑不应再免费发道具（需求方：奖励只通过广告获取）");
 
             Assert.That(_harness.Store.TryRead(out var json), Is.True);
-            Assert.That(json, Does.Contain("\"undoCount\":1"), "奖励必须落盘（R10 + 持久化）");
+            Assert.That(json, Does.Not.Contain("\"undoCount\":1"),
+                "不应因里程碑把道具写入存档");
         }
 
         [UnityTest]
-        public IEnumerator MilestoneReached_IsNotGrantedTwiceInSameRound()
+        public IEnumerator MilestoneReached_RepeatedMergesStillGrantNothing()
         {
             _harness = BootstrapTestHarness.Create(privacyAccepted: true);
             yield return _harness.Activate();
+
+            var undoBefore = _harness.Context.Economy.ItemCount(ItemKind.Undo);
 
             _harness.DropOnce();
             yield return null;
 
             yield return SpawnTwoTierTenMerges(0f);
             yield return SpawnTwoTierTenMerges(2.0f);
-            Assert.That(_harness.Context.Economy.ItemCount(ItemKind.Undo), Is.EqualTo(1));
+            Assert.That(_harness.Context.Economy.ItemCount(ItemKind.Undo), Is.EqualTo(undoBefore));
 
             // 清场后继续合成，总分再次越过 200 分但仍低于 500 分
             _harness.Field.ClearAll();
@@ -75,8 +84,8 @@ namespace MergeWater.Tests.PlayMode
             var score = _harness.Context.Session.Score;
             Assert.That(score, Is.GreaterThan(400), "已再次越过 200 分");
             Assert.That(score, Is.LessThan(500), "但未到 500 分节点");
-            Assert.That(_harness.Context.Economy.ItemCount(ItemKind.Undo), Is.EqualTo(1),
-                "同一节点每局只发放一次（R10）");
+            Assert.That(_harness.Context.Economy.ItemCount(ItemKind.Undo), Is.EqualTo(undoBefore),
+                "反复连击/越里程碑都不发道具（奖励只通过广告获取）");
         }
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using MergeWater.Core;
 using MergeWater.Presentation;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -132,42 +133,37 @@ namespace MergeWater.Tests.PlayMode
             canvasGo.AddComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
             canvasGo.AddComponent<CanvasScaler>();
 
-            var font = ResolveFont();
             var view = harness.Root.AddComponent<HudView>();
 
-            view.scoreText = MakeText(canvasGo.transform, font, "Score");
-            view.bestScoreText = MakeText(canvasGo.transform, font, "Best");
-            view.comboText = MakeText(canvasGo.transform, font, "Combo");
-            view.stageProgressLabel = MakeText(canvasGo.transform, font, "StageLabel");
-            view.nextFruitLabel = MakeText(canvasGo.transform, font, "NextLabel");
-            view.stageProgressFill = MakeImage(canvasGo.transform, "StageFill");
-            view.nextFruitIcon = MakeImage(canvasGo.transform, "NextIcon");
-            view.settingsButton = MakeButton(canvasGo.transform, font, "Settings");
-            view.retryButton = MakeButton(canvasGo.transform, font, "Retry");
-            view.shareButton = MakeButton(canvasGo.transform, font, "Share");
-            view.reviveButton = MakeButton(canvasGo.transform, font, "Revive");
-            view.reviveLabel = view.reviveButton.GetComponentInChildren<Text>();
-            view.privacyAcceptButton = MakeButton(canvasGo.transform, font, "PrivacyAccept");
-            view.privacyDeclineButton = MakeButton(canvasGo.transform, font, "PrivacyDecline");
-            view.privacyPanel = MakeGroup(canvasGo.transform, "Privacy");
+            view.scoreText = MakeText(canvasGo.transform, "Score");
+            view.bestScoreText = MakeText(canvasGo.transform, "Best");
+            // comboText / stageProgress* / nextFruit* 已按需求移除，HudView 里不再有这些字段。
+            view.settingsButton = MakeButton(canvasGo.transform, "Settings");
+            view.retryButton = MakeButton(canvasGo.transform, "Retry");
+            view.shareButton = MakeButton(canvasGo.transform, "Share");
+            view.reviveButton = MakeButton(canvasGo.transform, "Revive");
+            view.reviveLabel = view.reviveButton.GetComponentInChildren<TextMeshProUGUI>();
+            view.privacyAcceptButton = MakeButton(canvasGo.transform, "PrivacyAccept");
+            view.privacyDeclineButton = MakeButton(canvasGo.transform, "PrivacyDecline");
+            view.privacyPanel = MakePanel(canvasGo.transform, "Privacy");
 
-            view.undoButton = MakeButton(canvasGo.transform, font, "Undo");
-            view.bombButton = MakeButton(canvasGo.transform, font, "Bomb");
-            view.hammerButton = MakeButton(canvasGo.transform, font, "Hammer");
-            view.shakeButton = MakeButton(canvasGo.transform, font, "Shake");
-            view.giftButton = MakeButton(canvasGo.transform, font, "Gift");
+            view.undoButton = MakeButton(canvasGo.transform, "Undo");
+            view.bombButton = MakeButton(canvasGo.transform, "Bomb");
+            view.hammerButton = MakeButton(canvasGo.transform, "Hammer");
+            view.shakeButton = MakeButton(canvasGo.transform, "Shake");
+            view.giftButton = MakeButton(canvasGo.transform, "Gift");
 
-            view.settlementPanel = MakeGroup(canvasGo.transform, "Settlement");
-            view.settlementTitleText = MakeText(canvasGo.transform, font, "SettlementTitle");
-            view.settlementScoreText = MakeText(canvasGo.transform, font, "SettlementScore");
-            view.settlementBestText = MakeText(canvasGo.transform, font, "SettlementBest");
-            view.settlementHintText = MakeText(canvasGo.transform, font, "SettlementHint");
+            view.settlementPanel = MakePanel(canvasGo.transform, "Settlement");
+            view.settlementTitleText = MakeText(canvasGo.transform, "SettlementTitle");
+            view.settlementScoreText = MakeText(canvasGo.transform, "SettlementScore");
+            view.settlementBestText = MakeText(canvasGo.transform, "SettlementBest");
+            view.settlementHintText = MakeText(canvasGo.transform, "SettlementHint");
 
-            view.leaderboardPanel = MakeGroup(canvasGo.transform, "Leaderboard");
-            view.leaderboardText = MakeText(canvasGo.transform, font, "LeaderboardText");
+            view.leaderboardPanel = MakePanel(canvasGo.transform, "Leaderboard");
+            view.leaderboardText = MakeText(canvasGo.transform, "LeaderboardText");
 
-            view.toastGroup = MakeGroup(canvasGo.transform, "Toast");
-            view.toastText = MakeText(canvasGo.transform, font, "ToastText");
+            view.toastPanel = MakePanel(canvasGo.transform, "Toast");
+            view.toastText = MakeText(canvasGo.transform, "ToastText");
 
             harness.View = view;
 
@@ -219,33 +215,13 @@ namespace MergeWater.Tests.PlayMode
             CameraObject = null;
         }
 
-        private static Font ResolveFont()
-        {
-            try
-            {
-                return Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            }
-            catch (System.Exception)
-            {
-                try
-                {
-                    return Resources.GetBuiltinResource<Font>("Arial.ttf");
-                }
-                catch (System.Exception)
-                {
-                    return null;
-                }
-            }
-        }
 
-        private static Text MakeText(Transform parent, Font font, string name)
+        private static TextMeshProUGUI MakeText(Transform parent, string name)
         {
             var go = new GameObject(name);
             go.transform.SetParent(parent, false);
             go.AddComponent<RectTransform>();
-            var text = go.AddComponent<Text>();
-            if (font != null)
-                text.font = font;
+            var text = go.AddComponent<TextMeshProUGUI>();
             text.text = string.Empty;
             return text;
         }
@@ -258,7 +234,7 @@ namespace MergeWater.Tests.PlayMode
             return go.AddComponent<Image>();
         }
 
-        private static Button MakeButton(Transform parent, Font font, string name)
+        private static Button MakeButton(Transform parent, string name)
         {
             var image = MakeImage(parent, name);
             image.raycastTarget = true;
@@ -267,20 +243,19 @@ namespace MergeWater.Tests.PlayMode
             var labelGo = new GameObject("Label");
             labelGo.transform.SetParent(image.transform, false);
             labelGo.AddComponent<RectTransform>();
-            var label = labelGo.AddComponent<Text>();
-            if (font != null)
-                label.font = font;
+            var label = labelGo.AddComponent<TextMeshProUGUI>();
             label.text = name;
 
             return button;
         }
 
-        private static CanvasGroup MakeGroup(Transform parent, string name)
+        private static UiPanel MakePanel(Transform parent, string name)
         {
             var go = new GameObject(name);
             go.transform.SetParent(parent, false);
             go.AddComponent<RectTransform>();
-            return go.AddComponent<CanvasGroup>();
+            go.AddComponent<CanvasGroup>();
+            return go.AddComponent<UiPanel>();
         }
     }
 }

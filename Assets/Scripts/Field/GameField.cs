@@ -10,12 +10,20 @@ namespace MergeWater.Field
     /// 对局场地：水果实体的生成/销毁、2D 物理堆叠、同级合成解析、越线物理查询与道具作用。
     /// 实现 <see cref="IFieldPort"/>；场地根节点应位于原点，所有坐标均为世界坐标。
     /// </summary>
-    public sealed class GameField : MonoBehaviour, IFieldPort
+    public sealed class GameField : MonoBehaviour, IFieldPort, IPreviewObstacle
     {
         [SerializeField] private GameBalanceAsset balanceAsset;
         [SerializeField] private Sprite fruitSprite;
         [SerializeField] private PhysicsMaterial2D fruitMaterial;
         [SerializeField] private bool autoBuildArena = true;
+        [SerializeField] private Sprite wallSprite;
+
+        // 容器外观：早期墙体/地面只有碰撞体没有渲染器，水果看起来像掉进虚空。
+        // 现在默认「屏幕即边框」——边界外移到屏幕左右边缘/底部后，再把棕色框画出来反而多余，
+        // 因此外观默认隐藏（需要旧观感时把 showArenaVisuals 打开，仅用于对比/调试）。
+        [SerializeField] private bool showArenaVisuals;
+        [SerializeField] private Color wallColor = new Color(0.62f, 0.52f, 0.42f, 1f);
+        [SerializeField] private Color floorColor = new Color(0.52f, 0.42f, 0.33f, 1f);
 
         private readonly Dictionary<int, FruitBody> _fruits = new Dictionary<int, FruitBody>();
         private readonly List<FruitBody> _ordered = new List<FruitBody>();
@@ -30,9 +38,16 @@ namespace MergeWater.Field
         private bool _simulationEnabled = true;
         private bool _limitWarned;
         private bool _escapeWarned;
+        private Sprite _wallSpriteFallback;
         private DropRecord _lastDrop;
         private bool _hasLastDrop;
         private int _nextId;
+
+        // 方案 B：场地边界跟随屏幕（左右墙贴屏幕左右边缘、地面 = 屏幕底 + FloorScreenInset），
+        // 由 M7 按相机可视范围注入；
+        // 没有注入时回退到 GameBalance 的固定设计值（EditMode/脚手架测试即该路径）。
+        private float _playHalfWidth = -1f;
+        private float _playFloorY = float.NaN;
 
         private struct FrozenState
         {
@@ -56,6 +71,21 @@ namespace MergeWater.Field
 
         public bool SimulationEnabled => _simulationEnabled;
 
+        /// <summary>容器外观用的 sprite；未指派时回退到占位方块。</summary>
+        public Sprite WallSprite
+        {
+            get
+            {
+                if (wallSprite != null)
+                    return wallSprite;
+
+                if (_wallSpriteFallback == null)
+                    _wallSpriteFallback = Resources.Load<Sprite>("Placeholder/ui_square");
+
+                return _wallSpriteFallback;
+            }
+        }
+
         public PhysicsMaterial2D Material
         {
             get
@@ -76,6 +106,29 @@ namespace MergeWater.Field
             }
         }
 
+        /// <summary>当前对局的有效半宽（方案 B：由屏幕可视宽度决定；未注入时为数值表设计值）。</summary>
+        public float PlayHalfWidth => _playHalfWidth > 0f ? _playHalfWidth : Balance.FieldHalfWidth;
+
+        /// <summary>当前对局的有效地面高度（方案 B：屏幕底；未注入时为数值表设计值）。</summary>
+        public float PlayFloorY => float.IsNaN(_playFloorY) ? Balance.FieldFloorY : _playFloorY;
+
+        /// <summary>
+        /// 按屏幕可视范围注入场地边界（方案 B「屏幕即边框」）：左右墙贴屏幕左右边缘、地面按
+        /// <c>GameBalance.FloorScreenInset</c> 从屏幕底边抬起（不贴死屏底，V2.42）。
+        /// 边界变化后容器按新尺寸重建；<paramref name="halfWidth"/> ≤ 0 时忽略。
+        /// </summary>
+        public void SetPlayArea(float halfWidth, float floorY)
+        {
+            if (halfWidth > 0f)
+                _playHalfWidth = halfWidth;
+
+            _playFloorY = floorY;
+
+            // 边界变了：让 EnsureArena 按新尺寸重新摆放墙/地面（CreateWall 会复用既有子节点）。
+            _arenaBuilt = false;
+            EnsureArena();
+        }
+
         /// <summary>测试与 Bootstrap 用：注入数值、占位图与物理材质。</summary>
         public void Configure(GameBalance balance, Sprite sprite, PhysicsMaterial2D material, bool buildArena = true)
         {
@@ -89,12 +142,29 @@ namespace MergeWater.Field
                 fruitMaterial = material;
 
             autoBuildArena = buildArena;
+            _arenaBuilt = false;
+
             if (buildArena)
             {
-                _arenaBuilt = false;
                 EnsureArena();
+                return;
+            }
+
+            // 显式要求「无容器」时必须清掉 Awake 已建好的场地，
+            // 否则墙体/地面会拦住本该掉出场地的水果（EscapedFruit 测试即此场景）。
+            var existing = transform.Find("Arena");
+            if (existing != null)
+            {
+                DestroyObject(existing.gameObject);
+                _arenaRoot = null;
             }
         }
+
+        /// <summary>
+        /// 运行时先建好容器（含可见外观与碰撞体），不依赖「第一次投放」才创建。
+        /// 早期只在 Drop/SpawnAt 里 EnsureArena，导致开局第一帧看不到场地边界与地面。
+        /// </summary>
+        private void Awake() => EnsureArena();
 
         // ── IFieldPort ───────────────────────────────────────────────
 
@@ -119,7 +189,7 @@ namespace MergeWater.Field
 
             EnsureArena();
 
-            var limit = Mathf.Max(0f, balance.FieldHalfWidth - tier.Radius);
+            var limit = Mathf.Max(0f, PlayHalfWidth - tier.Radius);
             var clampedX = Mathf.Clamp(x, -limit, limit);
             var id = _nextId++;
             var jitter = balance.SpawnJitter > 0f ? (id % 2 == 0 ? 1f : -1f) * balance.SpawnJitter * 0.5f : 0f;
@@ -223,6 +293,35 @@ namespace MergeWater.Field
             var removed = _scratch.Count;
             _scratch.Clear();
             return removed;
+        }
+
+        /// <summary>
+        /// 落点表面查询（供瞄准预览）：取该 x 处所有水果里最高的、且不高于起点的那颗的顶面；
+        /// 没有则落到地面。这样预览线会停在堆叠表面上，而不是穿过去。
+        /// </summary>
+        public float GetLandingY(float x, float fromY)
+        {
+            var best = PlayFloorY;
+
+            for (var i = 0; i < _ordered.Count; i++)
+            {
+                var fruit = _ordered[i];
+                if (fruit == null || fruit.IsPending)
+                    continue;
+
+                var dx = x - fruit.transform.position.x;
+                var radius = fruit.Radius;
+                if (Mathf.Abs(dx) >= radius)
+                    continue;
+
+                var top = fruit.transform.position.y + Mathf.Sqrt(radius * radius - dx * dx);
+                if (top > fromY || top <= best)
+                    continue;
+
+                best = top;
+            }
+
+            return best;
         }
 
         public bool HasFruitInRadius(Vector2 point, float radius)
@@ -465,7 +564,13 @@ namespace MergeWater.Field
 
             var resultLevel = level + 1;
             var resultId = _nextId++;
-            Spawn(resultId, resultLevel, mid, Vector2.up * Balance.MergeResultUpwardImpulse);
+
+            // V2.31b（需求方要求）：合成结果不再向上蹦，而是左右推开——
+            // 交替方向避免总是往同一边挤；横向初速本身会通过碰撞把周围水果挤开、腾出继续合成的空间。
+            var side = Balance.MergeResultSideImpulse;
+            var sideVelocity = side <= 0f ? Vector2.zero : new Vector2(resultId % 2 == 0 ? side : -side, 0f);
+
+            Spawn(resultId, resultLevel, mid, sideVelocity);
 
             Merged?.Invoke(new MergeEvent(idA, idB, level, resultLevel, mid));
         }
@@ -482,7 +587,7 @@ namespace MergeWater.Field
 
             var body = go.AddComponent<FruitBody>();
             body.Initialize(this, fruitId, tier, fruitSprite, FruitPalette.ForLevel(level), Material,
-                new FruitPhysicsConfig(balance));
+                FruitPhysicsConfig.ForTier(balance, level));
 
             if (velocity != Vector2.zero)
                 body.Body.velocity = velocity;
@@ -596,9 +701,9 @@ namespace MergeWater.Field
                 return;
 
             var balance = Balance;
-            var halfWidth = balance.FieldHalfWidth;
+            var halfWidth = PlayHalfWidth;
             var thickness = balance.WallThickness;
-            var bottom = balance.FieldFloorY;
+            var bottom = PlayFloorY;
             var top = balance.DropSpawnY + 1f;
             var height = top - bottom;
 
@@ -618,16 +723,16 @@ namespace MergeWater.Field
             }
 
             CreateWall("LeftWall", new Vector2(-(halfWidth + thickness * 0.5f), bottom + height * 0.5f),
-                new Vector2(thickness, height));
+                new Vector2(thickness, height), wallColor);
             CreateWall("RightWall", new Vector2(halfWidth + thickness * 0.5f, bottom + height * 0.5f),
-                new Vector2(thickness, height));
+                new Vector2(thickness, height), wallColor);
             CreateWall("Floor", new Vector2(0f, bottom - thickness * 0.5f),
-                new Vector2(halfWidth * 2f + thickness * 2f, thickness));
+                new Vector2(halfWidth * 2f + thickness * 2f, thickness), floorColor);
 
             _arenaBuilt = true;
         }
 
-        private void CreateWall(string wallName, Vector2 center, Vector2 size)
+        private void CreateWall(string wallName, Vector2 center, Vector2 size, Color color)
         {
             var existing = _arenaRoot.Find(wallName);
             GameObject go;
@@ -642,6 +747,8 @@ namespace MergeWater.Field
             }
 
             go.transform.localPosition = center;
+            go.transform.localScale = Vector3.one;
+
             var collider = go.GetComponent<BoxCollider2D>();
             if (collider == null)
                 collider = go.AddComponent<BoxCollider2D>();
@@ -649,6 +756,36 @@ namespace MergeWater.Field
             collider.size = size;
             collider.offset = Vector2.zero;
             collider.sharedMaterial = Material;
+
+            // 方案 B：容器外观默认隐藏（屏幕即边框，边界已外移到屏幕边缘，再画框反而多余）。
+            // 碰撞体必须保留——否则水果会直接掉出场地。
+            var visual = go.transform.Find("Visual");
+            if (!showArenaVisuals)
+            {
+                if (visual != null)
+                    DestroyObject(visual.gameObject);
+
+                return;
+            }
+
+            // 视觉放在子节点：碰撞体尺寸用局部单位，若缩放父节点会把碰撞体也一起缩放。
+            if (visual == null)
+            {
+                var child = new GameObject("Visual");
+                child.transform.SetParent(go.transform, false);
+                visual = child.transform;
+            }
+
+            var renderer = visual.GetComponent<SpriteRenderer>();
+            if (renderer == null)
+                renderer = visual.gameObject.AddComponent<SpriteRenderer>();
+
+            renderer.sprite = WallSprite;
+            renderer.color = color;
+            renderer.sortingOrder = -10;
+            visual.localPosition = Vector3.zero;
+            visual.localRotation = Quaternion.identity;
+            visual.localScale = new Vector3(size.x, size.y, 1f);
         }
 
         private static void DestroyObject(GameObject go)
@@ -682,7 +819,7 @@ namespace MergeWater.Field
         private void SanitizeEscapedFruits()
         {
             var balance = Balance;
-            var xLimit = balance.FieldHalfWidth + balance.WallThickness + 2f;
+            var xLimit = PlayHalfWidth + balance.WallThickness + 2f;
 
             for (var i = _ordered.Count - 1; i >= 0; i--)
             {

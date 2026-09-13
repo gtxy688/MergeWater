@@ -24,7 +24,8 @@ namespace MergeWater.Tests.PlayMode
         [UnityTest]
         public IEnumerator WhenPrivacyNotAccepted_AnalyticsAndAdsAreNotInitialized_AndPanelShown()
         {
-            _harness = BootstrapTestHarness.Create(privacyAccepted: false);
+            // 要求门控时才需要「未同意 → 停在隐私弹窗」；Demo 版默认跳过门控（见 BootstrappedSceneTests）。
+            _harness = BootstrapTestHarness.Create(privacyAccepted: false, requirePrivacyConsent: true);
             yield return _harness.Activate();
 
             var context = _harness.Context;
@@ -60,7 +61,7 @@ namespace MergeWater.Tests.PlayMode
         [UnityTest]
         public IEnumerator AcceptButton_InitializesAnalyticsAndStartsRound()
         {
-            _harness = BootstrapTestHarness.Create(privacyAccepted: false);
+            _harness = BootstrapTestHarness.Create(privacyAccepted: false, requirePrivacyConsent: true);
             yield return _harness.Activate();
 
             Assert.That(_harness.Panels.CurrentPanel, Is.EqualTo(PanelId.Privacy));
@@ -79,7 +80,7 @@ namespace MergeWater.Tests.PlayMode
         [UnityTest]
         public IEnumerator Analytics_BeforeConsent_DropsEvents()
         {
-            _harness = BootstrapTestHarness.Create(privacyAccepted: false);
+            _harness = BootstrapTestHarness.Create(privacyAccepted: false, requirePrivacyConsent: true);
             yield return _harness.Activate();
 
             _harness.Context.Analytics.Track(AnalyticsEventNames.AppLaunch);
@@ -139,6 +140,41 @@ namespace MergeWater.Tests.PlayMode
 
             Object.Destroy(root);
             presentation.Dispose();
+        }
+
+        [UnityTest]
+        public IEnumerator MissingPresentationReferences_LogsError_AndDoesNotBuildUiAtRuntime()
+        {
+            // UI 来源不变量（2026-09-12 重构）：界面只来自场景资产，运行时**不再**「缺引用就现场搭一套」。
+            // 这里给一个完全没有表现层引用的 GameBootstrapper：必须明确报错，
+            // 而不是悄悄生成一套 HUD——否则「编辑器里调整的界面」与「运行时看到的」会是两套。
+            var root = new GameObject("NoPresentationRoot");
+            root.SetActive(false);
+            var fieldGo = new GameObject("Field");
+            fieldGo.transform.SetParent(root.transform, false);
+            var field = fieldGo.AddComponent<MergeWater.Field.GameField>();
+
+            var bootstrapper = root.AddComponent<GameBootstrapper>();
+            bootstrapper.SaveStoreOverride = new InMemorySaveStore();
+            bootstrapper.AnalyticsSinkOverride = new InMemoryAnalyticsSink();
+            // 显式传空引用：AimController 与 HudBinder/PanelController/FeedbackDirector/AudioDirector 全缺。
+            bootstrapper.ConfigureReferences(field, null, null, null, null, null, null, null, null, null, null);
+
+            // 两处都必须明确报错：Awake 的装配检查 + BuildContext 的开局必需引用检查。
+            LogAssert.Expect(LogType.Error,
+                new System.Text.RegularExpressions.Regex("缺少表现层引用"));
+            LogAssert.Expect(LogType.Error,
+                new System.Text.RegularExpressions.Regex("缺少 AimController 引用"));
+
+            root.SetActive(true);
+            yield return null;
+
+            // 关键：不得在运行时凭空造出 UI 子树。
+            Assert.That(root.GetComponentInChildren<MergeWater.Presentation.HudView>(true), Is.Null,
+                "运行时不生成界面：缺少引用时应报错，而不是现场搭建 HUD");
+            Assert.That(bootstrapper.Context, Is.Null, "缺少必需引用时不应构造上下文");
+
+            Object.Destroy(root);
         }
     }
 }

@@ -98,6 +98,12 @@ namespace MergeWater.Presentation
     /// </summary>
     public sealed class AudioDirector : MonoBehaviour
     {
+        /// <summary>音效基准增益：音量条 100% 时音效源的音量。</summary>
+        private const float SfxBaseGain = 1f;
+
+        /// <summary>音乐基准增益：BGM 比音效轻，音量条 100% 时音乐源用 0.4。</summary>
+        private const float MusicBaseGain = 0.4f;
+
         [SerializeField] private AudioSource sfxSource;
         [SerializeField] private AudioSource musicSource;
         [SerializeField] private AudioClip backgroundMusic;
@@ -113,6 +119,11 @@ namespace MergeWater.Presentation
 
         public bool VibrateEnabled { get; private set; } = true;
 
+        /// <summary>音量条音量（0..1），默认 100%。与开关正交：开关管静音，音量条管响度。</summary>
+        public float SfxVolume { get; private set; } = 1f;
+
+        public float MusicVolume { get; private set; } = 1f;
+
         public bool HasMusicClip => backgroundMusic != null;
 
         public void Configure(AudioSource sfx, AudioSource music, AudioClip musicClip = null)
@@ -121,6 +132,32 @@ namespace MergeWater.Presentation
             musicSource = music;
             if (musicClip != null)
                 backgroundMusic = musicClip;
+
+            // 音量可能先于音源注入（读档 → 应用设置），这里补一次同步。
+            ApplyVolumes();
+        }
+
+        /// <summary>设置音效音量（0..1）。</summary>
+        public void SetSfxVolume(float volume)
+        {
+            SfxVolume = Mathf.Clamp01(volume);
+            ApplyVolumes();
+        }
+
+        /// <summary>设置音乐音量（0..1）。</summary>
+        public void SetMusicVolume(float volume)
+        {
+            MusicVolume = Mathf.Clamp01(volume);
+            ApplyVolumes();
+        }
+
+        private void ApplyVolumes()
+        {
+            if (sfxSource != null)
+                sfxSource.volume = SfxBaseGain * SfxVolume;
+
+            if (musicSource != null)
+                musicSource.volume = MusicBaseGain * MusicVolume;
         }
 
         public void SetSfxEnabled(bool enabled)

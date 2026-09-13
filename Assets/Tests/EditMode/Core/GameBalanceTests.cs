@@ -139,6 +139,9 @@ namespace MergeWater.Tests.EditMode
             Assert.That(balance.AimPreviewMaxSeconds, Is.EqualTo(0.8f).Within(1e-5f), "V2.26");
             Assert.That(balance.ShareCooldownSeconds, Is.EqualTo(60f).Within(1e-5f), "V2.19");
             Assert.That(balance.AbsorbDurationSeconds, Is.EqualTo(0.06f).Within(1e-5f), "V2.21");
+            Assert.That(balance.MergeResultUpwardImpulse, Is.EqualTo(0f).Within(1e-5f), "V2.31b：合成结果不向上蹦");
+            Assert.That(balance.MergeResultSideImpulse, Is.EqualTo(1.5f).Within(1e-5f),
+                "V2.31b：合成结果水平初速（2026-09-12 需求方「力度太吝啬」后 0.45→1.5）");
         }
     }
 }

@@ -258,6 +258,9 @@ namespace MergeWater.Meta
             data.hammerCount = ClampItem(data.hammerCount);
             data.shakeCount = ClampItem(data.shakeCount);
 
+            data.settingsSfxVolume = Mathf.Clamp01(data.settingsSfxVolume);
+            data.settingsMusicVolume = Mathf.Clamp01(data.settingsMusicVolume);
+
             data.undoGrantedToday = ClampItem(data.undoGrantedToday);
             data.bombGrantedToday = ClampItem(data.bombGrantedToday);
             data.hammerGrantedToday = ClampItem(data.hammerGrantedToday);

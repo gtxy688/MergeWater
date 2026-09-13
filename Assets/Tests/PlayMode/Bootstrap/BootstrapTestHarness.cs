@@ -35,7 +35,12 @@ namespace MergeWater.Tests.PlayMode
         /// 默认使用较强重力，让水果快速落到地面以下，避免「停在警戒线上方」误触发判负；
         /// 需要测试越线判负时传 0，让水果静止悬停在警戒线上方。
         /// </param>
-        public static BootstrapTestHarness Create(bool privacyAccepted, float gravity = -60f)
+        /// <param name="requirePrivacyConsent">
+        /// 是否要求隐私同意后才开局。默认 false（与 Demo 一致：加载页结束后直接开局）；
+        /// 需要验证 R20 门控的用例显式传 true。
+        /// </param>
+        public static BootstrapTestHarness Create(bool privacyAccepted, float gravity = -60f,
+            bool requirePrivacyConsent = false)
         {
             var harness = new BootstrapTestHarness();
 
@@ -71,6 +76,9 @@ namespace MergeWater.Tests.PlayMode
             bootstrapper.SaveStoreOverride = harness.Store;
             bootstrapper.ClockOverride = harness.Clock;
             bootstrapper.AnalyticsSinkOverride = harness.Analytics;
+            bootstrapper.RequirePrivacyConsent = requirePrivacyConsent;
+            bootstrapper.LoadingMinSecondsOverride = 0f; // 测试不需要真的等加载页
+            bootstrapper.RequireTapToStart = false;       // 测试不点「开始」，进度满即开局
             bootstrapper.ConfigureReferences(
                 harness.Field,
                 aim,
@@ -88,11 +96,24 @@ namespace MergeWater.Tests.PlayMode
             return harness;
         }
 
-        /// <summary>激活根节点让 Awake/Start 运行，并等一帧。</summary>
+        /// <summary>激活根节点让 Awake/Start 运行，并等加载页流程结束（Demo 版结束后直接开局）。</summary>
         public IEnumerator Activate()
         {
             Root.SetActive(true);
             yield return null;
+
+            var deadline = Time.realtimeSinceStartup + 5f;
+            while (Time.realtimeSinceStartup < deadline && Panels != null && Panels.CurrentPanel == PanelId.Loading)
+                yield return null;
+
+            // 开局当帧输入仍被屏蔽（下一帧才按面板/广告状态放行），等它真的可交互，
+            // 否则测试直接驱动 AimController 会被忽略。停在隐私弹窗时不等待。
+            var aim = Root.GetComponent<AimController>();
+            var interactableDeadline = Time.realtimeSinceStartup + 5f;
+            while (Time.realtimeSinceStartup < interactableDeadline
+                   && Panels != null && Panels.CurrentPanel == PanelId.None
+                   && aim != null && !aim.Interactable)
+                yield return null;
         }
 
         public MockAdsService GetMockAds() => Context?.Ads.Inner as MockAdsService;

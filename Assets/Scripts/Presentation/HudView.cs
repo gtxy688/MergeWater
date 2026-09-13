@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,7 +11,8 @@ namespace MergeWater.Presentation
         Settlement = 2,
         Settings = 3,
         Leaderboard = 4,
-        AdOverlay = 5
+        AdOverlay = 5,
+        Loading = 6
     }
 
     public enum BadgeId
@@ -25,79 +27,86 @@ namespace MergeWater.Presentation
 
     /// <summary>
     /// 对局 HUD 的引用容器（GDD §6.2）。不含逻辑，允许部分引用为空并降级。
-    /// 由 <see cref="HudBuilder"/> 在编辑器或运行时构建并填充；替换正式美术时只改 Builder。
+    /// 这些引用指向场景里**实际存在**的 UI 对象（由编辑器菜单 `MergeWater/Build Main Scene` 生成，
+    /// 之后可直接在编辑器里调整）；运行时不生成界面，详见 <c>MergeWater.Editor.HudBuilder</c>。
+    ///
+    /// <para>文本一律使用 TextMeshPro（<see cref="TextMeshProUGUI"/>）：WebGL / 微信小游戏
+    /// 无法访问系统字体，legacy <c>Text</c> + 动态系统字体在真机上会显示为方块（决策 D16）。</para>
     /// </summary>
     public sealed class HudView : MonoBehaviour
     {
-        [Header("顶栏")] public Text bestScoreText;
-        public Text scoreText;
-        public Text comboText;
-        public Image stageProgressFill;
-        public Text stageProgressLabel;
+        [Header("顶栏")] public TextMeshProUGUI bestScoreText;
+        public TextMeshProUGUI scoreText;
         public Button settingsButton;
 
-        [Header("next 预览")] public Image nextFruitIcon;
-        public Text nextFruitLabel;
-
         [Header("左侧入口（上→下）")] public Button shakeButton;
-        public Text shakeLabel;
+        public TextMeshProUGUI shakeLabel;
         public GameObject shakeBadge;
 
         public Button hammerButton;
-        public Text hammerLabel;
+        public TextMeshProUGUI hammerLabel;
         public GameObject hammerBadge;
 
         public Button giftButton;
-        public Text giftLabel;
+        public TextMeshProUGUI giftLabel;
         public GameObject giftBadge;
 
         [Header("右侧入口（上→下）")] public Button undoButton;
-        public Text undoLabel;
+        public TextMeshProUGUI undoLabel;
         public GameObject undoBadge;
 
         public Button bombButton;
-        public Text bombLabel;
+        public TextMeshProUGUI bombLabel;
         public GameObject bombBadge;
 
         public Button leaderboardButton;
         public GameObject leaderboardBadge;
 
-        [Header("隐私政策")] public CanvasGroup privacyPanel;
-        public Text privacyText;
+        [Header("隐私政策")] public UiPanel privacyPanel;
+        public TextMeshProUGUI privacyText;
         public Button privacyAcceptButton;
         public Button privacyDeclineButton;
 
-        [Header("结算")] public CanvasGroup settlementPanel;
-        public Text settlementTitleText;
-        public Text settlementScoreText;
-        public Text settlementBestText;
-        public Text settlementHintText;
+        [Header("结算")] public UiPanel settlementPanel;
+        public TextMeshProUGUI settlementTitleText;
+        public TextMeshProUGUI settlementScoreText;
+        public TextMeshProUGUI settlementBestText;
+        public TextMeshProUGUI settlementHintText;
         public Button reviveButton;
-        public Text reviveLabel;
+        public TextMeshProUGUI reviveLabel;
         public Button retryButton;
         public Button shareButton;
 
-        [Header("设置")] public CanvasGroup settingsPanel;
+        [Header("设置")] public UiPanel settingsPanel;
         public Toggle sfxToggle;
+        public Slider sfxSlider;
+        public Image sfxVolumeFill;
         public Toggle musicToggle;
+        public Slider musicSlider;
+        public Image musicVolumeFill;
         public Toggle vibrateToggle;
         public Button settingsCloseButton;
         public Button privacyPolicyButton;
         public Button userAgreementButton;
         public Button antiAddictionButton;
         public Button clearCacheButton;
-        public Text versionText;
+        public TextMeshProUGUI versionText;
 
-        [Header("排行榜")] public CanvasGroup leaderboardPanel;
-        public Text leaderboardText;
+        [Header("排行榜")] public UiPanel leaderboardPanel;
+        public TextMeshProUGUI leaderboardText;
         public Button leaderboardCloseButton;
         public Button leaderboardNextPageButton;
 
-        [Header("广告占位遮罩")] public CanvasGroup adOverlay;
-        public Text adOverlayText;
+        [Header("广告占位遮罩")] public UiPanel adOverlay;
+        public TextMeshProUGUI adOverlayText;
 
-        [Header("Toast")] public CanvasGroup toastGroup;
-        public Text toastText;
+        [Header("Toast")] public UiPanel toastPanel;
+        public TextMeshProUGUI toastText;
+
+        [Header("加载页")] public UiPanel loadingPanel;
+        public Image loadingProgressFill;
+        public TextMeshProUGUI loadingPercentText;
+        public TextMeshProUGUI loadingHintText;
 
         [Header("新手引导")] public Image tutorialArrow;
 

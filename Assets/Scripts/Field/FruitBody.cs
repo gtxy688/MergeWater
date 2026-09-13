@@ -10,6 +10,9 @@ namespace MergeWater.Field
         public readonly float SettleLinear;
         public readonly float SettleAngular;
         public readonly float SettleGrace;
+        public readonly float LinearDrag;
+        public readonly float AngularDrag;
+        public readonly float GravityScale;
 
         public FruitPhysicsConfig(GameBalance balance)
         {
@@ -17,7 +20,24 @@ namespace MergeWater.Field
             SettleLinear = balance.DangerSettleLinearSpeed;
             SettleAngular = balance.DangerSettleAngularSpeed;
             SettleGrace = balance.DangerSettleGraceSeconds;
+            LinearDrag = balance.FruitLinearDrag;
+            AngularDrag = balance.FruitAngularDrag;
+            GravityScale = 1f; // 按等级在 Initialize 中覆盖（V2.28）
         }
+
+        private FruitPhysicsConfig(GameBalance balance, float gravityScale)
+        {
+            MaxSpeed = balance.MaxLinearVelocity;
+            SettleLinear = balance.DangerSettleLinearSpeed;
+            SettleAngular = balance.DangerSettleAngularSpeed;
+            SettleGrace = balance.DangerSettleGraceSeconds;
+            LinearDrag = balance.FruitLinearDrag;
+            AngularDrag = balance.FruitAngularDrag;
+            GravityScale = gravityScale;
+        }
+
+        public static FruitPhysicsConfig ForTier(GameBalance balance, int level) =>
+            new FruitPhysicsConfig(balance, balance.GetGravityScale(level));
     }
 
     /// <summary>
@@ -69,7 +89,9 @@ namespace MergeWater.Field
 
             Body.mass = tier.Mass;
             Body.bodyType = RigidbodyType2D.Dynamic;
-            Body.gravityScale = 1f;
+            Body.gravityScale = physics.GravityScale; // V2.28
+            Body.drag = physics.LinearDrag;
+            Body.angularDrag = physics.AngularDrag;
             Body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
             Body.interpolation = RigidbodyInterpolation2D.Interpolate;
             Body.sleepMode = RigidbodySleepMode2D.StartAwake;
@@ -142,6 +164,15 @@ namespace MergeWater.Field
         }
 
         private void OnCollisionEnter2D(Collision2D collision)
+        {
+            _field?.OnFruitCollision(this, collision);
+        }
+
+        /// <summary>
+        /// 碰撞停留也尝试合成（V2.32）。同级水果可能因为一次合成被取消而持续贴合却不再触发「进入」事件，
+        /// 只监听进入会导致「贴着但不合成」；<see cref="GameField"/> 内部有去重，重复调用是安全的。
+        /// </summary>
+        private void OnCollisionStay2D(Collision2D collision)
         {
             _field?.OnFruitCollision(this, collision);
         }

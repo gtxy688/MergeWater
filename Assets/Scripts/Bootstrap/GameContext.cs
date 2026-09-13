@@ -63,8 +63,12 @@ namespace MergeWater.Bootstrap
             SettingsService.Changed += ApplySettingsToAudio;
             ApplySettingsToAudio();
 
+            Feedback?.SetBalance(Balance);
             Items?.Initialize(this);
             Tutorial?.Initialize(this);
+
+            // 运行时注入（不依赖编辑器期装配）：让预览停在堆叠表面上。
+            Aim.SetObstacleProvider(Field);
 
             Aim.DropRequested += OnDropRequested;
             Aim.ItemTargetRequested += OnItemTargetRequested;
@@ -145,8 +149,8 @@ namespace MergeWater.Bootstrap
 
             Session = session;
 
-            Aim.SetDropBounds(-Balance.FieldHalfWidth, Balance.FieldHalfWidth);
-            Aim.SetDropGeometry(Balance.DropSpawnY, Balance.FieldFloorY, -9.81f, Balance.AimPreviewMaxSeconds);
+            Aim.SetDropBounds(-Field.PlayHalfWidth, Field.PlayHalfWidth);
+            Aim.SetDropGeometry(Balance.DropSpawnY, Field.PlayFloorY, -9.81f, Balance.AimPreviewMaxSeconds);
             Aim.SetInteractable(false);
 
             if (Hud != null)
@@ -432,9 +436,8 @@ namespace MergeWater.Bootstrap
 
         private void OnMilestoneReward(StageMilestone milestone)
         {
-            var result = Economy.GrantMilestoneReward(milestone.Reward);
-            if (result == GrantResult.Granted)
-                RefreshBadges();
+            // 需求方（2026-09-12）：连续合成不再发放奖励——道具只能通过（激励视频）广告获取，
+            // 因此这里不授予任何物品；里程碑事件仍会发布，供埋点/阶段推进使用。
         }
 
         private void ApplySettingsToAudio()
@@ -446,6 +449,10 @@ namespace MergeWater.Bootstrap
             Audio.SetMusicEnabled(SettingsService.MusicEnabled);
             Audio.SetVibrateEnabled(SettingsService.VibrateEnabled);
 
+            // 音量条与开关正交：开关关掉仍然保留音量值，下次打开沿用。
+            Audio.SetSfxVolume(SettingsService.SfxVolume);
+            Audio.SetMusicVolume(SettingsService.MusicVolume);
+
             if (SettingsService.MusicEnabled)
                 Audio.PlayMusic();
         }
@@ -455,9 +462,55 @@ namespace MergeWater.Bootstrap
             if (Session == null || Aim == null)
                 return;
 
-            var tier = Balance.GetTier(Session.CurrentLevel);
-            if (tier.IsValid)
-                Aim.SetDropRadius(tier.Radius);
+            var level = Session.CurrentLevel;
+            var tier = Balance.GetTier(level);
+            if (!tier.IsValid)
+                return;
+
+            Aim.SetDropRadius(tier.Radius);
+
+            // 预览的下落时间必须按该等级的实际重力算（V2.28 重力倍率随等级变化），
+            // 否则预测线要么提前截断、要么画过地面。
+            var effectiveGravity = Physics2D.gravity.y * Balance.GetGravityScale(level);
+            Aim.SetDropGeometry(Balance.DropSpawnY, Field != null ? Field.PlayFloorY : Balance.FieldFloorY,
+                effectiveGravity, Balance.AimPreviewMaxSeconds);
+        }
+
+        /// <summary>
+        /// 方案 B「屏幕即边框」：按相机可视范围设置场地边界（左右墙贴屏幕左右边缘、地面按
+        /// <c>GameBalance.FloorScreenInset</c> 从屏幕底边抬起一段），并让危险线与投放范围跟着走。
+        /// 地面不贴死屏幕底：否则水果落地后紧贴最后一行像素，观感上像被下边缘切掉（V2.42）。
+        /// 没有正交相机时保持数值表的设计值。
+        /// </summary>
+        public void SetPlayAreaFromCamera(Camera camera)
+        {
+            SetPlayAreaFromCamera(camera, null);
+        }
+
+        /// <summary>
+        /// 同上，但可临时覆盖地面抬升量（<paramref name="floorInsetOverride"/> 有值时优先）。
+        /// 仅供**编辑器调参工具**在 Play 模式下实时预览手感用，不改变运行时权威数值的来源
+        /// （权威值仍是 <c>GameBalance.FloorScreenInset</c>）；传 null 即恢复常规行为。
+        /// </summary>
+        public void SetPlayAreaFromCamera(Camera camera, float? floorInsetOverride)
+        {
+            if (camera == null || !camera.orthographic || Field == null)
+                return;
+
+            var halfHeight = camera.orthographicSize;
+            var halfWidth = halfHeight * camera.aspect;
+            var screenBottom = camera.transform.position.y - halfHeight;
+            var inset = floorInsetOverride ?? Balance.FloorScreenInset;
+            var floorY = screenBottom + Mathf.Max(0f, inset);
+
+            Field.SetPlayArea(halfWidth, floorY);
+            Hud?.SetPlayAreaHalfWidth(halfWidth);
+
+            if (Session != null)
+            {
+                Aim?.SetDropBounds(-Field.PlayHalfWidth, Field.PlayHalfWidth);
+                Aim?.SetDropGeometry(Balance.DropSpawnY, Field.PlayFloorY, -9.81f, Balance.AimPreviewMaxSeconds);
+            }
         }
 
         private int NextSeed()

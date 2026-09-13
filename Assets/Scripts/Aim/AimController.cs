@@ -19,6 +19,7 @@ namespace MergeWater.Aim
         private readonly List<Vector2> _preview = new List<Vector2>(64);
 
         private IPointerSource _input;
+        private IPreviewObstacle _obstacleProvider;
         private float _minX = -2.2f;
         private float _maxX = 2.2f;
         private float _dropRadius;
@@ -34,6 +35,7 @@ namespace MergeWater.Aim
         private bool _pointerLeftScreen;
         private ItemKind _itemKind = ItemKind.None;
         private float _x;
+        private float _centerX;
         private Vector2 _aimPoint;
 
         public event Action<float> DropRequested;
@@ -109,6 +111,9 @@ namespace MergeWater.Aim
 
         public void SetInputSource(IPointerSource source) => _input = source;
 
+        /// <summary>注入落点表面查询（通常是 GameField），使预览停在堆叠表面。</summary>
+        public void SetObstacleProvider(IPreviewObstacle provider) => _obstacleProvider = provider;
+
         /// <summary>注入相机（测试与运行时装配均可使用；未设置时回退 Camera.main）。</summary>
         public void SetCamera(Camera camera) => targetCamera = camera;
 
@@ -118,6 +123,7 @@ namespace MergeWater.Aim
         {
             _minX = minX;
             _maxX = maxX;
+            _centerX = Mathf.Clamp((_minX + _maxX) * 0.5f, _minX + _dropRadius, _maxX - _dropRadius);
             _x = AimSolver.ClampX(_x, _minX, _maxX, _dropRadius, out _);
         }
 
@@ -156,19 +162,31 @@ namespace MergeWater.Aim
                 CancelAimInternal();
         }
 
-        /// <summary>采样当前落点的预测路径（垂直下落 + 镜像反弹）。</summary>
+        /// <summary>
+        /// 采样当前落点的预测路径：先垂直下落到落点表面，再做 ≤<c>_maxPreviewTime</c> 的镜像反弹预演。
+        /// 下落段不占用反弹预算——否则从生成高度落到地面需要约 1.4s，会把线截断在半空（V2.26 的 0.8s 指反弹预演）。
+        /// </summary>
         public int BuildPreview(List<Vector2> output)
         {
             var start = new Vector2(_x, _dropSpawnY);
+            var landingY = _obstacleProvider != null ? _obstacleProvider.GetLandingY(_x, _dropSpawnY) : _floorY;
+
+            if (landingY > _dropSpawnY)
+                landingY = _dropSpawnY;
+
+            var gravity = Mathf.Abs(_gravity) < 0.0001f ? 9.81f : Mathf.Abs(_gravity);
+            var fallTime = Mathf.Sqrt(2f * Mathf.Max(0f, _dropSpawnY - landingY) / gravity);
+            var maxTime = fallTime + Mathf.Max(0.05f, _maxPreviewTime);
+
             return AimSolver.SampleTrajectory(
                 start,
                 Vector2.zero,
                 _gravity,
-                _floorY,
+                landingY,
                 _minX,
                 _maxX,
                 previewBounceRestitution,
-                _maxPreviewTime,
+                maxTime,
                 0.04f,
                 output);
         }
@@ -212,9 +230,15 @@ namespace MergeWater.Aim
             CancelAimInternal();
 
             if (wasItemAim)
+            {
                 ItemTargetRequested?.Invoke(kind, point);
-            else
-                DropRequested?.Invoke(dropX);
+                return;
+            }
+
+            DropRequested?.Invoke(dropX);
+
+            // 投放完成后下一颗待投水果回到屏幕中央重新出现（V2.33/V2.34 的节奏由表现层驱动）。
+            _x = _centerX;
         }
 
         private void CancelAimInternal()

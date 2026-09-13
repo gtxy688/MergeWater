@@ -48,6 +48,11 @@ namespace MergeWater.Meta
 
         public bool VibrateEnabled => _save.Data.settingsVibrate;
 
+        /// <summary>音量条音量（0..1）。</summary>
+        public float SfxVolume => _save.Data.settingsSfxVolume;
+
+        public float MusicVolume => _save.Data.settingsMusicVolume;
+
         public void SetSfx(bool enabled)
         {
             if (_save.Data.settingsSfx == enabled)
@@ -72,6 +77,28 @@ namespace MergeWater.Meta
                 return;
 
             _save.Data.settingsVibrate = enabled;
+            Persist();
+        }
+
+        /// <summary>设置音效音量（0..1）。与开关一样即时生效并写入存档。</summary>
+        public void SetSfxVolume(float volume)
+        {
+            var value = Mathf.Clamp01(volume);
+            if (Mathf.Approximately(_save.Data.settingsSfxVolume, value))
+                return;
+
+            _save.Data.settingsSfxVolume = value;
+            Persist();
+        }
+
+        /// <summary>设置音乐音量（0..1）。</summary>
+        public void SetMusicVolume(float volume)
+        {
+            var value = Mathf.Clamp01(volume);
+            if (Mathf.Approximately(_save.Data.settingsMusicVolume, value))
+                return;
+
+            _save.Data.settingsMusicVolume = value;
             Persist();
         }
 

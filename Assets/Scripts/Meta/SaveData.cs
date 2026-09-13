@@ -60,6 +60,14 @@ namespace MergeWater.Meta
         public bool settingsMusic = true;
         public bool settingsVibrate = true;
 
+        /// <summary>
+        /// 音量条（0..1，2026-09-12 补回设置页音量条）。用字段默认值保证旧存档缺字段时按 100% 处理，
+        /// 不需要新增 schema 迁移步骤（JsonUtility 缺字段保留字段初始值）。
+        /// </summary>
+        public float settingsSfxVolume = 1f;
+
+        public float settingsMusicVolume = 1f;
+
         public List<LeaderboardRecord> leaderboard = new List<LeaderboardRecord>();
 
         public static SaveData CreateDefault()

@@ -46,6 +46,16 @@ namespace MergeWater.Presentation
                 _balance = balance;
         }
 
+        /// <summary>震屏目标是否就绪（自检用；未就绪时震屏会静默失效）。</summary>
+        public bool ScreenShakeTargetAvailable => screenShaker != null && screenShaker.HasTarget;
+
+        /// <summary>震屏目标（通常是主相机）。运行时由 M7 指向真实相机。</summary>
+        public void SetShakeTarget(Transform shakeTarget)
+        {
+            if (screenShaker != null)
+                screenShaker.SetTarget(shakeTarget);
+        }
+
         public GameBalance Balance => _balance ?? (_balance = balanceAsset != null
             ? balanceAsset.ToBalance()
             : GameBalance.CreateDefault());
@@ -75,12 +85,37 @@ namespace MergeWater.Presentation
             audioDirector?.PlaySfx(combo > 1 ? SfxId.ComboUp : SfxId.Merge, pitch);
         }
 
-        /// <summary>飘字：得分与连击倍率。</summary>
+        /// <summary>连击等级越高颜色越「烫」，与 V2.24 的音阶上行配套。</summary>
+        private static readonly Color[] ComboColors =
+        {
+            new Color(1f, 0.85f, 0.30f),
+            new Color(1f, 0.66f, 0.20f),
+            new Color(1f, 0.45f, 0.15f),
+            new Color(1f, 0.28f, 0.16f),
+            new Color(1f, 0.15f, 0.35f)
+        };
+
+        /// <summary>
+        /// 飘字：得分与连击提示都落在**合成位置**上（需求方：连击提示要跟到水果处、反馈更强）。
+        /// 连击 ≥2 时把「N 连击」作为主视觉（字号随连击放大、颜色随连击升温），分数线作为副视觉。
+        /// </summary>
         public void PlayScore(Vector2 position, int delta, float multiplier, int combo)
         {
-            var color = combo > 1 ? new Color(1f, 0.82f, 0.3f) : Color.white;
-            var text = combo > 1 ? $"+{delta}  x{multiplier:0.0}" : $"+{delta}";
-            floatingText?.Spawn(position + new Vector2(0f, 0.25f), text, color, combo > 1 ? 1.25f : 1f);
+            var spawnAt = position + new Vector2(0f, 0.25f);
+
+            if (combo < 2)
+            {
+                floatingText?.Spawn(spawnAt, $"+{delta}", Color.white, 1f);
+                return;
+            }
+
+            var tier = Mathf.Clamp(combo - 2, 0, ComboColors.Length - 1);
+            var color = ComboColors[tier];
+            var size = 1.25f + tier * 0.22f;
+
+            floatingText?.Spawn(spawnAt, $"{combo} 连击", color, size);
+            floatingText?.Spawn(spawnAt + new Vector2(0f, -0.24f * size), $"+{delta}  ×{multiplier:0.0}",
+                new Color(1f, 1f, 1f, 0.95f), size * 0.68f);
         }
 
         /// <summary>越线心跳音（V2.25）。脉冲视觉由 <see cref="DangerLineView"/> 负责。</summary>

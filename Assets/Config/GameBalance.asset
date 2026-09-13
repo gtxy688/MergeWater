@@ -118,15 +118,23 @@ MonoBehaviour:
     fieldHalfWidth: 2.2
     wallThickness: 0.4
     fieldFloorY: -4.2
-    dropSpawnY: 5.2
+    floorScreenInset: 0.06
+    dropSpawnY: 4
     dangerLineY: 3.4
     killY: -6.5
     maxLiveFruits: 120
     maxLinearVelocity: 20
     dropCooldownSeconds: 0.2
     spawnJitter: 0.02
-    mergeResultUpwardImpulse: 0.6
+    mergeResultUpwardImpulse: 0
+    mergeResultSideImpulse: 1.5
     shakeImpulse: 1.6
-    fruitFriction: 0.45
-    fruitBounciness: 0.02
-    fruitLinearDrag: 0.05
+    fruitFriction: 0.35
+    fruitBounciness: 0.25
+    fruitLinearDrag: 1.1
+    fruitAngularDrag: 0.05
+    minGravityScale: 1.6
+    maxGravityScale: 3.6
+    nextFruitRevealDelaySeconds: 0.45
+    nextFruitRevealDurationSeconds: 0.25
+    loadingMinSeconds: 2
