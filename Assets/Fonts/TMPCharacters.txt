@@ -144,7 +144,7 @@ AdsAdapter
 [来源：Assets/Scripts/Bootstrap/GameContext.cs:318]
 激励视频（测试位）：摇一摇
 [来源：Assets/Scripts/Bootstrap/GameContext.cs:332]
-摇一摇：水果重新落位
+摇一摇：行星重新落位
 [来源：Assets/Scripts/Bootstrap/GameContext.cs:347]
 激励视频（测试位）：大礼包
 [来源：Assets/Scripts/Bootstrap/GameContext.cs:356]
@@ -156,32 +156,32 @@ score
 [来源：Assets/Scripts/Bootstrap/ItemUseController.cs:32]
 当前不能使用道具
 [来源：Assets/Scripts/Bootstrap/ItemUseController.cs:75]
-炸弹范围内没有水果
+炸弹范围内没有行星
 [来源：Assets/Scripts/Bootstrap/ItemUseController.cs:82]
 炸弹数量不足
 [来源：Assets/Scripts/Bootstrap/ItemUseController.cs:89]
-炸弹清除了 {removed} 颗水果
+炸弹清除了 {removed} 颗行星
 [来源：Assets/Scripts/Bootstrap/ItemUseController.cs:99]
-锤子范围内没有水果
+锤子范围内没有行星
 [来源：Assets/Scripts/Bootstrap/ItemUseController.cs:106]
 锤子数量不足
 [来源：Assets/Scripts/Bootstrap/ItemUseController.cs:113]
-锤子敲碎了 1 颗水果
+锤子敲碎了 1 颗行星
 [来源：Assets/Scripts/Bootstrap/ItemUseController.cs:157]
-场上没有水果
+场上没有行星
 [来源：Assets/Scripts/Bootstrap/ItemUseController.cs:164]
 清屏数量不足
 [来源：Assets/Scripts/Bootstrap/ItemUseController.cs:171]
 已清空场地
 [来源：Assets/Scripts/Bootstrap/ItemUseController.cs:181]
 点击场地选择炸弹落点
-点击场地选择要敲碎的水果
+点击场地选择要敲碎的行星
 [来源：Assets/Scripts/Bootstrap/TutorialDirector.cs:62]
 按住屏幕左右拖动选落点，松手投放
 [来源：Assets/Scripts/Bootstrap/TutorialDirector.cs:78]
 试试「分享挑战」和「好友排行」
 [来源：Assets/Scripts/Bootstrap/TutorialDirector.cs:94]
-同级水果相撞会合成更大！
+同级行星相撞会合成更大！
 [来源：Assets/Scripts/Bootstrap/TutorialDirector.cs:104]
 小心警戒线：静止越线满 1.2 秒就失败
 [来源：Assets/Scripts/Field/FruitBody.cs:182]

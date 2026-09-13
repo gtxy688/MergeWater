@@ -91,7 +91,7 @@ namespace MergeWater.Bootstrap
                 return;
 
             _mergeHintShown = true;
-            Show("同级水果相撞会合成更大！", 2.4f);
+            Show("同级行星相撞会合成更大！", 2.4f);
             _context?.MarkTutorialFlags(_dropHintShown, true);
         }
 

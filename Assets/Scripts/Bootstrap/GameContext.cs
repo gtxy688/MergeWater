@@ -329,7 +329,7 @@ namespace MergeWater.Bootstrap
 
                 Field.ApplyShakeShuffle(Balance.ShakeImpulse, Environment.TickCount);
                 Feedback?.PlayItemUse(ItemKind.Shake);
-                Notify("摇一摇：水果重新落位");
+                Notify("摇一摇：行星重新落位");
                 RefreshBadges();
             });
         }

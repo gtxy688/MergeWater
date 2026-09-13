@@ -898,6 +898,33 @@ URP 包**保留安装**（`com.unity.feature.2d` 依赖它，卸载会连带报�
 
 
 
+## 追加：玩家可见文案「水果」→「行星」，以及随之必做的字体重烘（2026-09-13，V2.52）
+
+需求方：「描述改一下，别什么同级水果了，现在是同级行星。」起因是水果美术早在 V2.44 就换成了 `kenney_planets` 的星球，而界面文案仍在叫「水果」。
+
+**改了 8 处，全部是面向玩家的文案**（`Main.unity` 里**没有任何**含「水果」的文本，所以场景不用动——这一点由字符收集文件直接证实）：
+
+| 位置 | 改后文案 |
+|------|----------|
+| `TutorialDirector`（首次合成的教学提示） | 同级**行星**相撞会合成更大！ |
+| `GameContext`（摇一摇） | 摇一摇：**行星**重新落位 |
+| `ItemUseController`（炸弹无目标 / 炸弹生效 / 锤子无目标 / 锤子生效 / 清屏无目标 / 瞄准提示） | 炸弹范围内没有**行星**、炸弹清除了 N 颗**行星**、锤子范围内没有**行星**、锤子敲碎了 1 颗**行星**、场上没有**行星**、点击场地选择要敲碎的**行星** |
+
+**为什么必须连带重烘字体**：新字「星」（U+661F）**不在已烘图集里**（旧资产 508 个 `m_Unicode` 中没有它），Static 模式下会渲染成空白。按硬约束 9 走完整链（命令行入口 `TMPFontBuilder.CollectAndBuildFromCommandLine`、`TMPFontReferenceTool.RepointFromCommandLine`）：
+
+| 步骤 | 实测结果 |
+|------|----------|
+| 收集字符 | 464 字（新增「星」；8 条新文案已进 `TMPCharacters.txt`） |
+| 重烘字体 | 1024² @75pt 装不下（未装入 270 个）→ **2048² @75pt 单图集、未装入 0 个、占用率 47.9%**；必备文案覆盖检查两项 ✓ |
+| **重指引用（不可省）** | 重烘换掉了材质子资产 fileID：审计实测 48 个 TMP 组件里「材质引用为空（悬空）**39** 个」+「MeshRenderer 材质未指向目标材质 **12** 个」→ 重指后 **0 / 0** |
+| 不变量复核 | 「收集 ⊆ 已烘」= **464 ⊆ 482、缺失 0**；`星` 已烘且已收集 |
+
+那条 39 + 12 与 2026-09-13 早期「重烘后 39/52 个组件材质悬空、12 条飘字池 MeshRenderer 指向已删除材质」是**同型陷阱**——这也是为什么「重指」不能当成可选步骤跳过。原始日志归档：`Docs/evidence/font-rebake-2026-09-13.log`、`font-repoint-2026-09-13.log`。
+
+**回归**：EditMode **134/135**（唯一失败仍是既存的 `CloseButton` 场景几何）、PlayMode **87/87**；三条字体门禁 `BundledFont_Exists_IsStatic_AndSingleAtlas`、`BundledFont_CoversRequiredTexts_AndPrintablePunctuation`、`EveryTmpText_InMainScene_UsesBundledFont_WithNoDanglingMaterial` 全部 Passed。
+
+**刻意没改**：代码内部标识（`FruitBody`/`FruitArt`/`FruitPalette`）、`GameBalance.tiers.DisplayName`（西瓜/葡萄…）与 GDD/需求正文仍用「水果」——那些是内部命名与策划原始案，改它是一次纯改名重构，与玩家读到什么无关。要统一的话建议单独立项。
+
 ## 尚未完成
 
 - 手动验收项（手感、观感、真机 60fps、中文渲染、`Main.unity` 目视检查）：清单见 `Docs/architecture/0X-*-test.md` 的「手动验收」表。

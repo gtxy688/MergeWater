@@ -72,7 +72,7 @@ namespace MergeWater.Bootstrap
                 if (!field.HasFruitInRadius(point, balance.BombRadius))
                 {
                     session.NotifyItemUsed(kind, ItemUseResult.NoTarget);
-                    context.Notify("炸弹范围内没有水果");
+                    context.Notify("炸弹范围内没有行星");
                     return;
                 }
 
@@ -86,7 +86,7 @@ namespace MergeWater.Bootstrap
                 var removed = field.RemoveFruitInRadius(point, balance.BombRadius);
                 session.NotifyItemUsed(kind, ItemUseResult.Applied);
                 context.Feedback?.PlayItemUse(kind);
-                context.Notify($"炸弹清除了 {removed} 颗水果");
+                context.Notify($"炸弹清除了 {removed} 颗行星");
                 context.RefreshBadges();
                 return;
             }
@@ -96,7 +96,7 @@ namespace MergeWater.Bootstrap
                 if (!field.HasFruitInRadius(point, balance.HammerMaxRadius))
                 {
                     session.NotifyItemUsed(kind, ItemUseResult.NoTarget);
-                    context.Notify("锤子范围内没有水果");
+                    context.Notify("锤子范围内没有行星");
                     return;
                 }
 
@@ -110,7 +110,7 @@ namespace MergeWater.Bootstrap
                 field.RemoveSingleNearest(point, balance.HammerMaxRadius, out _);
                 session.NotifyItemUsed(kind, ItemUseResult.Applied);
                 context.Feedback?.PlayItemUse(kind);
-                context.Notify("锤子敲碎了 1 颗水果");
+                context.Notify("锤子敲碎了 1 颗行星");
                 context.RefreshBadges();
             }
         }
@@ -154,7 +154,7 @@ namespace MergeWater.Bootstrap
             if (field.LiveFruitCount == 0)
             {
                 session.NotifyItemUsed(ItemKind.Undo, ItemUseResult.NoTarget);
-                context.Notify("场上没有水果");
+                context.Notify("场上没有行星");
                 return;
             }
 
@@ -178,7 +178,7 @@ namespace MergeWater.Bootstrap
             var radius = kind == ItemKind.Bomb ? context.Balance.BombRadius : context.Balance.HammerMaxRadius;
 
             context.Aim.BeginItemAim(kind, radius);
-            context.Notify(kind == ItemKind.Bomb ? "点击场地选择炸弹落点" : "点击场地选择要敲碎的水果");
+            context.Notify(kind == ItemKind.Bomb ? "点击场地选择炸弹落点" : "点击场地选择要敲碎的行星");
         }
     }
 }
