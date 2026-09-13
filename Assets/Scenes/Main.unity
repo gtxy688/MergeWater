@@ -472,7 +472,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -100
   m_Sprite: {fileID: 21300000, guid: 5456847f542bc9a44b036d565083ef35, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0.45490196, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -4187,7 +4187,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: -0.0057468, y: -0.000061035156}
+  m_AnchoredPosition: {x: -0.0057468, y: 0}
   m_SizeDelta: {x: 1079.6, y: 551.491}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &532659280
@@ -7487,6 +7487,7 @@ GameObject:
   - component: {fileID: 1046201318}
   - component: {fileID: 1046201320}
   - component: {fileID: 1046201319}
+  - component: {fileID: 1046201321}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -7544,6 +7545,18 @@ MonoBehaviour:
   m_FirstSelected: {fileID: 0}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
+--- !u!114 &1046201321
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1046201317}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 701e11c62dd2c4c808cc684685c3362b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1062917183
 GameObject:
   m_ObjectHideFlags: 0
@@ -9543,6 +9556,7 @@ MonoBehaviour:
   metaSettings: {fileID: 11400000, guid: 05228f11318a42441ab1f7bff7d5f55e, type: 2}
   targetCamera: {fileID: 168761245}
   requirePrivacyConsent: 0
+  logAnalyticsToConsole: 0
 --- !u!114 &1327517839
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16922,7 +16936,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sfxSource: {fileID: 1543649496}
   musicSource: {fileID: 1543649495}
-  backgroundMusic: {fileID: 0}
+  backgroundMusic: {fileID: 8300000, guid: 2620effb982ea064e80d6cee40a996df, type: 3}
 --- !u!114 &1543649499
 MonoBehaviour:
   m_ObjectHideFlags: 0

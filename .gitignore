@@ -129,3 +129,9 @@ InitTestScene*.unity*
 
 # 美术原图备份（水果降采样前的 1280² 原图，仅本地保留；正式素材在 Assets/Resources/kenney_planets/）
 /ArtBackup/
+
+# 文本/资源精简工具的数据目录（18MB 级 WebGL 构建产物备份，不是工程资源；2026-09-13 清出并忽略）
+/TextToolDatas/
+
+# 仓根目录的临时便签（曾出现 g.txt：字体资产大小统计）
+/g.txt
