@@ -316,5 +316,6 @@ SDK 的 `Editor/Node` 只带 `binaryen`，需系统 Node。本机 v26.7.0 属于
 | 重新生成配置资产 | 菜单 `MergeWater/Generate Config Assets`（改过 `GameBalance` 默认值后必跑） |
 | 字体收集 + 烘焙 | 菜单 `MergeWater/Font/1. 收集字符` → `/2. 烘焙中文 TMP 字体资产` |
 | 场景与 UI 改动 | **在编辑器里手工改 `Assets/Scenes/Main.unity` 并保存**（2026-09-13 V2.51 起无生成器：原 `Rebuild UI In Open Scene` / `Build Main Scene` 菜单已删除） |
+| 改动 `SafeAreaSources.cs`（WX 分支） | **必须跑一次真实 WebGL / 微信导出才算验证过**：`#if UNITY_WEBGL && !UNITY_EDITOR` 内的代码编辑器**不编译**，EditMode / PlayMode 全套绿也覆盖不到（2026-09-13 实测：`WindowInfo`/`SafeArea` 的字段在 `wx-runtime.dll` 里全是 `double`，漏一个 `(float)` 就在构建期报 `CS1503`） |
 | EditMode 测试 | `Unity.exe -batchmode -nographics -projectPath <工程> -runTests -testPlatform editmode -testResults Logs/editmode-results.xml -logFile Logs/editmode.log` |
 | PlayMode 测试 | 同上，`-testPlatform playmode` |

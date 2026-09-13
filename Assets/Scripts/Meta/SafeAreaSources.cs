@@ -35,6 +35,16 @@ namespace MergeWater.Meta
     ///
     /// <para>只在 WebGL 真机编译进来；编辑器与其它平台整个 WX 分支被裁掉，行为退化为
     /// <see cref="UnitySafeAreaSource"/>。任何 WX 调用异常都吞掉并降级，绝不影响游戏流程。</para>
+    ///
+    /// <para><b>数值字段是 double，必须显式转 float</b>：`wx-runtime.dll` 里
+    /// <c>WindowInfo</c> 与 <c>SafeArea</c> 的数值字段（windowWidth/windowHeight、left/top/right/bottom…）
+    /// **全部是 <c>double</c>**（JS 数值桥接过来的原样类型），传给本类 <c>float</c> 形参时少一个
+    /// <c>(float)</c> 就是一次 <c>CS1503: cannot convert from 'double' to 'float'</c>（2026-09-13 实际发生）。
+    /// 因此在 WebGL / 微信构建里报这个错时，先怀疑这里缺转换，别去改形参类型。</para>
+    ///
+    /// <para><b>本类只在 WebGL 构建里编译</b>：WX 分支整段在 <c>#if UNITY_WEBGL &amp;&amp; !UNITY_EDITOR</c> 内，
+    /// 编辑器编译（含 EditMode / PlayMode 测试）**不会检查这段代码**——改了这里必须跑一次
+    /// WebGL / 微信小游戏构建才算验证过，编辑器不报错不代表它是对的。</para>
     /// </summary>
     public sealed class WxSafeAreaSource : ISafeAreaSource
     {
@@ -46,9 +56,9 @@ namespace MergeWater.Meta
             {
 #if UNITY_WEBGL && !UNITY_EDITOR
                 if (TryGetWindow(out var window))
-                    return ToUnityRect(window.safeArea.left, window.safeArea.top,
-                        window.safeArea.right, window.safeArea.bottom,
-                        window.windowWidth, window.windowHeight);
+                    return ToUnityRect((float)window.safeArea.left, (float)window.safeArea.top,
+                        (float)window.safeArea.right, (float)window.safeArea.bottom,
+                        (float)window.windowWidth, (float)window.windowHeight);
 #endif
                 return _fallback.SafeArea;
             }
@@ -62,8 +72,9 @@ namespace MergeWater.Meta
                 try
                 {
                     var capsule = WeChatWASM.WX.GetMenuButtonBoundingClientRect();
-                    rect = ToUnityRect(capsule.left, capsule.top, capsule.right, capsule.bottom,
-                        window.windowWidth, window.windowHeight);
+                    rect = ToUnityRect((float)capsule.left, (float)capsule.top,
+                        (float)capsule.right, (float)capsule.bottom,
+                        (float)window.windowWidth, (float)window.windowHeight);
 
                     if (rect.width > 0f && rect.height > 0f)
                         return true;
