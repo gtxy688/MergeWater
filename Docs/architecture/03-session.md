@@ -24,7 +24,7 @@
 
 `Tick(dt)` 是唯一时间入口：推进连击计时、越线计时、投放冷却、广告冷却提示。物理帧由 Field 自由运行，Session 只在 `Tick` 时轮询 `TryGetDangerViolation`。
 
-`ReleaseDrop(x)` 由 M4/M7 在松手时调用：校验阶段与冷却 → 从队列取当前等级 → `IFieldPort.Drop` → 记录 `DropRecord` → 队列前移 → 发 `DropPerformed`。`MergeEvent` 到达时计分：`ScoreRules.ScoreFor(resultLevel, combo.Multiplier)` → 累加 → `StageProgress.Advance` → 发 `Scored`/`ComboChanged`/`MilestoneReached`；11 级不产生 `Merged`，故不计分。
+`ReleaseDrop(x)` 由 M4/M7 在松手时调用：校验阶段与冷却 → 从队列取当前等级 → `IFieldPort.Drop` → 记录 `DropRecord` → 队列前移 → 发 `DropPerformed`。`MergeEvent` 到达时计分：`ScoreRules.ScoreFor(resultLevel, combo.Multiplier)` → 累加 → `StageProgress.Advance` → 发 `Scored`/`ComboChanged`/`MilestoneReached`；顶级（10 级）不产生 `Merged`，故不计分。
 
 `GameOver` 由越线计时触发：发 `DangerStarted` 后累计超过 V2.8 的 1.2s 即进入 `Reviving`（若本局未用过复活）或直接 `GameOver`。M7 在确认广告冷却并播放完成后调用 `ApplyRevive()`：清除最高一簇（`RemoveHighestCluster`）、重置越线计时与连击、回到 `Playing`；失败或重复调用返回带原因的结果，且不改变局状态。本模块不接触广告。
 

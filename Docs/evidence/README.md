@@ -581,6 +581,157 @@ floorY = camera.transform.position.y - camera.orthographicSize   // 正好是屏
 | `MergeWater/Migrate UI To TMP (In Open Scene)` | 把已有场景里的 legacy `Text` 就地换成 TMP、挂 `UiPanel`、补飘字池（只换类型不动布局） |
 | `MergeWater/Floor Tuning (Play Mode)` | 地面高度实时滑杆。地面由 `Awake` 按相机算出，**场景里手工挪 `Floor` 会被 `EnsureArena` 覆盖**；滑杆可实时预览并一键写回 `GameBalance.cs` |
 
+## 追加：水果等级 11→10（2026-09-13，V2.43）
+
+需求方指令：「减少一级，来适配我们的美术资源」。本轮按**规格先行**执行（先改测试看红灯，再改实现），过程与结果全部留档：
+
+| 阶段 | 平台 | 结果 |
+|------|------|------|
+| 基线（改动前） | editmode | `total=120 passed=120 failed=0` |
+| **红灯**（只改规格测试） | editmode | `total=120 passed=115 failed=5`，`result=Failed(Child)`，Unity 退出码 **2** |
+| 绿灯（改实现 + 资产） | editmode | `total=120 passed=120 failed=0`，退出码 **0** |
+| PlayMode 第 1 次 | playmode | `total=85 passed=84 failed=1` |
+| PlayMode 第 2 次（修规格测试后） | playmode | `total=85 passed=85 failed=0`，退出码 **0** |
+
+**红灯的 5 项失败全部是同一原因**（`Expected: 10 / False` vs `was 11 / True`），证明测试确实钉住了「10 级」这一新规格，而不是碰巧通过：
+
+1. `GameBalanceTests.Default_MatchesRequirementsV1Table` — `Expected: 10`
+2. `GameBalanceTests.GetTier_OutOfRange_ReturnsInvalidDefaultWithoutThrowing` — 等级 11 应返回无效默认值
+3. `ScoreRulesTests.CanMerge_TopTier_IsFalse` — 10 级（西瓜）为顶点
+4. `ScoreRulesTests.MaxTier_IsTen` — `Expected: 10, But was: 11`
+5. `ScoreRulesTests.ScoreFor_UnknownLevel_ReturnsZero` — 顶点之上无等级
+
+**PlayMode 唯一那次失败也是规格点漏改，不是实现缺陷**：`BootstrappedSceneTests.Merge_ProducesVisibleFeedback` 报「合成应激活飘字…… `Expected: greater than 0, But was: 0`」。原因是用例用「两颗 10 级相邻放置」来触发合成，而减级后 10 级成为顶级、`CanMerge` 为 false，两颗不再合成，自然没有飘字。下移为 9 级对（半径 0.88，圆心距 1.74 < 直径和 1.76）后通过。
+
+### 本轮改动清单
+
+| 类别 | 文件 | 改动 |
+|------|------|------|
+| 规格（先改） | `Tests/EditMode/Core/GameBalanceTests.cs` | V1 期望表删末项；`TierCount` 期望 10；越界表加入 11 |
+| 规格 | `Tests/EditMode/Core/ScoreRulesTests.cs` | 顶点分 105→91、顶点×倍率 210→182；`MaxTier_IsTen`；`CanMerge(10)==false`、`CanMerge(9)==true`；未知等级补 11 |
+| 规格 | `Tests/EditMode/Session/RoundSessionTests.cs` | `SimulateMerge(11)`→`(10)`，循环 10→12 次（避免依赖连击倍率叠加） |
+| 规格 | `Tests/PlayMode/Bootstrap/MilestoneRewardTests.cs` | 10 级对→9 级对；两次合并不再够 200 分，改三次（91+100+109=300） |
+| 规格 | `Tests/PlayMode/Bootstrap/PhysicsAndPreviewDiagnostics.cs` | 叠放等级 `{5,7,9,11}`→`{5,7,9,10}`（直径和 6.22→5.98，仍 > 容器宽 4.4） |
+| 规格 | `Tests/PlayMode/Bootstrap/BootstrappedSceneTests.cs` | 触发合成用 10 级对→9 级对 |
+| 规格 | `Tests/PlayMode/Field/GameFieldMergeTests.cs` | 断言文案改为动态 `$"{GameBalance.MaxTier} 级为顶点"` |
+| 实现 | `Scripts/Core/Config/GameBalance.cs` | `MaxTier` 11→10；`tiers` 删除 11 级项；`GetGravityScale` 文档注释 1..11→1..MaxTier |
+| 实现 | `Scripts/Core/Config/FruitPalette.cs` | 色板 11→10（删末色） |
+| 实现 | `Config/GameBalance.asset` | 删除 `Level: 11` 的 6 行 |
+
+### 一个被实测证伪的假设：菜单 `Generate Config Assets` 并不会换 GUID
+
+最初的判断是：`ConfigAssetGenerator.CreateOrResetAsset` 走 `AssetDatabase.DeleteAsset` + `CreateAsset`，应当会分配新 GUID，从而让 `Main.unity` 对 `GameBalance.asset`（GUID `5af7ebfb88891b047a82807affaff7c1`，1 处引用）的引用失效。**据此在真工程里直接编辑了 `.asset` 的序列化行**（改动前后 `.meta` 的 LastWriteTime 保持 10:01:35 未变，只有 `.asset` 变化）。
+
+随后在隔离副本上实测该菜单，**假设被证伪**：
+
+```powershell
+$Unity = "E:\Unity\Unity\2022.3.62f3\Editor\Unity.exe"
+& $Unity -batchmode -nographics -projectPath E:\MergeWaterVerify `
+  -executeMethod MergeWater.Editor.ConfigAssetGenerator.GenerateMenu `
+  -logFile Logs\genconfig-experiment.log -quit
+
+# 执行前 GUID = 5af7ebfb88891b047a82807affaff7c1
+# 执行后 GUID = 5af7ebfb88891b047a82807affaff7c1   → 未变化（Unity 退出码 0）
+# Main.unity 对该 GUID 的引用数：1（前后一致）
+```
+
+即 Unity 在同一路径上「删除后重建」资产时会**保留 GUID**，场景引用不会断。结论：文档里那条既有工作流「改了 `GameBalance` 代码默认值 → 重跑菜单 `MergeWater/Generate Config Assets`」**是安全的、可以照用**；本轮的手改只是另一条等价路径，两者的产物**逐行比对无任何差异**：
+
+```powershell
+Compare-Object (Get-Content <副本>\Config\GameBalance.asset) (Get-Content <真工程>\Config\GameBalance.asset)
+# → 无差异（tier 数均为 10，场景引用均命中）
+```
+
+无论走哪条路径，正确性最终由 `ConfigAssetTests` 钉死——它逐项比对磁盘资产与 `GameBalance.CreateDefault()`（等级数 + 每级五字段 + 51 项标量）。
+
+### 未做与待验收
+
+- **未重烘字体**：`DisplayName` 不参与任何渲染（`HudBinder.TierName` 是死代码、无调用点），`大西瓜` 的 3 个字形留在图集里无害；`Assets/Fonts/TMPCharacters.txt` 仍保留该条目（收集器是自动生成的，手改会破坏它的可再生成性），下次跑 `MergeWater/Font/1. 收集字符` + `/2. 烘焙中文 TMP 字体资产` 会自动清掉。
+- **待手动验收**：① 顶级分 105→91；② `GetGravityScale` 按 `(level−1)/(TierCount−1)` 归一，等级数 11→10 后**中间等级的重力倍率会轻微变化**（两端 1.6/3.6 不变）；③ 顶级半径 1.12→1.00，最终水果略小、空间略宽松。
+
+## 追加：水果图换成 kenney_planets（2026-09-13，V2.44）
+
+需求方指令：「把水果的图片，从 1-10 依次换成 `Assets/Resources/kenney_planets/Planets` 中的图片」，并明确要求**不要动加载页那些手工调好的图**。
+
+### 素材侧（先做，否则测试跑不起来）
+
+| 步骤 | 结果 |
+|------|------|
+| 备份原图 | `ArtBackup/kenney_planets_originals_1280/`（10 张 1280²，位于 `Assets/` 之外，不进包） |
+| 降采样 | 1280² → 512²（需求方选定）。纹理像素量降到 **1/6.25**。注意 PNG 体积只从 2.77MB 降到 2.32MB——**实际进包的是 Unity 重编码后的纹理、不是 PNG**，所以该看像素量而不是 PNG 字节数 |
+| 裁掉透明留白 | 实测星球只占画布 **86.5%**（四周为透明，角点 alpha=0）。不裁的话，两颗贴在一起的水果之间会露出约 13% 直径的缝 → 裁到不透明包围盒后归一到 512²，**填充率 0.865 → 0.998** |
+| 移出死重 | 同批的 `Parts/`（42 张 **4.24MB**）、`Preview.png`、`Sample.png`、`License.txt`、两个 `.url` 从 `Resources/kenney_planets/` 移到 `Assets/Art/kenney_planets/`。`Resources` 下的资源会被**无条件**打进包，留着就是纯死重 |
+| 改 PPU | 10 张统一 `spritePixelsToUnits: 100 → 512`（= 贴图边长，使贴图世界尺寸恰好 1×1） |
+
+**过程中踩到的坑（值得留档）**：第一次批量脚本在第 1 步就抛 `GDI+ 中发生一般性错误`，而脚本开头设了 `$ErrorActionPreference="Stop"`，于是**后面「挪出 Parts」与「改 PPU」两步静默未执行**；随后只重跑了降采样，直到核对目录时才发现 `Resources` 里还留着那 4.24MB。教训：批量脚本要按步骤回读核对，不能只看「有没有报错」。
+GDI+ 那个错本身是经典成因——`Image.FromFile()` 尚未 `Dispose()` 就 `Save()` 回同一路径，文件句柄没释放。改成「画到临时文件 → 释放源句柄 → 替换」后正常。
+
+### 代码侧（规格先行）
+
+| 阶段 | 结果 |
+|------|------|
+| **红灯**（只加测试） | PlayMode `total=87 passed=85 failed=2`：`SpawnedFruit_UsesItsLevelPlanetArt` → `Expected: "planet00", But was: "fruit_circle"`；`VisualSize_MatchesColliderDiameter_EvenWhenSpriteImportSettingsDiffer` → `Expected: 0.360000014f, But was: 0.921600044f`（**正好是该贴图世界尺寸 2.56 倍的放大**） |
+| 绿灯（实现 + 单元测试） | EditMode **128/128**、PlayMode **87/87**，两次退出码均为 0 |
+
+**两个红灯都指向真实缺陷，不是「测试写错了」**：
+
+1. 贴图的世界尺寸 = 像素 ÷ PPU。旧代码固定 `Visual.localScale = 半径×2`，只在贴图恰好 1×1 世界单位时成立；换成 1280px @ PPU100（= 12.8 世界单位）会放大 12.8 倍、直接糊满场地。
+2. 每级贴图是在 `GameBootstrapper` 里运行时装载并注入的，**接错不报错**，只会一直静默用占位圆片。
+
+### 改动清单
+
+| 类别 | 文件 | 改动 |
+|------|------|------|
+| 新增 | `Scripts/Core/Config/FruitArt.cs` | 「等级 → 贴图 / 染色」唯一规则 + `LoadPlanetSprites()` 命名约定装载 |
+| 实现 | `Scripts/Field/FruitBody.cs` | `EnsureVisual` 按贴图**实际世界尺寸**归一化到碰撞直径（消除 PPU 依赖） |
+| 实现 | `Scripts/Field/GameField.cs` | `SetFruitArt` + 生成水果走 `FruitArt`；未注入时退化为旧行为 |
+| 实现 | `Scripts/Presentation/HudBinder.cs` | `SetFruitArt` + 待投预览走同一条规则（避免「投下来是星球、预览还是圆片」） |
+| 实现 | `Scripts/Bootstrap/GameBootstrapper.cs` | 装载 10 张正式美术 + 占位图兜底，一次性注入 M2 与 M5 |
+| 测试 | `Tests/EditMode/Core/FruitArtTests.cs`（6 项） | 规则单元守卫：索引、不染色、缺图回退、越界、空集合、命名约定装载 |
+| 测试 | `Tests/EditMode/Bootstrap/FruitArtAssetTests.cs`（2 项） | 资产门禁：每级贴图存在且 PPU == 贴图边长；**`Resources/kenney_planets` 下除 `Planets/` 外不得有任何文件**（挡住 4.24MB 回流） |
+| 测试 | `Tests/PlayMode/Field/FruitArtVisualTests.cs`（1 项） | 视觉直径 == 碰撞直径，与 PPU 无关 |
+| 测试 | `Tests/PlayMode/Bootstrap/BootstrappedSceneTests.cs`（+1 项） | 真场景：1 级→`planet00`、10 级→`planet09`、不染色、尺寸相符 |
+
+### 需求方特别关心的一点：加载页没被动过（可验证）
+
+| 文件 | 改动前 SHA256 vs 改动后 | 说明 |
+|------|------------------------|------|
+| `Assets/Scenes/Main.unity` | **一致** | 没有跑 `Rebuild UI In Open Scene`，也没有跑 `Build Main Scene`；加载页（缎带标题、4 个果实装饰球、适龄角标、进度条…）全部原样 |
+| `Assets/Scripts/Editor/HudBuilder.cs` | **一致** | 加载页生成器 0 行改动 |
+| `Assets/Scripts/Core/Config/FruitPalette.cs` | **一致** | 加载页 4 个装饰球的取色来源（`HudBuilder.cs:633` 的 `FruitPalette.ForLevel(1/4/7/10)`）未变 |
+
+原理层面补一句：`HudBuilder` 位于 **Editor 程序集**（`MergeWater.Editor.asmdef` 的 `includePlatforms: ["Editor"]`），运行时代码在编译期就无法引用它——所以「运行时生成 UI」在这套工程里根本不可能发生。
+
+### 授权（发布相关）
+
+Kenney「Planets」为 **CC0**（见 `Assets/Art/kenney_planets/License.txt`）：可免费用於个人 / 教育 / 商业项目，署名非强制。对微信小游戏发布而言是干净的。相比之下 `Assets/Fonts/SIMYOU.TTF` 是商业字体，正式发行前仍需替换或取得授权（见 `Docs/requirements.md` 的字体授权备注）。
+
+## 追加：对局背景换成 bg_star（2026-09-13，V2.45）
+
+需求方：「我们游戏场景的背景是怎么生成的？我要把他替换掉」。盘点结论：**当时根本没有背景图**——D14 时代素材被关闭后，对局底色是相机纯色清屏米色，`Backdrop` 节点与 `BackdropView` 一直在场景里、只是 `SpriteRenderer.m_Enabled = 0`。
+
+| 项 | 结果 |
+|---|---|
+| 素材入库 | `星体大融合.png`（941×1672）→ `Assets/UI/Art/bg_star.png`（ASCII 文件名，WebGL / 小游戏管线更稳）；`Assets/Resources/BG/` 移除 |
+| 包体 | 原位置在 `Resources/` 下会被**无条件**打进包（2.21MB）；`小程序头像.png`（1.21MB，小游戏后台商店素材）移出 `Assets/` 到 `StoreAssets/` |
+| 应用方式 | 新增菜单 `MergeWater/Assign Backdrop Art (No UI Rebuild)`：只改 `Backdrop` 节点（指派 sprite、启用渲染器、补 `BackdropView` 引用）并保存场景。批处理入口 `AssignBackdropArtBatch` 用 `-executeMethod` 跑，**没有手改场景 YAML** |
+| 为什么不走重建 | `Rebuild UI In Open Scene` 会重建整个 UI 子树、覆盖手工调整过的加载页与 HUD；换一张背景不该付这个代价（需求方明确介意加载页被动） |
+| 验证 | PlayMode **87/87 全绿**，含 `Backdrop_CoversViewport_AndSitsBehindTheGameplay`（真场景端到端：铺满视口 + 排在水果之前） |
+| 场景改动量 | `Main.unity` 从 546145 → 546290 字节（+145 字节 = sprite 引用 + 启用标志），**未重建、未触碰任何 UI 对象** |
+
+### 同时发现的一处已存在的红灯（与本次改动无关）
+
+同一次 EditMode 回归是 **127/128**，唯一失败项 `HudLayoutTests.SettingsPanel_BottomBlock_SitsAboveTheBottomEdgeWithBalancedSpacing`：关闭按钮下沿距面板底 **216**，超出门槛上限 200。用 git 对照可直接定位成因：
+
+```powershell
+git show HEAD:Assets/Scenes/Main.unity   # CloseButton → m_AnchoredPosition: {x: 0, y: 100}    （V2.41 既定值）
+Get-Content Assets/Scenes/Main.unity     # CloseButton → m_AnchoredPosition: {x: 0, y: 216.00003}
+```
+
+即**需求方在编辑器里手工挪动了设置面板的关闭按钮**（本会话期间场景被编辑器保存过数次：15:03 / 15:15 / 15:16），与背景改动无关。该值是否回到 100、还是把 V2.41 的既定几何改成 216，属需求裁定，**未擅自修改代码或测试**。
+
+> 提示：只要编辑器还开着并持续保存场景，批处理回归就是在打移动靶——同一份测试在 15:0x 全绿、15:30 出现这项失败，变化全部来自场景侧的编辑。
+
 ## 尚未完成
 
 - 手动验收项（手感、观感、真机 60fps、中文渲染、`Main.unity` 目视检查）：清单见 `Docs/architecture/0X-*-test.md` 的「手动验收」表。

@@ -13,12 +13,12 @@
 
 | 被依赖模块 | 只使用的公开契约 | 用途 | 缺失时的行为 |
 |------------|------------------|------|--------------|
-| M1 | `GameBalance`、`FruitTierDefinition`、`MergeEvent`、`DangerViolation`、`DropRecord`、`ItemKind`、`IFieldPort` | 数值、事件结构、端口定义 | 缺失则无法编译，属确定性依赖 |
+| M1 | `GameBalance`、`FruitTierDefinition`、`MergeEvent`、`DangerViolation`、`DropRecord`、`ItemKind`、`IFieldPort`、`FruitArt` | 数值、事件结构、端口定义、等级→贴图/染色规则 | 缺失则无法编译，属确定性依赖；`FruitArt` 未注入时退化为「单一占位图 + 调色板染色」 |
 | Unity | `Rigidbody2D`、`CircleCollider2D`、`PhysicsMaterial2D`、`SpriteRenderer` | 物理与显示 | — |
 
 ## 设计与数据流
 
-`GameField` 是场地唯一入口（MonoBehaviour，实现 `IFieldPort`），持有 `FruitBody` 列表与 `fruitId → FruitBody` 字典。生成的水果一律是运行时构造的 GameObject：`SpriteRenderer`（占位圆片，按等级着色并按半径缩放）+ `CircleCollider2D`（半径 = V1 半径）+ `Rigidbody2D`（质量 = V1 质量）+ `FruitBody`。
+`GameField` 是场地唯一入口（MonoBehaviour，实现 `IFieldPort`），持有 `FruitBody` 列表与 `fruitId → FruitBody` 字典。生成的水果一律是运行时构造的 GameObject：`SpriteRenderer`（贴图与染色取自 `FruitArt`——等级 1..10 各一张正式美术 `planet00..09`，缺图才回退占位圆片 + `FruitPalette` 染色；视觉尺寸按贴图的**实际世界尺寸**归一化到「半径×2」，因此与贴图的像素尺寸 / PPU 无关，换素材不必改代码）+ `CircleCollider2D`（半径 = V1 半径）+ `Rigidbody2D`（质量 = V1 质量）+ `FruitBody`。
 
 场地由左右墙与地面构成（`BoxCollider2D`，静态）；警戒线只是一个 y 坐标阈值，由 `GameField.DangerLineY` 暴露，M5 用其绘制警戒线视觉。
 运行时地面高度为「屏幕底边 + `GameBalance.FloorScreenInset`（0.06）」——不贴死屏幕底，否则水果落地后紧贴最后一行像素、观感上像被下边缘切掉（V2.42）；左右墙仍贴屏幕左右边缘（D13）。抬升量由需求方目视定档（2026-09-13 定为 0.06），**改它只能改 `GameBalance`，在场景里挪 `Floor` 会被 `EnsureArena` 覆盖**。
@@ -47,7 +47,7 @@
 - 触发条件：两个 `Level` 相同、均非 `Pending`、且 `ScoreRules.CanMerge(level)` 为真的碰撞——**碰撞进入（Enter）与碰撞停留（Stay）都会尝试**（V2.32）。只监听进入会让「因一次合成被取消而持续贴合」的同级水果再也不合成。
 - 处理顺序：`RequestMerge` 立即把双方标记 `Pending`、互相忽略碰撞、置为动态但关闭重力，随后在 `AbsorbDuration`（V2.21，默认 60ms）内把两者向中点插值；到期时销毁双方，在中点按 `level+1` 生成结果水果，**结果初速为 0（V2.31，不施加向上冲量）**，由求解器推开相邻水果。
 - 成功结果：抛出一次 `Merged{ SourceLevel, ResultLevel, Position }`。
-- 失败与边界：任一方在吸附期间被道具移除或已销毁时取消合成，不产生新水果也不加 `Merged` 事件；11 级相撞不进入本流程（`CanMerge` 为 false），只保留物理碰撞。去重由 `_merging` 集合保证，因此 Stay 的重复调用是安全的。
+- 失败与边界：任一方在吸附期间被道具移除或已销毁时取消合成，不产生新水果也不加 `Merged` 事件；顶级（10 级，V1 减级后为西瓜）相撞不进入本流程（`CanMerge` 为 false），只保留物理碰撞。去重由 `_merging` 集合保证，因此 Stay 的重复调用是安全的。
 
 > 早期版本给合成结果一个向上初速（0.6），结果会跳到别处并在堆顶制造扰动——实测中它是「堆不平」的诱因之一，已按 V2.31 移除。
 
@@ -94,7 +94,7 @@
 
 - 场景与 Prefab：`Main.unity` 中 `GameField` 挂在 `Field` 根节点；左右墙与地面为其子节点；水果不使用 Prefab，全部运行时构造，避免资源依赖。
 - 组件与序列化引用：`GameField` 需序列化 `PhysicsMaterial2D`、`TileLike` 占位 sprite、`DangerLineY`、`killY` 与场地可放置 x 范围。
-- ScriptableObject / 其他资产：占位圆片 sprite 由 `PlaceholderArtGenerator` 生成于 `Assets/Art/Placeholder/`。
+- ScriptableObject / 其他资产：正式水果贴图取 `Assets/Resources/kenney_planets/Planets/planet00..09.png`（等级 1..10 依次对应，PPU = 贴图边长）；兜底占位圆片由 `PlaceholderArtGenerator` 生成于 `Assets/Resources/Placeholder/`。
 - 创建、启用、禁用和销毁：`GameField` 在 `Awake` 建立字典与边界；`OnDestroy` 解绑碰撞回调并清空列表；`ClearAll()` 用于重开一局时整体清理。
 
 ## 影响与回归范围

@@ -21,7 +21,7 @@
 | A14 | EditMode | `Assets/Tests/EditMode/Presentation/UiSourceOfTruthTests.cs`（3 项：`RuntimeAssemblies_DoNotContainTheUiBuilder`、`RuntimeAssemblies_DoNotReferenceTheUiBuilder`、`HudViewFields_AreFilledFromTheSceneNotFromCode`） | UI 来源不变量：界面只来自场景资产，运行时不生成——运行时程序集不得包含/引用 UI 生成器 `HudBuilder`，`HudView` 不得有属性 setter（UI 引用只能由场景序列化提供） | **UI 改为「运行前就存在」后新增**（2026-09-12 需求方要求方便调整）；**反证**：把 `HudBuilder` 移回 `MergeWater.Presentation` 后该用例失败（`UI 生成器存在于运行时程序集…MergeWater.Presentation.HudBuilder`） | PASS |
 | A10 | EditMode | `Assets/Tests/EditMode/Presentation/BackdropViewTests.cs`（5 项：`Backdrop_CoversWholeCameraView_竖屏/横屏/正方形`、`Backdrop_RefitsWhenCameraAspectChanges`、`Backdrop_WithoutSprite_DoesNotThrow`） | 背景必须按 cover 盖满任意宽高比的视口（1080×1920 / 1920×1080 / 1:1）、居中于相机、缩放贴近理论 cover 值；超宽屏（2.2:1）重新贴合后仍盖满；素材缺失时不抛异常且不动 Transform | **2026-09-12 需求方「背景图太丑，换一个」后新增**（D14）：cover 逻辑写错就会露出相机清屏色边带，逻辑测试抓不到 | PASS |
 | A11 | EditMode | `Assets/Tests/EditMode/Bootstrap/SceneAssetTests.cs::Backdrop_IsBehindEveryWorldElement`、`HudView_RequiredElementsAreWired`（本次扩充） | 场景必须有背景节点且排序值为负（低于场景里每一个 `SpriteRenderer`/`LineRenderer`，否则挡住玩法画面）；指派了素材时渲染器必须启用。设置页必须有音效/音乐两条音量条与分段填充，取值范围 0..1 | **同上新增**：需求方反馈「音量条丢失」；背景断言随后改为兼容「换回原来的纯色底」 | PASS |
-| A12 | PlayMode | `Assets/Tests/PlayMode/Bootstrap/BootstrappedSceneTests.cs::VolumeSliders_AreWiredAtRuntime_AndChangeAudio`、`Backdrop_CoversViewport_AndSitsBehindTheGameplay` | 真场景端到端：拖动音量条必须立刻改 `AudioDirector` 音量、写入存档、并让分段填充跟随；**取消勾选对应开关后音量条必须不可调、勾回来恢复且档位保留**。背景节点必须在场且排序在水果之前；指派了素材时还要盖满视口并在宽高比变化后重贴合（当前需求方要求换回纯色底，故走「无素材 → 渲染器关闭」分支） | **同上新增**（R25「即时生效并写入存档」+ 2026-09-12「取消勾选时禁止调节大小」） | PASS（运行时脚本复验，见下） |
+| A12 | PlayMode | `Assets/Tests/PlayMode/Bootstrap/BootstrappedSceneTests.cs::VolumeSliders_AreWiredAtRuntime_AndChangeAudio`、`Backdrop_CoversViewport_AndSitsBehindTheGameplay` | 真场景端到端：拖动音量条必须立刻改 `AudioDirector` 音量、写入存档、并让分段填充跟随；**取消勾选对应开关后音量条必须不可调、勾回来恢复且档位保留**。背景节点必须在场且排序在水果之前；指派了素材时还要盖满视口并在宽高比变化后重贴合（**2026-09-13 起走「有素材」分支**：`bg_star` 已启用） | **同上新增**（R25「即时生效并写入存档」+ 2026-09-12「取消勾选时禁止调节大小」） | PASS（2026-09-13 启用背景素材后复跑仍全绿） |
 
 ## 自动化运行记录
 
@@ -50,7 +50,7 @@
 | H3 | 堆到警戒线附近并越线 | 警戒线红色脉冲 + 心跳音；失败时重震 0.2s | Editor | 待执行 | 待手动验收 | V2.25 |
 | H4 | 打开设置面板切换音效/音乐/震动 | 开关即时生效、重启后保持 | Editor | 待执行 | 待手动验收 | R25（持久化已自动化验证） |
 | H7 | 打开设置面板拖动「音效/音乐」音量条；再取消对应勾选 | 滑钮跟随手指、分段填充随音量增减；**取消勾选后该音量条不可调（变暗），勾回来恢复且档位保持**；关掉开关再打开音量值保留 | Editor | 已执行（运行时脚本） | 待手动验收（触感） | A12；实测：取消勾选后 `interactable=False`、存档音量保留 0.45，重新勾选后 `interactable=True`、值仍 0.45、填充 0.45 |
-| H8 | 观察对局背景（竖屏） | 对局底色为米色纯色（2026-09-12 需求方要求换回原来的），无黑边/色带；水果与警戒线清晰可见 | Editor | 已执行（运行时脚本 + 像素采样） | 待手动验收（观感） | 实测 `sprite=null / enabled=False / 相机清屏色=RGBA(0.990,0.930,0.840,1)`；A10/A11 |
+| H8 | 观察对局背景（竖屏）+ 落点预览线与警戒线的可辨识度 | 背景为 `bg_star` 星体主视觉、铺满且无黑边/色带；**水果、落点预览线、警戒线在高对比高饱和背景上仍清晰可辨**（这是本次换图最大的观感风险）；顶部标题不被顶栏分数区压成杂乱 | Editor | 待执行（需人工目视） | 待手动验收（观感 + 可读性） | A10/A11/A12；若观感打架，直接在场景里改 `Backdrop` 的 SpriteRenderer.Color 压暗（如 0.55/0.55/0.62），无需改代码 |
 | H5 | 首次进入查看隐私弹窗与结算页引导 | 首启必现隐私弹窗；前 3 局结算页出现分享/排行引导 | Editor | 待执行 | 待手动验收 | R20/R23 |
 | H6 | 真机竖屏试玩 3 分钟 | 60fps 稳定，UI 不被微信胶囊遮挡，触屏落点准确 | 真机 | 待执行 | 待手动验收 | V3 |
 
@@ -66,7 +66,7 @@
 | E4 | 贴边元素的 pivot 与锚点不一致 | 元素被裁出画布（**实际发生**：设置按钮顶部 −4 单位） | 自动 | PASS | `HudLayoutTests.TopAnchoredElements_UseSameSidePivot_SoTheyAreNotClipped`、`AllVisibleHudElements_FitInsideDesignCanvas` |
 | E5 | 顶栏元素进入微信胶囊保留区 | 与系统胶囊重叠、设置入口被遮挡（**实际风险**：原设计右侧仅留 190 单位，胶囊区需约 300） | 自动 | PASS | `HudLayoutTests.TopBar_DoesNotEnterWeChatCapsuleZone` |
 | E6 | 手感反馈组件引用未接线 | R22 的粒子/顿帧/慢放/震屏/飘字全部静默空转（**实际发生**：`HudBuilder` 从未调用 `FeedbackDirector.Configure`） | 自动 | PASS | `BootstrappedSceneTests.Merge_ProducesVisibleFeedback`（真场景）；静态接线见 `HudLayoutTests` 同批自检 |
-| E7 | 背景素材缺失（`Art/bg_night` 未导入/被删） | 不能崩，也不能露出浅色底：关闭背景渲染器并告警一次，回落相机 SolidColor（夜空色） | 自动 | PASS | `BackdropViewTests.Backdrop_WithoutSprite_DoesNotThrow`；`SceneAssetTests.Backdrop_IsBehindEveryWorldElement`（素材为空即失败提醒） |
+| E7 | 背景素材缺失（`Art/bg_star` 未导入/被删） | 不能崩：关闭背景渲染器并回落相机 SolidColor。`BuildBackdrop` 在素材名非空但取不到图时告警一次；而菜单 `Assign Backdrop Art (No UI Rebuild)` 找不到素材时**报错且不做任何改动**，不会留下「渲染器开着但没图」的半套状态 | 自动 | PASS | `BackdropViewTests.Backdrop_WithoutSprite_DoesNotThrow`；`SceneAssetTests.Backdrop_IsBehindEveryWorldElement`（素材为空即失败提醒） |
 | E8 | 只修 `HudBuilder` 而忘记重建 `Main.unity` | HUD 是场景序列化产物，新控件（音量条/背景）在真场景里不会出现——「改了没反应」 | 自动 | PASS | `SceneAssetTests.HudView_RequiredElementsAreWired`（断言音量条存在）+ `Backdrop_IsBehindEveryWorldElement`；两者在未重建场景时会失败 |
 | E9 | 音量条填充只由 `HudBuilder` 挂监听 | 编辑器期监听不会被序列化：**音量真的变了、填充条却一直满格**（本次实现中实际复现过） | 自动 | PASS | 运行时脚本复验（填充 0.80 跟随）；`BootstrappedSceneTests.VolumeSliders_AreWiredAtRuntime_AndChangeAudio` 断言 `fillAmount` |
 

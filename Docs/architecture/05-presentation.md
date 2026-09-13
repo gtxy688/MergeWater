@@ -57,11 +57,12 @@ UI 文本一律使用 **TextMeshPro**（`TextMeshProUGUI` / 世界空间 `TextMe
 ### 对局背景
 
 - 触发条件：`HudBuilder.Build` 构建表现层时（编辑器构建场景与运行时兜底共用这条路径）。
-- 当前状态（2026-09-12 需求方最终裁定「换回原来的就行」）：**不指派背景素材**，`Backdrop` 节点保留但渲染器关闭，对局底色回到相机 SolidColor 清屏的米色（`HudBuilder.BackgroundColor` 0.99/0.93/0.84）。
+- 当前状态（2026-09-13）：**已启用背景素材 `bg_star`**（`Assets/UI/Art/bg_star.png`，941×1672 竖版星体主视觉）。场景里 `Backdrop` 节点的 `SpriteRenderer` 已启用、排序值 −100。
 - 处理顺序（启用素材时）：在**世界空间**创建 `Backdrop`（`SpriteRenderer` + `BackdropView`），素材由 `HudBuilder.BackdropArtName` 指定；`BackdropView` 按「cover」缩放——取 `max(视口宽/素材宽, 视口高/素材高)` 乘 2% overscan，并把 sprite 居中到相机位置；排序值 -100，低于全部对局元素（场地视觉 -10、水果 100+、预览 300+、线 400+、粒子 550、飘字 600）；相机宽高比或正交尺寸变化时下一帧自动重贴合。
-- 成功结果：任意屏幕比例下背景铺满整屏且不遮挡任何对局元素。竖屏 1080×1920 下素材只显示中部约 1/3 宽（`bg_night` 用 `background-1`，中部是干净夜空，装饰云留在被裁掉的两侧）。
+- 成功结果：任意屏幕比例下背景铺满整屏且不遮挡任何对局元素。`bg_star` 宽高比 0.5628 ≈ 9:16，竖屏下几乎 1:1 贴合（cover 仅放大约 1.15×），裁切接近零。
 - 失败与边界：素材名为空或素材缺失时关闭 `SpriteRenderer`（不告警、不抛异常），由相机纯色清屏兜底。
-- 重新启用：把美术资源复制进 `Assets/Resources/Art`（如 `bg_night`），在 `HudBuilder.BackdropArtName` 填回资源名后重建场景即可，其余代码不用改。
+- 换背景图（**不要用整场重建**）：把图放进 `ArtSpriteRoot`（`Assets/UI/Art/`），在 `HudBuilder.BackdropArtName` 填资源名，再执行菜单 `MergeWater/Assign Backdrop Art (No UI Rebuild)`——它只改 `Backdrop` 一个节点并保存场景。`Rebuild UI In Open Scene` 会重建整个 UI 子树、覆盖手工调整过的加载页与 HUD，换背景不必付这个代价。
+- 可读性风险（观感类，需人工判断）：这张主视觉顶部带游戏标题、整体高对比高饱和，对局中它位于顶栏与水果之后，可能削弱落点预览线与警戒线的可读性。若观感上打架，直接在场景里调 `Backdrop` 的 `SpriteRenderer.Color` 乘色压暗（例如 0.55/0.55/0.62）即可，不必改代码。
 - 决策：D14（不用 Canvas 底板的原因见该条与「HUD 实现约束」）。
 
 ### 面板与红点

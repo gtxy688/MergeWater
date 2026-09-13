@@ -7,14 +7,15 @@
 
 | 编号 | 层级 | 测试路径与名称 | 行为 | 红灯原因或 N/A 理由 | 最近结果 |
 |------|------|----------------|------|---------------------|----------|
-| A1 | EditMode | `Assets/Tests/EditMode/Core/GameBalanceTests.cs::Default_MatchesRequirementsV1Table` | 11 级等级表的名称/半径/质量/得分/权重逐项等于 V1 | 实现前无 `GameBalance` | PASS |
+| A1 | EditMode | `Assets/Tests/EditMode/Core/GameBalanceTests.cs::Default_MatchesRequirementsV1Table` | 10 级等级表的名称/半径/质量/得分/权重逐项等于 V1 | 实现前无 `GameBalance` | PASS |
 | A2 | EditMode | `Core/GameBalanceTests.cs::Default_Tiers_AreMonotonicAndWeightsSumToOne`、`Default_FeelAndRuleValues_MatchV2`、`Default_StageMilestones_MatchV218` | 半径/质量/得分严格递增；1–3 级权重和为 1；V2 规则与手感数值逐项一致 | 同上 | PASS |
-| A3 | EditMode | `Core/GameBalanceTests.cs::GetTier_OutOfRange_ReturnsInvalidDefaultWithoutThrowing`、`Clone_IsDeepCopy_AndDoesNotShareArrays` | 越界查询返回无效默认值不抛异常；克隆为深拷贝 | 同上 | PASS |
+| A3 | EditMode | `Core/GameBalanceTests.cs::GetTier_OutOfRange_ReturnsInvalidDefaultWithoutThrowing`、`Clone_IsDeepCopy_AndDoesNotShareArrays` | 越界查询（含减级后的 11 级）返回无效默认值不抛异常；克隆为深拷贝 | 同上 | PASS |
 | A4 | EditMode | `Core/ComboTrackerTests.cs`（6 项，含 `Advance_BeyondWindow_ResetsCombo`、`Advance_ExactlyAtWindowBoundary_DoesNotReset`） | 3s 窗口内连击递增、倍率封顶 2.0；超窗归零；恰好 3.0s 不归零；非正 dt 忽略 | 实现前无 `ComboTracker` | PASS |
 | A5 | EditMode | `Core/DropQueueTests.cs`（6 项，含 `Next_FirstTwentyDrops_OnlyTierOneOrTwo`、`Next_AtSixtyDropsAndBeyond_KeepsSamePool`、`Next_WeightDistribution_MatchesV1WithinTolerance`、`SameSeed_ProducesReproducibleSequence`） | 等级池节奏（V2.4–V2.6）与归一化权重；同 seed 可复现 | 实现前无 `DropQueue` | PASS |
-| A6 | EditMode | `Core/ScoreRulesTests.cs`（6 项，含 `ScoreFor_AppliesMultiplierAndRounds`、`CanMerge_TopTier_IsFalse`） | 得分 = 表值×倍率并四舍五入；11 级不可合成；未知等级返回 0 | 实现前无 `ScoreRules` | PASS |
+| A6 | EditMode | `Core/ScoreRulesTests.cs`（6 项，含 `ScoreFor_AppliesMultiplierAndRounds`、`CanMerge_TopTier_IsFalse`、`MaxTier_IsTen`） | 得分 = 表值×倍率并四舍五入；顶级（10 级）不可合成；未知等级返回 0 | 实现前无 `ScoreRules` | PASS |
 | A7 | EditMode | `Core/StageProgressTests.cs`（6 项，含 `Advance_CrossingMultipleMilestones_ReturnsEachOnce`、`Reset_AllowsMilestonesToBeGrantedAgainInNextRound`） | 200/500/1000 每局每节点只发放一次；进度条归一化 | 实现前无 `StageProgress` | PASS |
-| A8 | EditMode | `Core/GameBalanceTests.cs::Default_MatchesRequirementsV1Table`（含 11 级逐项断言） | 等级表数据驱动的完整性守卫：任一级数值被改动即使 11 项断言中的一项失败 | 实现前无 `GameBalance` | PASS |
+| A8 | EditMode | `Core/GameBalanceTests.cs::Default_MatchesRequirementsV1Table`（含 10 级逐项断言） | 等级表数据驱动的完整性守卫：任一级数值被改动即使 10 项断言中的一项失败 | 实现前无 `GameBalance` | PASS |
+| A9 | EditMode | `Core/FruitArtTests.cs`（6 项，含 `LoadPlanetSprites_ResolvesOneSpritePerTier_ByNamingConvention`、`WithoutArt_FallsBackToPlaceholder_AndKeepsPaletteTint`、`WithArt_DoesNotTint_SoEachFruitKeepsItsOwnColors`） | 「等级 → 贴图 / 染色」的唯一规则：有专属美术时取对应图且**不染色**；缺图、越界或集合为空时回退占位圆片 + 调色板染色；按 `planet00..09` 命名约定装载 10 张 | **水果图换 `kenney_planets` 后新增**（V2.44）：此前这条规则不存在，M2 与 M5 各自硬编码同一段逻辑 | PASS |
 
 ## 自动化运行记录
 

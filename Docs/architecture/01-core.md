@@ -29,8 +29,8 @@
 ### 数值表与默认值
 
 - 触发条件：应用启动或测试构造 `GameBalance.Default`。
-- 处理顺序：按 V1 逐级填写 11 条等级记录，再填写 V2 的规则与手感数值。
-- 成功结果：`Tiers.Length == 11`，等级索引 1..11 与 V1 完全一致；半径与质量严格递增；仅 1–3 级有非零投放权重且三者之和为 1.0。
+- 处理顺序：按 V1 逐级填写 10 条等级记录，再填写 V2 的规则与手感数值。
+- 成功结果：`Tiers.Length == 10`，等级索引 1..10 与 V1 完全一致；半径与质量严格递增；仅 1–3 级有非零投放权重且三者之和为 1.0。
 - 失败与边界：找不到等级（越界）时返回结构体默认值并由 `ScoreRules.CanMerge` 判定为不可合成，不抛异常。
 
 ### 连击与倍率
@@ -60,9 +60,10 @@
 |------|------|------|------------|-------------------|
 | `GameBalance.Default` | 静态数据 | — | 与 V1/V2 一致的数值对象 | 纯数据，无生命周期 |
 | `FruitTierDefinition` | 只读数据 | — | Level/DisplayName/Radius/Mass/Score/DropWeight | 越界查询返回默认结构体 |
+| `FruitArt` | 类（由 M7 在运行时注入） | 每级一张贴图 + 一张兜底贴图 | `ForLevel(level)`、`TintForLevel(level)`、`HasArt(level)`、`LoadPlanetSprites()` | 未注入、该级缺图或等级越界时回退兜底贴图 + `FruitPalette` 染色，不抛异常；是 M2 与 M5 共用的唯一取图/染色规则 |
 | `ComboTracker` | 类 | `RegisterMerge()`、`Advance(dt)` | `Combo`、`Multiplier` | 可复用；`Reset()` 清空 |
-| `ScoreRules.ScoreFor(level, multiplier)` | 静态方法 | 结果等级、当前倍率 | 四舍五入后的整数分 | 最高级仍返回顶点分（105 × 倍率） |
-| `ScoreRules.CanMerge(level, balance)` | 静态方法 | 等级 | 是否可继续合成 | 11 级返回 false |
+| `ScoreRules.ScoreFor(level, multiplier)` | 静态方法 | 结果等级、当前倍率 | 四舍五入后的整数分 | 顶级仍返回顶点分（91 × 倍率） |
+| `ScoreRules.CanMerge(level, balance)` | 静态方法 | 等级 | 是否可继续合成 | 10 级返回 false |
 | `DropQueue` | 类 | 构造种子、`Next(dropCount)` | 下个等级 | 同种子可复现 |
 | `StageProgress` | 类 | `Advance(score)` | 新达成里程碑集合 | 每节点仅返回一次 |
 | `RoundSnapshot` | 只读结构体 | — | 分数/连击/倍率/阶段/投数/当前与下一等级/越线状态 | 值拷贝，无生命周期 |
