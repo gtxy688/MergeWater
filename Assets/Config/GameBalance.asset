@@ -129,6 +129,6 @@ MonoBehaviour:
     fruitAngularDrag: 0.05
     minGravityScale: 1.6
     maxGravityScale: 3.6
-    nextFruitRevealDelaySeconds: 1
+    nextFruitRevealDelaySeconds: 1.5
     nextFruitRevealDurationSeconds: 0.25
     loadingMinSeconds: 2

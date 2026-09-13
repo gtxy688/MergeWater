@@ -798,6 +798,33 @@ URP 包**保留安装**（`com.unity.feature.2d` 依赖它，卸载会连带报�
 - **包体更小**：不再把 URP 的 shader 变体与管线代码带进 wasm。
 - 相关文档已同步：`requirements.md` V2.48、`AGENTS.md` 概述、`00-overview.md` 渲染管线行、微信发布工作流 §10.2 / C1 / §C3（那几处「必须勾 WebGL2」的结论已标注作废）。
 
+## 追加：小球出现间隔 1.0 → 1.5 秒（2026-09-13，V2.33 第三次调整）
+
+需求方：「把水果落地后的生成时间间隔，再调大点，调成 1.5」。指的就是上一轮刚从 0.45 调到 1.0 的 `GameBalance.nextFruitRevealDelaySeconds`（V2.33「投放后下一颗待投水果出现延迟」）。
+
+| 项 | 内容 |
+|---|---|
+| 改动 | `nextFruitRevealDelaySeconds` 1.0 → **1.5**，同步 `Assets/Config/GameBalance.asset` |
+| 测试影响 | **无**。唯一涉及时长的 `AfterDrop_PendingFruitReturnsToCenter_AndRevealsGradually` 用 `+3f` 超时轮询 `preview.IsRevealing`，1.5 + 0.25（渐显）= 1.75s 仍在窗口内；`ConfigAssetTests` 的「V2.33 下一颗延迟」标量断言自动守住磁盘/代码一致 |
+| 结果 | EditMode 127/128（唯一失败仍是 CloseButton 几何）、PlayMode 86/86 |
+
+## 追加：验证副本补齐微信插件（2026-09-13，验证环境改造）
+
+**起因是一次假警报**：需求方按指引给 `GameRoot/EventSystem` 挂上了 `WXTouchInputOverride`（真工程场景里 GUID `701e11c6…` 命中 1 处 ✅）。随后副本跑 EditMode 时 `SceneAssetTests.MainScene_HasNoReferencesToMissingScripts` 失败 —— 因为**副本没装微信插件**，那个组件在副本里解析不到，变成了 Missing Script。
+
+这不是工程缺陷，但它会让门禁变成「狼来了」：以后真出现 Missing Script 时无法区分。所以改造了副本：
+
+| 步骤 | 内容 |
+|---|---|
+| 1 | 把真工程 `Library/PackageCache/com.qq.weixin.minigame@d288776c50` 整包复制为副本的**内嵌包** `E:\MergeWaterVerify\Packages\com.qq.weixin.minigame`（650 个文件；`.meta` 一并复制 → `WXTouchInputOverride.cs.meta` 的 GUID 仍是 `701e11c6…`，场景引用照样命中） |
+| 2 | 副本 `Packages/manifest.json` 加 `"com.qq.weixin.minigame": "file:com.qq.weixin.minigame"` |
+
+> ⚠️ 这**不是**「把真工程的 manifest 同步过去」——那份含 git URL 与 `file:../` 依赖，副本解析不了会让批处理静默卡死（项目既有注意事项）。这里加的是副本本地的内嵌包依赖。
+
+结果：副本**编译无错**（`WxEditor.asmdef` 里的 `Unity.InstantGame.Editor` 引用在真工程里同样找不到、也不影响编译，说明它只在 `UNITY_INSTANTGAME` 版本定义下才需要）、`MainScene_HasNoReferencesToMissingScripts` 恢复通过、EditMode 127/128。
+
+**副本身份随之升级**：它现在不仅能验证依赖插件的场景，还具备**在副本里试跑微信小游戏导出**的条件（不必占用真工程的编辑器）——这条路径以前走不通。
+
 ## 尚未完成
 
 - 手动验收项（手感、观感、真机 60fps、中文渲染、`Main.unity` 目视检查）：清单见 `Docs/architecture/0X-*-test.md` 的「手动验收」表。
