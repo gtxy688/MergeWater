@@ -2,8 +2,10 @@ using MergeWater.Core;
 using MergeWater.Presentation;
 using TMPro;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace MergeWater.Editor
@@ -243,10 +245,11 @@ namespace MergeWater.Editor
         private const int BackdropSortingOrder = -100;
 
         /// <summary>
-        /// 对局背景资源名。2026-09-12 需求方要求换回原来的纯色底，故置空（`BuildBackdrop` 会自动关闭渲染器并回落相机清屏色）。
-        /// 想再启用背景图时，把美术资源放进 <see cref="ArtSpriteRoot"/>（如 `bg_night`），并在这里填回资源名即可，其余代码无需改动。
+        /// 对局背景资源名（相对 <see cref="ArtSpriteRoot"/>）。
+        /// 2026-09-12 需求方要求换回纯色底时曾置空并关闭渲染器；2026-09-13 换用 `bg_star`（星体主题竖版主视觉）。
+        /// 置空即自动关闭渲染器、由相机纯色清屏兜底，其余代码无需改动。
         /// </summary>
-        private const string BackdropArtName = "";
+        private const string BackdropArtName = "bg_star";
 
         /// <summary>
         /// 对局背景：世界空间 SpriteRenderer + <see cref="BackdropView"/> 按相机视野铺满（cover）。
@@ -267,6 +270,175 @@ namespace MergeWater.Editor
                 Debug.LogWarning($"[HudBuilder] 缺少背景图 {ArtSpriteRoot}{BackdropArtName}.png，对局背景回落为相机纯色清屏。");
 
             go.AddComponent<BackdropView>().Configure(renderer, camera);
+        }
+
+        // ── 只换背景、不动 UI ─────────────────────────────────────────
+
+        /// <summary>
+        /// 把 <see cref="BackdropArtName"/> 指派的背景图应用到**当前打开场景**的 `Backdrop` 节点，
+        /// **不重建 UI 子树**。
+        ///
+        /// <para>为什么单独给一个入口：`Rebuild UI In Open Scene` 会重建整个 UI 子树，从而覆盖
+        /// 手工调整过的加载页与 HUD；而换背景只涉及 `Backdrop` 一个节点——用整场重建去换一张背景图，
+        /// 代价是误伤手工调整。这个菜单只改这一个节点。</para>
+        /// </summary>
+        [MenuItem("MergeWater/Assign Backdrop Art (No UI Rebuild)", priority = 7)]
+        public static void AssignBackdropArtMenu()
+        {
+            var scene = SceneManager.GetActiveScene();
+            if (!scene.IsValid() || !scene.isLoaded)
+            {
+                Debug.LogError("[HudBuilder] 没有已打开的场景，无法应用背景图。");
+                return;
+            }
+
+            if (!AssignBackdropArt(scene))
+                return;
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            Debug.Log($"[HudBuilder] 已把背景图 {ArtSpriteRoot}{BackdropArtName}.png 应用到 Backdrop 节点。");
+        }
+
+        /// <summary>把背景图应用到场景里的 `Backdrop` 节点；返回是否真的改动过。缺失即报错且不做半套改动。</summary>
+        public static bool AssignBackdropArt(Scene scene)
+        {
+            GameObject backdropGo = null;
+            foreach (var root in scene.GetRootGameObjects())
+            {
+                backdropGo = FindDescendantByName(root.transform, "Backdrop");
+                if (backdropGo != null)
+                    break;
+            }
+
+            if (backdropGo == null)
+            {
+                Debug.LogError("[HudBuilder] 场景里找不到 `Backdrop` 节点，请先用 `MergeWater/Build Main Scene` 生成。");
+                return false;
+            }
+
+            var renderer = backdropGo.GetComponent<SpriteRenderer>();
+            if (renderer == null)
+            {
+                Debug.LogError("[HudBuilder] `Backdrop` 节点上没有 SpriteRenderer。");
+                return false;
+            }
+
+            var sprite = string.IsNullOrEmpty(BackdropArtName) ? null : LoadArt(BackdropArtName);
+            if (sprite == null && !string.IsNullOrEmpty(BackdropArtName))
+            {
+                Debug.LogError($"[HudBuilder] 找不到背景图 {ArtSpriteRoot}{BackdropArtName}.png，未做任何改动。");
+                return false;
+            }
+
+            renderer.sprite = sprite;
+            renderer.sortingOrder = BackdropSortingOrder;
+            renderer.enabled = sprite != null;
+            EditorUtility.SetDirty(renderer);
+
+            // BackdropView 必须同时持有渲染器与相机引用，否则运行时不会按 cover 铺满。
+            var view = backdropGo.GetComponent<BackdropView>();
+            if (view == null)
+                view = backdropGo.AddComponent<BackdropView>();
+
+            view.Configure(renderer, Camera.main);
+            EditorUtility.SetDirty(view);
+            return true;
+        }
+
+        /// <summary>
+        /// 批处理入口（仅供 `-executeMethod`）：打开主场景 → 应用背景图 → 保存。
+        /// 菜单版本操作「当前打开的场景」，批处理里没有已打开的场景，所以单独开一个。
+        /// </summary>
+        public static void AssignBackdropArtBatch()
+        {
+            var scene = EditorSceneManager.OpenScene(SceneBuilder.ScenePath, OpenSceneMode.Single);
+            if (!AssignBackdropArt(scene))
+                return;
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            Debug.Log("[HudBuilder] 批处理：背景图已应用并保存到 " + SceneBuilder.ScenePath);
+        }
+
+        private static GameObject FindDescendantByName(Transform parent, string name)
+        {
+            if (parent.name == name)
+                return parent.gameObject;
+
+            for (var i = 0; i < parent.childCount; i++)
+            {
+                var found = FindDescendantByName(parent.GetChild(i), name);
+                if (found != null)
+                    return found;
+            }
+
+            return null;
+        }
+
+        // ── 背景节点的入口（给「找不到在哪调」用）──────────────────────
+
+        /// <summary>
+        /// 一键把对局背景节点选中并在 Hierarchy 里高亮，同时在 Console 打印它当前的状态。
+        ///
+        /// <para>存在的理由（2026-09-13 需求方「我一直找不到在哪调游戏场景的背景图」）：
+        /// 背景是世界空间的 `Backdrop` 子节点（路径 `GameRoot/Presentation/Backdrop`，与 `Canvas`
+        /// **平级而不是在 Canvas 里**——放 Canvas 上会因为 ScreenSpaceOverlay 盖住整个世界）。
+        /// 没指派素材时渲染器关闭、在 Scene 视图里完全看不见，因此在折叠层级里极难找。
+        /// 选中之后 Inspector 里就是全部可调项：<c>SpriteRenderer</c> 的 Sprite / Color / 启用开关，
+        /// 以及 <c>BackdropView</c>（cover 缩放是自动的，不要手改 Transform）。</para>
+        /// </summary>
+        [MenuItem("MergeWater/背景：选中 Backdrop 节点（在这里换图与调色）", priority = 7)]
+        public static void SelectBackdropMenu()
+        {
+            var scene = SceneManager.GetActiveScene();
+            if (!scene.IsValid() || !scene.isLoaded)
+            {
+                Debug.LogError("[HudBuilder] 没有已打开的场景。");
+                return;
+            }
+
+            var go = FindBackdrop(scene);
+            if (go == null)
+            {
+                Debug.LogError("[HudBuilder] 场景里找不到 `Backdrop` 节点（应挂在 GameRoot/Presentation 下）。");
+                return;
+            }
+
+            Selection.activeGameObject = go;
+            EditorGUIUtility.PingObject(go);
+
+            var renderer = go.GetComponent<SpriteRenderer>();
+            var sprite = renderer != null && renderer.sprite != null ? renderer.sprite.name : "（未指派 → 背景不显示，回落相机纯色清屏）";
+            var color = renderer != null ? renderer.color.ToString() : "—";
+            var enabled = renderer != null && renderer.enabled ? "是" : "否";
+
+            Debug.Log($"[HudBuilder] 对局背景节点：{PathOf(go.transform)}\n" +
+                      $"  Sprite = {sprite}\n" +
+                      $"  Color  = {color}   （乘色：想压暗就调它，例如 0.55/0.55/0.62）\n" +
+                      $"  启用   = {enabled}\n" +
+                      $"  缩放   = 由 BackdropView 按 cover 自动铺满，改 Transform 会被下一帧覆盖");
+        }
+
+        private static GameObject FindBackdrop(Scene scene)
+        {
+            foreach (var root in scene.GetRootGameObjects())
+            {
+                var found = FindDescendantByName(root.transform, "Backdrop");
+                if (found != null)
+                    return found;
+            }
+
+            return null;
+        }
+
+        private static string PathOf(Transform transform)
+        {
+            var path = transform.name;
+            for (var parent = transform.parent; parent != null; parent = parent.parent)
+                path = parent.name + "/" + path;
+
+            return path;
         }
 
         // ── 顶栏与两侧入口 ───────────────────────────────────────────
