@@ -32,6 +32,17 @@ namespace MergeWater.Presentation
         private bool _subscribed;
         private float _playHalfWidth = -1f;
 
+        // ── 安全区（刘海 / 灵动岛 / 微信右上角胶囊）────────────────────
+        private ISafeAreaSource _safeAreaSource;
+        private RectTransform _canvasRect;
+        private Vector2[] _topBarBasePositions;
+        private float[] _topBarBaseTopDistances;
+        private float _lastSafeAreaWidth = -1f;
+        private float _lastSafeAreaHeight = -1f;
+
+        /// <summary>最近一次应用的顶栏下移量（设计单位）。仅供测试与诊断。</summary>
+        public float LastSafeAreaShiftDesignUnits { get; private set; }
+
         public ISessionView Session => _session;
 
         /// <summary>
@@ -133,6 +144,8 @@ namespace MergeWater.Presentation
 
         private void Update()
         {
+            RefreshSafeArea();
+
             if (_session == null)
                 return;
 
@@ -289,6 +302,130 @@ namespace MergeWater.Presentation
             {
                 preview.SetTrajectory(null, false);
             }
+        }
+
+        // ── 安全区适配 ───────────────────────────────────────────────
+
+        /// <summary>注入安全区来源（M7 在组合根里给）。为空时完全不做偏移。</summary>
+        public void SetSafeAreaSource(ISafeAreaSource source)
+        {
+            _safeAreaSource = source;
+            _lastSafeAreaWidth = -1f;
+            RefreshSafeArea();
+        }
+
+        /// <summary>
+        /// 按**真机实测**的安全区与微信胶囊下移顶栏。
+        ///
+        /// <para>起因（2026-09-13 需求方真机截图）：设计稿只能按「假定胶囊区」预留固定高度，
+        /// 而带刘海/灵动岛的真机实际遮挡更低——中间分数被刘海挡住、右上齿轮与微信胶囊重叠。</para>
+        ///
+        /// <para><b>只做运行期偏移，不改层级、不重建场景</b>：`Rebuild UI In Open Scene` 会把 UI 子树
+        /// 连同手工调整一起删掉（见 `SceneBuilder.cs` 里那句注释），而顶栏避让根本不需要动结构。
+        /// 以「场景原始位置」为基准，每次都用 <c>原始位置 − 本次补差</c> 重算——幂等，且屏幕尺寸变化
+        /// （旋转/窗口缩放）不会累积漂移。</para>
+        ///
+        /// <para>避让规则：最高分与总分只需避开**安全区顶边**；右上角齿轮要避开
+        /// <c>max(安全区顶边, 胶囊下沿)</c>——胶囊在右侧，让左侧元素也一起下沉会白白浪费竖向空间。</para>
+        /// </summary>
+        public void RefreshSafeArea()
+        {
+            if (_safeAreaSource == null)
+                return;
+
+            // 只在屏幕尺寸变化时重算（含首帧拿到真实尺寸、旋转、窗口缩放）
+            if (Mathf.Approximately(_lastSafeAreaWidth, Screen.width) &&
+                Mathf.Approximately(_lastSafeAreaHeight, Screen.height))
+                return;
+
+            if (_canvasRect == null)
+            {
+                var canvas = GetComponentInChildren<Canvas>(true);
+                _canvasRect = canvas != null ? canvas.transform as RectTransform : null;
+
+                if (_canvasRect == null)
+                    return;
+            }
+
+            var canvasHeight = _canvasRect.rect.height;
+            if (canvasHeight <= 0f || view == null)
+                return;
+
+            // 固定三个槽位：0 最高分、1 总分、2 右上角齿轮（槽位稳定才能安全缓存原始位置）
+            var slots = new[]
+            {
+                view.bestScoreText != null ? view.bestScoreText.rectTransform : null,
+                view.scoreText != null ? view.scoreText.rectTransform : null,
+                view.settingsButton != null ? view.settingsButton.transform as RectTransform : null
+            };
+
+            if (_topBarBasePositions == null)
+            {
+                _topBarBasePositions = new Vector2[slots.Length];
+                _topBarBaseTopDistances = new float[slots.Length];
+
+                for (var i = 0; i < slots.Length; i++)
+                {
+                    if (slots[i] == null)
+                        continue;
+
+                    _topBarBasePositions[i] = slots[i].anchoredPosition;
+
+                    // 必须缓存**原始**顶距：若每次都从「当前（可能已下移过的）位置」去量，
+                    // 第二次应用就会算出「已经够了」而把顶栏拉回原位——实测正是这样来回跳的。
+                    _topBarBaseTopDistances[i] = TopDistanceDesignUnits(slots[i], _canvasRect);
+                }
+            }
+
+            _lastSafeAreaWidth = Screen.width;
+            _lastSafeAreaHeight = Screen.height;
+
+            var safeArea = _safeAreaSource.SafeArea;
+            var hasCapsule = _safeAreaSource.TryGetMenuButton(out var capsule);
+
+            var marginPx = SafeAreaLayout.DesignUnitsToPixels(
+                SafeAreaLayout.DefaultMarginDesignUnits, Screen.height, canvasHeight);
+
+            // 普通元素只避安全区；齿轮额外避胶囊
+            var requiredBasePx = SafeAreaLayout.RequiredTopPixels(
+                Screen.height, safeArea, false, default, marginPx);
+            var requiredGearPx = hasCapsule
+                ? SafeAreaLayout.RequiredTopPixels(Screen.height, safeArea, true, capsule, marginPx)
+                : requiredBasePx;
+
+            var shift = 0f;
+
+            for (var i = 0; i < slots.Length; i++)
+            {
+                if (slots[i] == null)
+                    continue;
+
+                var required = i == 2 ? requiredGearPx : requiredBasePx;
+
+                // 用**原始**顶距（而非当前位置）算补差，保证重复应用得到同一结果
+                var currentPx = SafeAreaLayout.DesignUnitsToPixels(
+                    _topBarBaseTopDistances[i], Screen.height, canvasHeight);
+
+                var extraDesign = SafeAreaLayout.PixelsToDesignUnits(
+                    SafeAreaLayout.ExtraTopPixels(required, currentPx), Screen.height, canvasHeight);
+
+                slots[i].anchoredPosition = _topBarBasePositions[i] + new Vector2(0f, -extraDesign);
+
+                if (extraDesign > shift)
+                    shift = extraDesign;
+            }
+
+            LastSafeAreaShiftDesignUnits = shift;
+        }
+
+        /// <summary>元素顶边距画布顶边的距离（画布本地单位，即设计单位）。</summary>
+        private static float TopDistanceDesignUnits(RectTransform element, RectTransform canvasRect)
+        {
+            var corners = new Vector3[4];
+            element.GetWorldCorners(corners); // 0=左下 1=左上 2=右上 3=右下
+
+            var localTop = canvasRect.InverseTransformPoint(corners[1]).y;
+            return canvasRect.rect.yMax - localTop;
         }
 
         private string TierName(int level)

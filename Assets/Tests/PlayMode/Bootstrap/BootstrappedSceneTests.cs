@@ -563,6 +563,76 @@ namespace MergeWater.Tests.PlayMode
                 "10 级水果的视觉直径必须等于碰撞直径（1280px 素材按 PPU 隐式换算会大 12.8 倍）");
         }
 
+        /// <summary>
+        /// 2026-09-13 需求方真机截图：中间分数被刘海挡住、右上齿轮与微信胶囊重叠。
+        /// 这里喂一个「刘海很深 + 胶囊更低」的假安全区，断言顶栏**真的让开了**，且重复应用不会累积漂移。
+        ///
+        /// <para>为什么用假数据：编辑器里拿不到真机安全区（<c>Screen.safeArea</c> 就是 Game 视图），
+        /// 而这段逻辑的价值恰恰只在真机上体现——用假数据才能把「下移」这件事钉住。</para>
+        /// </summary>
+        [UnityTest]
+        public IEnumerator TopBar_AvoidsRealDeviceSafeAreaAndCapsule()
+        {
+            LogAssert.ignoreFailingMessages = true;
+            yield return LoadRealScene();
+
+            var bootstrapper = Find<GameBootstrapper>();
+            yield return WaitForRound(bootstrapper);
+
+            var binder = Find<HudBinder>();
+            var view = Find<HudView>();
+
+            Assert.That(binder, Is.Not.Null, "真场景应有 HudBinder");
+            Assert.That(view, Is.Not.Null, "真场景应有 HudView");
+            Assert.That(view.scoreText, Is.Not.Null);
+
+            var score = (RectTransform)view.scoreText.transform;
+            var before = score.anchoredPosition;
+
+            var device = new FakeSafeArea(topOcclusionPx: 240f, capsuleTopPx: 200f, capsuleBottomPx: 360f);
+            binder.SetSafeAreaSource(device);
+            yield return null;
+
+            var after = score.anchoredPosition;
+            Assert.That(after.y, Is.LessThan(before.y), "顶栏应按真机遮挡下移（分数不再被刘海挡）");
+            Assert.That(binder.LastSafeAreaShiftDesignUnits, Is.GreaterThan(0f), "应记录到正的下移量");
+
+            // 幂等：以原始位置为基准重算，再应用一次不得继续往下走
+            binder.SetSafeAreaSource(device);
+            yield return null;
+
+            Assert.That(score.anchoredPosition.y, Is.EqualTo(after.y).Within(0.01f),
+                "重复应用安全区不应累积漂移（每次都以场景原始位置为基准）");
+        }
+
+        /// <summary>可控的假安全区：像素值按当前屏幕换算，保证与运行时口径一致。</summary>
+        private sealed class FakeSafeArea : ISafeAreaSource
+        {
+            private readonly float _topOcclusionPx;
+            private readonly float _capsuleTopPx;
+            private readonly float _capsuleBottomPx;
+
+            public FakeSafeArea(float topOcclusionPx, float capsuleTopPx, float capsuleBottomPx)
+            {
+                _topOcclusionPx = topOcclusionPx;
+                _capsuleTopPx = capsuleTopPx;
+                _capsuleBottomPx = capsuleBottomPx;
+            }
+
+            public Rect SafeArea => new Rect(0f, 0f, Screen.width, Mathf.Max(1f, Screen.height - _topOcclusionPx));
+
+            public bool TryGetMenuButton(out Rect rect)
+            {
+                const float width = 200f;
+                rect = new Rect(
+                    Screen.width - width - 20f,
+                    Screen.height - _capsuleBottomPx,
+                    width,
+                    Mathf.Max(1f, _capsuleBottomPx - _capsuleTopPx));
+                return true;
+            }
+        }
+
         private static FruitBody FindFruitBodyById(int fruitId)
         {
             foreach (var body in Object.FindObjectsOfType<FruitBody>())

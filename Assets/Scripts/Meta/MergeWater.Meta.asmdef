@@ -2,7 +2,8 @@
   "name": "MergeWater.Meta",
   "rootNamespace": "MergeWater.Meta",
   "references": [
-    "MergeWater.Core"
+    "MergeWater.Core",
+    "Wx"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

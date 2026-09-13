@@ -42,6 +42,11 @@ namespace MergeWater.Bootstrap
             Field = field;
             Aim = aim;
             Hud = hud;
+
+            // 安全区（刘海/灵动岛/微信右上角胶囊）：微信真机读 WX 接口，其余平台自动回退 Screen.safeArea。
+            // 顶栏按**实测**遮挡下移——设计稿的「假定胶囊区」在带刘海的机器上不够用
+            //（2026-09-13 需求方真机截图：分数被刘海挡住、右上齿轮与胶囊重叠）。
+            Hud?.SetSafeAreaSource(new Meta.WxSafeAreaSource());
             Panels = panels;
             Audio = audio;
             Feedback = feedback;
