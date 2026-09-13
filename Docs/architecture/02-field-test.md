@@ -9,19 +9,22 @@
 |------|------|----------------|------|---------------------|----------|
 | A1 | PlayMode | `Assets/Tests/PlayMode/Field/GameFieldDropTests.cs::Drop_ValidTier_SpawnsOneFruitWithConfiguredRadiusAndMass`、`Drop_OutOfBoundsX_ClampsInsideField` | 生成一颗水果，半径/质量等于 V1，开启 CCD；落点 x 被夹取到场内 | 实现前无 `GameField` | PASS |
 | A2 | PlayMode | `Field/GameFieldDropTests.cs::Drop_InvalidTierOrBeyondLimit_ReturnsFalseWithoutSpawning` | 越界等级与超上限（120）不生成，并告警一次 | 同上 | PASS |
-| A3 | PlayMode | `Field/GameFieldMergeTests.cs::SameTierCollision_MergesIntoNextTierAndRaisesMergedOnce`、`MergeResult_PopsUpward_SoItDoesNotImmediatelyReMerge` | 同级相撞 → 两颗消失、生成高一级、`Merged` 恰好一次、结果带上跳初速 | 实现前无合成逻辑 | PASS |
+| A3 | PlayMode | `Field/GameFieldMergeTests.cs::SameTierCollision_MergesIntoNextTierAndRaisesMergedOnce`、`MergeResult_PushedSidewaysAtMidpoint`、`MergeResult_SidePushEqualsConfiguredImpulse` | 同级相撞 → 两颗消失、生成高一级、`Merged` 恰好一次；结果是**水平初速且不向上蹦**（V2.31b），初速大小等于 `GameBalance.MergeResultSideImpulse`（2026-09-12「力度太吝啬」后 0.45→1.5） | 实现前无合成逻辑 | PASS |
 | A4 | PlayMode | `Field/GameFieldMergeTests.cs::TopTierCollision_DoesNotMerge` | 11 级相撞不合成、不发事件 | 同上 | PASS |
 | A5 | PlayMode | `Field/GameFieldDangerTests.cs`（4 项，含 `SettledFruitAboveLine_ReportsViolation`、`FreshlySpawnedFruitAboveLine_IsNotReportedBeforeSettleGrace`、`FallingFruitAboveLine_IsNotReported`） | 静止越线判定；刚生成/仍在掉落的水果不误判（V2.9 缓冲） | 实现前无越线查询 | PASS |
 | A6 | PlayMode | `Field/GameFieldItemTests.cs`（7 项，含 `Bomb_RemovesFruitsInRadius`、`Hammer_RemovesSingleNearest`、`Shake_MovesFruitsWithoutRemoving`、`Undo_RemovesLastUnmergedDrop`、`LastDrop_ThatMerged_IsMarkedMerged`） | 四种道具的场地效果；合成后的投放标记为 Merged 以禁用撤销 | 实现前无道具作用 | PASS |
 | A7 | PlayMode | `Field/GameFieldLifecycleTests.cs::ClearAll_RemovesEveryFruitAndDropRecord`、`SimulationToggle_FreezesAndRestoresBodies`、`EscapedFruit_IsRecycledInsteadOfLeaking` | 重开清理、仿真冻结/恢复、逃逸回收 | 同上 | PASS |
+| A8 | PlayMode | `Assets/Tests/PlayMode/Bootstrap/PhysicsAndPreviewDiagnostics.cs::DroppedFruits_FallMergeAndDoNotScatterToWalls` | 6 次同点投放后：全部落地、不互相穿插、**不滚到贴墙**（判据由场地几何推导）、仍为 Dynamic、同级碰撞确实合成 | **修复「滚到墙角摊平」后新增**（修复前实测偏移 1.95） | PASS |
+| A9 | PlayMode | `PhysicsAndPreviewDiagnostics.cs::FruitsOfDifferentTiers_StackOnEachOther` | 用互不相邻同级的 4 颗水果叠放（不会合成，故确定性）：至少有一颗被别的水果托起（不在底面），且无穿插 | **修复「摊平一层」后新增**：实测 4 颗叠成 4 层竖塔（y=-3.74/-2.64/-1.12/0.88，横向全为 0.00，速度全为 0） | PASS |
+| A10 | PlayMode | `Assets/Tests/PlayMode/Field/PlayAreaFloorTests.cs::PlayFloor_SitsAboveTheScreenBottom_SoGroundFruitIsNotClipped` | 运行时地面 = 屏幕底边 + `GameBalance.FloorScreenInset`（0.06）；贴地水果的可见下沿高于屏幕底 ≥0.03 世界单位（1080×1920 实测 ≈11 px，此前 0 px） | **修复「水果贴屏底像被切」后新增**（V2.42，需求方截图指认）：原 D13 让地面精确贴屏幕底边；**反证**：`floorScreenInset` 改回 0 后该用例失败（`Expected > 0.0f, But was 0.0f`）。2026-09-13 需求方目视定档 0.06：间隙下限从 0.2 下调到 0.03——**0.2 是本测试自估的保守值、没有需求依据**，会把定档值误判为回归；下限现在只用于拦「回到贴死屏幕底」 | PASS |
 
 ## 自动化运行记录
 
 | 日期 | Unity 版本与环境 | 命令或 Test Runner 过滤器 | 结果文件 | 结论 |
 |------|------------------|---------------------------|----------|------|
-| 2026-09-11 | Unity 2022.3.62f3 / Windows 10 / `-batchmode -nographics` | `-runTests -testPlatform playmode -testResults Logs\playmode-verify.xml` | `Logs\playmode-verify.xml` | PASS — PlayMode 全量 66/66（本模块 21 项） |
+| 2026-09-11 | Unity 2022.3.62f3 / Windows 10 / `-batchmode -nographics` | `-runTests -testPlatform playmode -testResults Logs\playmode-verify.xml` | `Logs\playmode-verify.xml` | PASS — PlayMode 全量 74/74（本模块 21 项 + 物理诊断 3 项） |
 
-> 环境说明：同 `01-core-test.md` —— 运行在由真实工程同步出的隔离副本上；副本与真工程 `.meta` GUID 一致。
+> 环境说明：先在由真工程同步出的隔离副本上运行，随后 MCP 直连真工程本体复跑，两次结果一致（EditMode 103/103、PlayMode 74/74）。详见 `Docs/evidence/README.md`。
 
 ## 手动验收前置条件
 
@@ -36,6 +39,8 @@
 | H1 | 连续投放 30 颗 1–3 级水果至堆满 | 无穿墙、无穿隧、无持续抖动；水果自然堆叠 | Editor | 待执行 | 待手动验收 | V3；需人判断堆叠观感 |
 | H2 | 让同级水果在堆顶相撞 | 可见吸附 60ms 后合成，结果水果大小与颜色符合等级 | Editor | 待执行 | 待手动验收 | V2.21 |
 | H3 | 堆到警戒线附近 | 短暂超过线不判负，稳定越线后才触发 | Editor | 待执行 | 待手动验收 | V2.8/V2.9 |
+| H4 | 让同级水果在堆叠中间相撞 | 结果水果被**明显横向推开**（位移肉眼可见，而不只是「换了个位置」），不向上蹦；周围水果被挤开一点 | Editor | 待执行 | 待手动验收 | V2.31b（2026-09-12「合成力度太吝啬」：水平初速 0.45→1.5 m/s；自动化已验证初速等于配置值） |
+| H5 | 观察对局底部的贴地水果 | 水果完整可见，下沿与屏幕底之间留有一条窄空隙（不贴着屏幕下边缘、不被切） | Editor + 真机 | 待执行 | 待手动验收 | V2.42（自动化已验证抬升量与可见间隙；观感需人工确认 0.06 是否合适——这是需求方目视定档值，偏小可在滑杆上手动调回） |
 
 ## 失败路径与边界
 
@@ -56,8 +61,8 @@
 
 ## 交付结论
 
-- 已验证：A1–A7 与 E1–E4 全部通过（PlayMode，本模块 21 项）。
+- 已验证：A1–A9 与 E1–E4 全部通过（PlayMode，本模块 21 项 + 物理诊断 3 项）。
 - 不适用：无。
-- 待手动验收：H1–H3（堆叠观感、合成手感、越线判定观感）。
-- 未验证：在真工程本体内执行 Test Runner（真工程的编译、资产导入与场景接线已验证，见 `Docs/evidence/README.md`）。
+- 待手动验收：H1–H5（堆叠观感、合成手感、越线判定观感、合成推力观感、贴地水果不被切）。
+- 未验证：无（201 项自动化测试通过：EditMode 116 + PlayMode 85，见 `Docs/evidence/README.md`）。
 - 未通过：无。

@@ -8,11 +8,11 @@
 - 目标平台：微信小游戏优先（竖屏），抖音小游戏同构复用；Editor 内可完整游玩
 - 渲染管线：URP 14.0.12（2D Renderer）
 - 输入：旧版 Input（`Input.touches` / `Input.mousePosition`），单指拖动
-- UI：uGUI（Canvas + 旧版 `Text` + 运行时系统中文字体，决策 D9；TMP 依赖保留以便后续迁移）
+- UI：uGUI + **TextMeshPro**（决策 **D16**）：文本一律用 TMP，字体为随包分发的 `ChineseUI SDF`（`Assets/Fonts/`，编辑期静态烘焙，运行时零字形生成）。原 legacy `Text` + 运行时系统字体的方案已废弃——微信小游戏（WebGL）无法访问系统字体，真机会显示方块。UI 对象全部预先存在于 `Main.unity`，运行时不生成界面；`HudBuilder` 在 Editor 程序集，运行时编译期不可引用
 - 物理：Unity 2D 物理（Rigidbody2D + CircleCollider2D，CCD）
-- 资源与配置：占位美术 `Assets/Resources/Placeholder/`（运行时兜底可 `Resources.Load`）、数值与开关 `Assets/Config/{GameBalance,MetaSettings}.asset`、主场景 `Assets/Scenes/Main.unity`；三者的生成入口分别为菜单 `MergeWater/Generate Placeholder Art`、`MergeWater/Generate Config Assets`、`MergeWater/Build Main Scene`。MVP 不引入 Addressables
+- 资源与配置：占位美术 `Assets/Resources/Placeholder/`（运行时兜底可 `Resources.Load`）、UI 美术 `Assets/UI/Art/`（**刻意不放 `Resources/`**——`Resources` 里的资源会被无条件打进包，而 UI 图只要被场景引用就会随包分发；2026-09-13 移出后首包少 4.9MB）、数值与开关 `Assets/Config/{GameBalance,MetaSettings}.asset`、中文字体 `Assets/Fonts/{TMPCharacters.txt,ChineseUI SDF.asset}`、主场景 `Assets/Scenes/Main.unity`；生成入口分别为菜单 `MergeWater/Generate Placeholder Art`、`MergeWater/Font/1·2`、`MergeWater/Generate Config Assets`、`MergeWater/Build Main Scene`。MVP 不引入 Addressables
 - 自动化环境：Unity Test Framework 1.1.33；EditMode + PlayMode 各一个测试程序集。命令行（本机 Unity：`E:\Unity\Unity\2022.3.62f3\Editor\Unity.exe`）：`-batchmode -nographics -projectPath <工程> -runTests -testPlatform {editmode|playmode} -testResults <xml> -logFile <log>`。**注意**：批处理模式无法打开已被编辑器锁定的工程，真工程开着时需先关闭或在副本上运行
-- 当前测试结论（2026-09-11）：EditMode 97/97、PlayMode 66/66 全绿；运行在由真工程同步出的隔离副本上（详见 `Docs/progress.md` 的「验证环境说明」）
+- 当前测试结论（2026-09-11）：**真工程本体** EditMode 103/103、PlayMode 74/74 全绿（先在隔离副本上运行，MCP 直连后复跑结果一致）；证据归档见 `Docs/evidence/`
 - 第三方：DOTween（已存在于工程，MVP 运行时代码不依赖它，便于测试确定性）
 
 ## 模块清单

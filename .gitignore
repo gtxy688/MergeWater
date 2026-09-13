@@ -114,3 +114,14 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ss]ceneDependencyCache*
 
 /Assets/Art
+/Assets/Resources/Model
+
+# 工具与调试产物（不参与构建，也不应入库）
+.codely/
+.codely-cli/
+.codely.packages/
+.codelyignore
+.codegraph/
+
+# 诊断截图（各诊断测试的输出，见 Docs/architecture/*-test.md）
+/screenshots/

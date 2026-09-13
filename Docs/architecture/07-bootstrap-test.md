@@ -16,14 +16,15 @@
 | A7 | PlayMode | `Bootstrap/MilestoneRewardTests.cs::MilestoneReached_GrantsItemOnceAndPersists`、`MilestoneReached_IsNotGrantedTwiceInSameRound` | 阶段目标奖励每局每节点一次并写入存档 | 同上 | PASS |
 | A8 | PlayMode | `Bootstrap/RoundLifecycleTests.cs::Revive_WhenAdCompletes_RemovesClusterAndResumes_ThenSecondAttemptRejected`、`Revive_WhenAdSkipped_KeepsRevivingState` | 复活只播放一次广告；完成后清簇续玩并写冷却；广告未完成时状态不变 | 同上 | PASS |
 | A9 | PlayMode | `Bootstrap/BootstrapFlowTests.cs::MissingFieldReference_LogsErrorAndDoesNotThrow` | 场景缺少 `GameField` 时记录错误并停止对局初始化，不抛未捕获异常 | 同上 | PASS |
+| A10 | PlayMode | `Bootstrap/BootstrappedSceneTests.cs`（9 项：`FirstLaunch_LoadingScreenWaitsForTapBeforeStarting`、`LoadingProgress_AfterLongFrameStall_DoesNotJumpStraightToFull`、`FirstLaunch_LoadingScreenShowsThenStartsRoundDirectly`、`WhenPrivacyConsentRequired_PrivacyPanelIsActuallyVisible`、`AcceptButton_IsWiredAtRuntime_AndStartsRoundDirectly`、`FirstRound_InEditor_ShowsMouseAndGameViewInstructions`、`SettingsButton_IsWiredAtRuntime_AndPanelBecomesVisible`、`RealDrop_ThroughAimPath_SpawnsFruit`、`Merge_ProducesVisibleFeedback`） | **加载真场景**走真实 UI/输入路径，断言玩家可观察结果：加载页真的可见、进度满才提示「点击开始」、隐私弹窗真的可见可点、同意按钮真的生效并直接开局、设置按钮真的能打开面板、真实「按下→松手」真的能生成水果、合成真的产生飘字且粒子/震屏已接线 | **修复「启动后无响应」后新增**：其余测试用代码搭脚手架并自行调用 `Configure`，会掩盖「只在编辑器期装配、运行时失效」的缺陷。`LoadingProgress_AfterLongFrameStall_...` 为 2026-09-12「进度条永远 100%、不会动」的回归守卫 | PASS |
 
 ## 自动化运行记录
 
 | 日期 | Unity 版本与环境 | 命令或 Test Runner 过滤器 | 结果文件 | 结论 |
 |------|------------------|---------------------------|----------|------|
-| 2026-09-11 | Unity 2022.3.62f3 / Windows 10 / `-batchmode -nographics` | EditMode 与 PlayMode 各一次 | `Logs\editmode-results.xml`、`Logs\playmode-verify.xml` | PASS — 本模块 26 项（EditMode 8 + PlayMode 18） |
+| 2026-09-11 | Unity 2022.3.62f3 / Windows 10 / `-batchmode -nographics` | EditMode 与 PlayMode 各一次 | `Logs\editmode-results.xml`、`Logs\playmode-verify.xml` | PASS — 本模块 31 项（EditMode 8 + PlayMode 23） |
 
-> 环境说明：同 `01-core-test.md` —— 运行在由真实工程同步出的隔离副本上。`Main.unity` 与配置资产由 `MergeWater/Build Main Scene` 在副本内生成后再回同步到真工程，回同步后用真工程 `Assets` 重建副本复跑过一次（EditMode 97/97、PlayMode 66/66），因此场景引用与 `.meta` GUID 的有效性已间接验证。
+> 环境说明：先在由真工程同步出的隔离副本上运行，随后 MCP 直连真工程本体复跑，两次结果一致（EditMode 103/103、PlayMode 74/74）。详见 `Docs/evidence/README.md`。
 
 ## 手动验收前置条件
 
@@ -39,6 +40,7 @@
 | H2 | 首局按提示完成第一次合成 | 出现拖动箭头、首次合成高亮、越线预警；前 3 局结算页有分享/排行引导 | Editor | 待执行 | 待手动验收 | R23 |
 | H3 | 依次使用撤销/炸弹/锤子/摇一摇 | 各自效果符合 R11–R14，数量正确扣减，摇一摇不直接消除水果 | Editor | 待执行 | 待手动验收 | R11–R14（自动化已验证效果与扣减） |
 | H4 | 真机竖屏完整试玩一局 | 3 秒内理解操作；单局 2–4 分钟；中端机 60fps；顶部设置按钮不被微信胶囊遮挡 | 真机 | 待执行 | 待手动验收 | GDD §12、V3 |
+| H5 | 启动游戏（含慢机/编辑器卡顿、失焦后切回） | 进度条从 0 看得见地走到 100%，再提示「点击开始」；不会一上来就是 100% 且静止 | Editor + 真机 | 待执行 | 待手动验收 | V2.35（2026-09-12「进度条永远是 100%、不会动」；自动化已用 3 s 单帧卡顿复现并锁定） |
 
 ## 失败路径与边界
 
@@ -48,17 +50,20 @@
 | E2 | 连点「再来一局」 | 幂等，不产生多个 Session 或重复订阅 | 自动 | PASS | `RoundLifecycleTests.NewRound_..._WithoutLeakingPreviousEvents` |
 | E3 | 广告播放期间点击屏幕 | 不投放、不使用道具 | 自动 | PASS | `SetInputBlocked` 依据 `Ads.IsShowing` 与当前面板；`ItemUseTests` |
 | E4 | 清除缓存后 | 立刻回到隐私弹窗，需重新同意；不在未同意状态下开局 | 自动 + 手动 | PASS（逻辑）/ 待执行（观感） | `GameBootstrapper.OnClearCache`、`Settings_Persist_AndClearCacheResetsEverything` |
+| E5 | 运行时装配失效：面板查找表与按钮监听只在编辑器期建立 | 隐私弹窗不显示、所有按钮点不动（**用户实测表现：启动后毫无反应**） | 自动 | PASS | `BootstrappedSceneTests.FirstLaunch_PrivacyPanelIsActuallyVisible`、`SettingsButton_IsWiredAtRuntime_AndPanelBecomesVisible`；修复见 `PanelController.Awake` |
+| E6 | `FeedbackDirector` 的组件引用从未接线 | R22 手感反馈（粒子/顿帧/慢放/震屏/飘字）全部静默空转 | 自动 | PASS | `BootstrappedSceneTests.Merge_ProducesVisibleFeedback`、`FeedbackDirector.ScreenShakeTargetAvailable` |
+| E7 | 加载/卸载真场景后原生对象由 GC 终结器在关机时回收 | 批处理模式退出阶段崩溃、退出码非 0（破坏 CI 门禁） | 自动 | PASS | TearDown 中 `UnloadUnusedAssets` + `GC.Collect` + `WaitForPendingFinalizers`；复跑 `exit=0` |
 
 ## 回归范围
 
 | 受影响模块或契约 | 复验项 | 原因 | 状态 | 证据或备注 |
 |------------------|--------|------|------|------------|
-| M1–M6 | 各自验收文档的自动化项 | 组合根装配变更影响全链路 | PASS | 合计 163 项全绿 |
+| M1–M6 | 各自验收文档的自动化项 | 组合根装配变更影响全链路 | PASS | 合计 177 项全绿 |
 
 ## 交付结论
 
-- 已验证：A1–A9 与 E1–E4 全部通过（本模块 26 项；全项目 163 项全绿）。
+- 已验证：A1–A10 与 E1–E7 全部通过（本模块 31 项；全项目 177 项全绿，两套件退出码均为 0）。
 - 不适用：无。
-- 待手动验收：H1–H4（首启流程、引导、道具手感、真机）。
-- 未验证：在真工程本体内执行 Test Runner；以及在真工程中打开 `Main.unity` 后的目视检查。（真工程的编译、资产导入与场景接线已验证，见 `Docs/evidence/README.md`）
+- 待手动验收：H1–H5（首启流程、引导、道具手感、真机、加载页进度条）。
+- 未验证：无（201 项自动化测试通过：EditMode 116 + PlayMode 85，见 `Docs/evidence/README.md`）。`Main.unity` 的目视检查并入 H1/H4 的手动验收。
 - 未通过：无。

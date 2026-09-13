@@ -3,39 +3,43 @@
 > 更新日期：2026-09-11
 > 本文件只记录状态和阻塞，不定义需求或架构。
 
+> 玩家反馈的现象与交接说明见 `Docs/bug-handoff-2026-09-11.md`（含未复现声明、环境坑、定位脚本与待查方向）。
+
 ## 模块进度
 
 | 模块 | 阶段 | 最近验证 | 待手动验收 | 阻塞 | 下一步 |
 |------|------|----------|------------|------|--------|
 | M1 Core | 待验收（自动化全绿） | 2026-09-11 EditMode 30 项 PASS | 无（N/A） | 无 | 等真工程本体复跑 + 人工确认 |
-| M2 Field | 待验收（自动化全绿） | 2026-09-11 PlayMode 21 项 PASS | H1–H3 | 无 | 手动验收堆叠/合成/越线观感 |
+| M2 Field | 待验收（自动化全绿） | 2026-09-11 PlayMode 21 项 + 物理诊断 3 项 PASS | H1–H3 | 无 | 手动验收堆叠/合成/越线观感 |
 | M3 Session | 待验收（自动化全绿） | 2026-09-11 EditMode 17 项 + PlayMode 4 项 PASS | H1–H3 | 无 | 手动验收单局体验与复活 |
 | M4 Aim | 待验收（自动化全绿） | 2026-09-11 15 项 PASS（EditMode 8 + PlayMode 7） | H1–H3 | 无 | 手动验收拖动跟手与真机触屏 |
-| M5 Presentation | 待验收（自动化全绿） | 2026-09-11 23 项 PASS（EditMode 3 + PlayMode 20） | H1–H6 | 无 | 手动验收手感、观感、真机 60fps、中文渲染 |
+| M5 Presentation | 待验收（自动化全绿） | 2026-09-11 29 项 PASS（EditMode 9 + PlayMode 20） | H1–H6 | 无 | 手动验收手感、观感、真机 60fps、中文渲染 |
 | M6 Meta | 待验收（自动化全绿） | 2026-09-11 EditMode 31 项 PASS | H1–H5 | 无 | 手动验收上限/冷却/插屏/隐私 |
-| M7 Bootstrap | 待验收（自动化全绿） | 2026-09-11 26 项 PASS（EditMode 8 + PlayMode 18） | H1–H4 | 无 | 手动验收首启流程、引导、真机 |
+| M7 Bootstrap | 待验收（自动化全绿） | 2026-09-11 31 项 PASS（EditMode 8 + PlayMode 23） | H1–H4 | 无 | 手动验收首启流程、引导、真机 |
 
-## 自动化测试汇总（2026-09-11）
+## 自动化测试汇总（2026-09-12 最新一轮）
 
-| 套件 | 结果 | 命令 | 结果文件（已归档到仓库） |
-|------|------|------|--------------------------|
-| EditMode | PASS 97 / 97 | `Unity.exe -batchmode -nographics -projectPath <工程> -runTests -testPlatform editmode -testResults Logs\editmode-results.xml` | `Docs/evidence/editmode-results.xml`（原始输出 `E:\MergeWaterVerify\Logs\editmode-results.xml`） |
-| PlayMode | PASS 66 / 66 | `... -testPlatform playmode -testResults Logs\playmode-verify.xml` | `Docs/evidence/playmode-results.xml`（原始输出 `E:\MergeWaterVerify\Logs\playmode-verify.xml`） |
-| 合计 | **PASS 163 / 163** | 同上 | 同上 |
+| 套件 | 结果 | 执行方式 | 证据 |
+|------|------|----------|------|
+| EditMode | **PASS 116 / 116**（0 失败） | ①隔离副本命令行；②**真工程本体** Unity MCP Test Runner | `Docs/evidence/editmode-results.xml`（含 HUD 布局与安全区、九宫格 PPU、UI 来源不变量、设置面板几何等门禁） |
+| PlayMode | **PASS 85 / 85**（0 失败） | ①隔离副本命令行；②**真工程本体** Unity MCP Test Runner | `Docs/evidence/playmode-results.xml`（含加载页单帧卡顿、合成水平初速、地面抬升、真场景端到端与面板截图诊断） |
+| 合计 | **PASS 201 / 201** | 同上 | `Docs/evidence/README.md` |
 
-**验证环境说明（重要）**：以上运行发生在「由真实工程 `Assets` 同步出的隔离副本 `E:\MergeWaterVerify`」中。原因：真工程被运行中的 Unity 编辑器锁定（`Temp/UnityLockfile`），批处理模式无法打开同一工程；同时本会话的 Unity MCP 桥接连接的是另一个工程（LittleGunfight），无法驱动本工程。副本与真工程的源码、资产、`.meta`（GUID）一致，且在生成场景与配置资产后**重新从真工程同步并复跑通过**，因此结果可代表真工程；**真工程本体直跑尚待补**（关闭编辑器后或在 MCP 直连后执行）。详见 `Docs/evidence/README.md`。
+> 2026-09-12 全量复跑（TMP 迁移 + 飘字池 + UiPanel 后）：EditMode 116/116、PlayMode 85/85，`failed=0`。
 
-## 真工程本体证据（不依赖 MCP，2026-09-11 取得）
+**验证环境说明**：首次运行发生在「由真实工程 `Assets` 同步出的隔离副本 `E:\MergeWaterVerify`」——原因是真工程当时被运行中的编辑器锁定（`Temp/UnityLockfile`），批处理模式无法打开同一工程。随后 MCP 桥接直连本工程，已在**真工程本体**复跑并复核。因此测试结论成立，无遗留验证缺口。详见 `Docs/evidence/README.md`。
+
+> 副本同步注意：**不要**把真工程的 `Packages/manifest.json` 同步过去（含 Git URL 与 `file:../` 依赖，副本解析不了会让批处理静默卡死）。只同步 `Assets` 即可。
+
+## 真工程本体证据（2026-09-11）
 
 | 检查 | 结果 |
 |------|------|
-| 真工程编辑器成功编译全部程序集 | 是：`Library/ScriptAssemblies/` 下 8 个运行时/编辑器 DLL + 2 个测试 DLL 均在（13:38–13:44）；无 `.cs` 文件新于 DLL |
-| 编译错误 | 无（`Logs/AssetImportWorker*.log` 中无 `error CS`） |
-| MergeWater 相关异常 | 无 |
-| 场景引用可解析 | 是：`Main.unity` 的 140 处 `guid:` 引用中，抽查 `GameBootstrapper`/`HudBinder`/`GameBalance.asset`/`MetaSettings.asset`/`fruit_circle.png` 全部命中 |
+| 真工程内 Test Runner（MCP 直连，含布局修复后复跑） | EditMode 103/103、PlayMode 74/74，0 失败 |
+| 真工程编辑器成功编译全部程序集 | 是：8 个运行时/编辑器 DLL + 2 个测试 DLL 均在；无 `.cs` 新于 DLL |
+| 编译错误 / MergeWater 异常 | 无（`Logs/AssetImportWorker*.log`） |
+| 场景引用可解析 | 是：`Main.unity` 140 处 `guid:` 引用中，抽查 `GameBootstrapper`/`HudBinder`/`GameBalance.asset`/`MetaSettings.asset`/`fruit_circle.png` 全部命中 |
 | 构建场景 GUID 一致 | 是（`EditorBuildSettings.asset` 与 `Main.unity.meta` 相同） |
-
-> 结论：真工程的代码编译、资产导入与场景接线均已验证可用；唯一未做的是在真工程内执行 Test Runner（需要编辑器不占用工程或 MCP 直连）。
 
 ## 已实现能力（对照 GDD）
 
@@ -63,16 +67,42 @@
 - [x] 程序集边界（8 个运行时/编辑器 + 2 个测试 asmdef）
 - [x] 占位美术、配置资产与主场景生成工具
 - [x] M1–M7 实现
-- [x] 全量 EditMode + PlayMode 测试运行与证据记录（163/163）
+- [x] 全量 EditMode + PlayMode 测试运行与证据记录（最新 **201/201**：EditMode 116 + PlayMode 85，0 失败）
+- [x] UI 改为「运行前就存在、运行时不生成」（2026-09-12 需求方要求方便调整）：`HudBuilder` 移入 **Editor 程序集**（运行时编译期无法引用）、删除 `GameBootstrapper` 的运行时兜底（缺引用改为明确报错，并补上原先只校验 `field` 的缺口——`aim` 为空时会在 `GameContext` 构造器里 NRE）、新增 `MergeWater/Rebuild UI In Open Scene`（只重建 UI 子树，保留场景其余内容）、`Build Main Scene` 加「会丢失手工调整」确认；新增 `UiSourceOfTruthTests`（3 项，含反证）。场景等价性核对：139 条路径、0 数值差异（重构未改动任何 UI 内容）
+- [x] 对局地面从屏幕底边抬起 0.55（2026-09-12 需求方截图「这个底部，调上面一点」，V2.42）：新增 `GameBalance.floorScreenInset`，`GameContext.SetPlayAreaFromCamera` 改为「屏幕底 + inset」；水果落地后距屏底 96 px（此前 0 px，紧贴最后一行像素像被切）。地面外观仍隐藏、左右墙仍贴屏幕边（D13）。新增 `PlayAreaFloorTests`（真场景 + 渲染复核 + 反证）；同时修正 `PhysicsAndPreviewDiagnostics` 里「地面应贴在屏幕底」的旧断言。**注**：需求方上一轮的同一句话被误当成设置面板底部块处理（V2.41），该面板值保留不回退。**抬升量后经需求方目视定档为 0.06**（2026-09-13，见下条）
 - [x] 验收文档回填与任务索引校对
-- [x] 真工程编译/资产/场景接线验证（不依赖 MCP，见上表）
-- [ ] 真工程本体跑 Test Runner（需关闭锁定工程的编辑器，或用 MCP 直连本工程）
-- [ ] 手动验收（手感、观感、真机 60fps、中文渲染），清单见各 `<0X>-*-test.md` 的「手动验收」表
+- [x] 真工程编译/资产/场景接线验证
+- [x] 真工程本体跑完 Test Runner（MCP 直连，全绿）
+- [x] 修复「HUD 满屏底板盖住整个世界」（玩家实测「看不出落点/改完没区别」的根因，2026-09-11 晚）
+- [x] 启动加载页（占位美术）+ 待投水果「回中央 / 延迟 0.45s / 渐显 0.25s」（V2.33–V2.35，2026-09-12）
+- [x] 容器框改为「屏幕即边框」（方案 B：隐藏墙/地面外观 + 物理边界外移到屏幕边缘，决策 D13，2026-09-12）
+- [x] 物理手感二次调整（线性阻尼 2.8→1.4 / 摩擦 0.6→0.5 / 弹性 0.5→0.55 / 合成向上初速 0→0.35，V2.27/V2.29/V2.30/V2.31a）
+- [x] 加载页美术化 + 展示时长 1.2→2.0s（V2.35，加缎带标题/果实球/适龄角标/美术进度条）；提示条加宽换行，修掉长句两端裁切
+- [x] UI 接入 `Assets/Art` 美术包（面板/按钮/进度条/图标/果实球，V2.36；缺资源时回退占位图）
+- [x] 第三轮需求（2026-09-12）：移除 NEXT 预览与阶段目标进度条（V2.37）；里程碑不再发奖、奖励只走广告（V2.38）；合成改左右推 + 弹性压低（V2.27/V2.29/V2.30/V2.31b）；加载页改为「点击开始」保证可见（V2.35）；设置钮换圆形齿轮；修正九宫格圆角缩放（PPU 按用途设置——**方向反了，见下方 V2.40 修复**）
+- [x] 连击提示改为在合成位置飘字（V2.39）：顶栏 comboText 移除；「N 连击」字号/颜色随连击升级 + 下方一行「+分数 ×倍率」
+- [x] 修「加载页进度条永远是 100%、不会动」（2026-09-12 玩家实测）：进度不再直接累加 `Time.unscaledDeltaTime`（首帧初始化/GC/失焦恢复的单帧可达 0.5~3 s，2 s 最短加载被一两帧走完），改为单帧最多计入 0.15 s（`GameBootstrapper.MaxLoadingStepSeconds`，V2.35）；回归守卫 `BootstrappedSceneTests.LoadingProgress_AfterLongFrameStall_DoesNotJumpStraightToFull`
+- [x] 合成力度加大（2026-09-12 需求方「合成给的力度太吝啬」）：`mergeResultSideImpulse` 0.45→1.5 m/s（V2.31b，同步 `Assets/Config/GameBalance.asset`）；新增 `GameFieldMergeTests.MergeResult_SidePushEqualsConfiguredImpulse` 与 `GameBalanceTests` 数值锁定
+- [x] 修「设置面板这 UI 是个啥」（2026-09-12 需求方截图，V2.40）：**根因是九宫格边框缩放方向搞反了**——上一轮把素材 PPU 设成 1/2（想「让圆角变大」），而 `Image` 的边框设计单位 = `边框像素 × Canvas.referencePixelsPerUnit(100) ÷ 素材 PPU`，于是 51px 边框变成 5100 设计单位、远超元素尺寸，Unity 只能把边框压满整个 RectTransform，素材被整体拉伸 → 面板成了「大白椭圆套品红圈」、按钮圆角畸形。改为**一律 PPU=100**（10 张九宫格素材）+ 面板文字改浅色（紫底上深棕文字对比度不足）+ 新增 `UiArtSlicingTests`（2 项）与 `UiScreenshotDiagnostics`（把面板渲染成 `Logs/Diagnostics/ui-*.png` 供复核），并重建 `Main.unity`（HUD 是场景序列化产物，改 `HudBuilder` 必须重建场景才生效）
+- [x] 设置面板底部块（版本 + 关闭）上移 40 设计单位（2026-09-12 需求方「把底部上移一点」，V2.41）：`HudBuilder` 里 `Version` 160→200、`CloseButton` 60→100（距面板底）；改后「清除缓存 ↔ 底部块」94、按钮下方留白 100，上下接近均分。重建 `Main.unity`（语义比对：139 条路径一致，只有这 2 处位移），截图复核见 `Logs/Diagnostics/ui-02-settings.png`
+- [ ] 手动验收（手感、观感、真机 60fps、中文渲染、`Main.unity` 目视检查），清单见各 `<0X>-*-test.md` 的「手动验收」表
+- [ ] 正式美术替换（水果本体仍为程序化圆片；UI 已用美术包，但仍是免费素材风格）
+- [ ] 发布前把 `GameBootstrapper.requirePrivacyConsent` 打开（恢复 R20 隐私门控），并接入真实激励视频/插屏 SDK（现为 `MockAdsService` 测试位）、微信胶囊/分享/开放数据域
 - [ ] 清理临时验证目录 `E:\MergeWaterVerify`（清理前请确认 `Docs/evidence/` 已保留结果 XML）
+- [ ] 提交当前工作区（现在只有 1 次初始提交，M1–M7 与全部修复都还是未提交状态）
+
+- [x] UI 全面迁移到 TextMeshPro（决策 D16，2026-09-12）：`HudView`/`HudBuilder`/测试全改 TMP；字体用 SIMYOU 静态烘焙资产；新建 `UiPanel` 面板基类（把「可见」定义收敛到 alpha+raycast+interactable+active 一处）；场景就地迁移工具 `UiTmpMigrator`（40 个 legacy Text → TMP、7 个面板挂 UiPanel 且 alpha 0→1、54 个 HudView 引用重接、12 条飘字池预置），**布局数值与需求方手工调的 Floor 均保留**；运行时不再生成任何 UI（飘字改预置池）。修复 `FloatingTextItem` 与 `FloatingTextSpawner` 同类不同文件导致的 Missing Script
+- [x] **中文字体管线重构**（2026-09-13）：改为「字符收集文件 + Static 烘焙」。新增 `Assets/Fonts/TMPCharacters.txt`（烘焙读其中全部非注释字符，无需去重）与 `Assets/Fonts/ChineseUI SDF.asset`（2048² 单图集 / Static / Padding 5 / SDFAA / **508 字 / 0 缺字**，1024² 实测装不下故升档）；工具 `TMPFontBuilder`（收集 + 烘焙，候选 1024²→2048²@75→68→64→多图集）与 `TMPFontReferenceTool`（审计 + 重指）。源 ttf 与字体资产**移出 `Resources/`**（`Resources` 里的资源会被无条件打进包；源 ttf 仅编辑期烘焙需要）→ `Assets/Fonts/`。删除旧工具 `TmpFontAssetBuilder.cs`
+- [x] 字体相关**两个真 bug**（2026-09-13，先前就有、本轮查错时发现）：① 隐私说明有 19 个字（微 信 平 台 服 务 等 述 规 则 由 供 及 公 示 者 闲 休 传 力）没烘进字库→Static 模式直接渲染空白；② 飘字池 12 个条目是 Missing Script（`FloatingTextItem.cs` 拆成独立文件后场景仍指向旧 GUID `1887573d…`），`FloatingTextSpawner.Spawn` 遇到 null 条目静默 return → 合成时**完全不出现飘字且不报错**。另修掉 39 处 `m_sharedMaterial` + 12 处 `MeshRenderer.m_Materials` 悬空引用（重建字体资产会换材质子资产 fileID）。门禁：新增 `TMPFontAssetTests`（3 条）与 `SceneAssetTests.MainScene_HasNoReferencesToMissingScripts`（此前无任何测试覆盖脚本引用失效）。验证：反证 `Expected: greater than 0, But was: 0`（连续两次失败，非偶发）→ 修复后 EditMode **120/120**、PlayMode **85/85**
+- [x] 对齐/换行核查（2026-09-13）：全场景 52 个 TMP **无一处** Justified/Flush（不存在中文异常间距）；隐私正文已是左上 + 自动换行；加载页《健康游戏忠告》关闭自动换行但 3 行显式换行在 930 宽内放得下（约需 810），按「非排版错误不改」保留
+- [x] UI 美术移出 `Resources`（2026-09-13，首包 −4.9MB）：`Assets/Resources/Art`（28 张 UI 图 5.10MB）→ `Assets/UI/Art`，`.meta` 一起移动所以 GUID 保留、场景引用不受影响。`Resources` 里的资源会被无条件打进包，实测其中 4 张零引用（`bg_night.png` 一张 5.0MB + 3 个 icon）纯粹因为躺在 `Resources` 下才进包，移出后不再进。`HudBuilder.LoadArt` 改为 `AssetDatabase` 取图（编辑器工具）；`UiArtSlicingTests`/`BackdropViewTests` 同步改路径。`Assets/Resources/Placeholder/` 按硬约束 7 保留（运行时兜底需要）。验证：场景贴图引用 0 处丢失，EditMode **120/120**、PlayMode **85/85**
+- [x] 文档与约束补强（2026-09-13）：AGENTS.md 新增硬约束 9（字体字集唯一来源是 `Assets/Fonts/TMPCharacters.txt`，改文案必须重跑收集+烘焙，否则新字在 Static 下空白）、硬约束 10（`Resources/` 只放运行时要 `Resources.Load` 的东西）；补录 `Assets/Fonts/`、`Assets/UI/Art/` 目录约定
+- [x] 地面调参工具 `MergeWater/Floor Tuning (Play Mode)`：地面由 `Awake` 按相机算出，场景里手工挪 `Floor` 会被覆盖；滑杆实时预览 + 一键写回（同时改 `GameBalance.cs` 并直接同步 `GameBalance.asset` 的序列化字段）
+- [x] 修复「地面调参调好了却没起作用」（2026-09-13）：`FloorTuningWindow.WriteBack` 原先写完 .cs 立刻调 `ConfigAssetGenerator.GenerateMenu()`，而生成器用 `CreateInstance` 取代码默认值——此刻 Unity 还没重编译刚写盘的 .cs，字段初始化器仍来自旧程序集，于是把旧值 0.55 原样写回资产（实测 .cs 10:01:34.931 / 资产 10:01:35.208 / Core.dll 10:01:38.268）。运行时读资产 → 需求方调的 0.06 失效。改为用 `SerializedObject` 直接改资产字段（不依赖重编译）；`floorScreenInset` 定档 0.06（V2.42/D13 同步）；`ConfigAssetTests` 补**整表** 51 项标量断言（此前漏了 `FloorScreenInset`，所以两边不一致仍全绿）；`PlayAreaFloorTests` 的可见间隙下限 0.2→0.03（0.2 无需求依据，会把定档值误判为回归）。验证：反证跑出 **115/116**（失败项正是新断言 `Expected 0.06, But was 0.55`），修好后 EditMode **116/116**、PlayMode **85/85**
 
 ## 阻塞
 
-- 真工程本体直跑：受「工程被编辑器锁定 + MCP 未连接本工程」限制。不阻塞手动验收（可直接在编辑器里按清单核对）。
+无。模块状态为「待验收」仅因手动验收项尚未由人工确认。
 
 ## 过程中发现并修复的实现缺陷（供回归参考）
 
@@ -82,6 +112,27 @@
 | `NewRound()` 未解绑上一局的 `IFieldPort.Merged` | 重开后新旧两局同时计分并重复写存档 | `NewRound` 先 `Session?.Dispose()` | `RoundLifecycleTests.NewRound_..._WithoutLeakingPreviousEvents` |
 | 越线判定只看瞬时速度 | 刚生成的水果（速度为 0）会被误判为「静止越线」 | `FruitBody.SettledDuration` 连续静止计时 + `DangerSettleGraceSeconds` | `GameFieldDangerTests.FreshlySpawnedFruitAboveLine_IsNotReportedBeforeSettleGrace` |
 | 复活广告可能被播放两次（Session 与 Economy 各播一次） | 重复激励视频、冷却记账错乱 | 职责拆分：M3 只做每局次数与状态应用（`ApplyRevive`），M6/M7 负责冷却与播放 | `RoundLifecycleTests.Revive_WhenAdCompletes_...`（断言 `RewardedShown == 1`） |
+| 贴边元素的 pivot 与锚点不一致（pivot 恒为 0.5） | 设置按钮顶部被裁出画布 4 单位（视觉缺陷，逻辑测试抓不到） | `HudBuilder.Place` 改为 pivot 跟随锚点：贴边用同侧 pivot，偏移量语义统一为「距该边距离」 | `HudLayoutTests.AllVisibleHudElements_FitInsideDesignCanvas`、`TopAnchoredElements_UseSameSidePivot_SoTheyAreNotClipped` |
+| 设置按钮置于右上角仅留 190 设计单位 | 与微信胶囊保留区（约 300 单位宽）重叠，设置入口会被遮挡 | 重排顶栏：中央分数收窄到 440（右边缘 760 < 胶囊区 780），设置按钮下移到胶囊区下方（纵向 140..216 > 115） | `HudLayoutTests.TopBar_DoesNotEnterWeChatCapsuleZone` |
+| **`PanelController` 的面板查找表与按钮监听只在编辑器期装配** | **运行时 `_panels` 为空：隐私弹窗永不显示、所有按钮失效 → 用户实测「启动后没反应」** | `Awake` 中调用幂等的 `EnsureConfigured()` 在运行时重建查找表与监听（`Configure` 改为注入视图 + 触发装配） | `BootstrappedSceneTests`（5 项真场景端到端） |
+| `FeedbackDirector` 的组件引用从未接线（`HudBuilder` 未调用其 `Configure`） | R22 手感反馈全部静默空转：无粒子、无顿帧、无慢放、无震屏、无飘字 | `HudBuilder` 构建期接线组件引用；`GameBootstrapper` 在运行时补入数值与震屏目标 | `BootstrappedSceneTests.Merge_ProducesVisibleFeedback` |
+| 真场景测试把原生对象留到进程退出时由 GC 终结器回收 | 终结器在 `PhysicsManager` 销毁后访问它 → 批处理模式退出阶段崩溃、退出码 21 | TearDown 中 `Resources.UnloadUnusedAssets()` + `GC.Collect()` + `GC.WaitForPendingFinalizers()`，在物理管理器存活时排空终结器队列 | 复跑 `exit=0`（PlayMode 71/71） |
+| **瞄准预览把下落段也算进 V2.26 的 0.8s 预算** | 从生成高度落到地面需约 1.4s，预测线截断在半空（实测最低只到 y≈2.06）→ 玩家「无法判断落点」 | 预览改为「先下落到落点表面，再做 ≤0.8s 反弹预演」；落点表面由 `IPreviewObstacle`（`GameField.GetLandingY`）提供，能停在堆叠面上；重力按当前等级实际值（V2.28）计算，由 M7 每帧同步 | `PhysicsAndPreviewDiagnostics.Aiming_ShowsPreviewReachingTheLandingSurface`（断言最低点到达地面） |
+| **圆形碰撞体几乎没有滚动阻力** | 水果落地后一路滚到墙角（实测偏移 1.95，正好是左墙静止位），堆成一层的平摊形态 | 按 D12 采纳参考实现参数：线性阻尼 2.8（V2.27）、重力倍率随等级 1.6→3.6（V2.28）、摩擦 0.6（V2.29）、弹性 0.5（V2.30） | `PhysicsAndPreviewDiagnostics.DroppedFruits_FallMergeAndDoNotScatterToWalls`、`FruitsOfDifferentTiers_StackOnEachOther`（实测 4 颗叠成 4 层塔、横向偏移 0.03） |
+| **合成结果被施加向上初速（0.6）** | 结果水果跳到别处并在堆顶制造扰动，助推「堆不平」 | 按 V2.31 改为零初速生成，就地对位由求解器推开邻居 | `GameFieldMergeTests.MergeResult_SpawnsAtRestAtMidpoint` |
+| **同级水果只监听碰撞进入** | 因一次合成被取消而持续贴合的同级水果再也不触发合成 → 表现为「贴着但不动/不合成」 | 按 V2.32 在碰撞停留时也尝试合成（`_merging` 去重保证安全） | `FruitBody.OnCollisionStay2D`；`GameFieldMergeTests` |
+| **改动 `GameBalance` 代码默认值后未重新生成配置资产** | 运行时仍读旧值（本轮摩擦/阻尼/重力倍率一度全部未生效，白跑一轮） | `AGENTS.md` 硬约束 2 补注：必须重新生成 `Assets/Config/GameBalance.asset`；`ConfigAssetTests` 会失败以提示 | `ConfigAssetTests.GameBalanceAsset_Exists_AndMatchesCodeDefault` |
+| **水果生成高度落在 HUD 顶栏之后** | 待投水果与预测线上段被大号分数/设置按钮遮住（实测中心在屏幕顶部 7%，顶栏占到 15%）→ 玩家「看不出落点、以为拖了没反应」 | 生成高度 5.2 → 4.0（V2.26a），使待投水果落在「顶栏之下、警戒线之上」的可见区间；预览重力按当前等级实际值（V2.28）计算 | `PhysicsAndPreviewDiagnostics.Aiming_ShowsPreviewReachingTheLandingSurface`（断言中心在顶栏之下：实测 17.8%） |
+| **容器墙体/地面只有碰撞体、没有渲染器** | 水果像掉进虚空：玩家看不到场地边界与地面位置；且容器原本只在「第一次投放」时才创建，开局第一帧更是什么都没有 | 墙体/地面增加子节点视觉（`ui_square` 占位图 + 颜色，排序号 -10），并在 `GameField.Awake` 就建好容器。**2026-09-12 起改走 D13「屏幕即边框」：外观默认隐藏、边界外移到屏幕边缘**，该视觉代码保留在 `showArenaVisuals` 开关后 | `PhysicsAndPreviewDiagnostics`（现断言：Arena 三个子节点保留启用的碰撞体、外观已隐藏，且 `PlayHalfWidth/PlayFloorY` 贴合相机可视范围） |
+| **`DangerLineView` 的线引用是非序列化字段** | 运行时为 null → `SetLine` 提前返回 → **警戒线从未显示过**（位置与颜色都没写进去）；且场景里烘焙的常态色是「白色 35% 透明」，画在米色背景上等于没有 | 改用序列化引用 + 运行时兜底解析；常态色改为可见柔和红，并在 `SetLine` 时写入 LineRenderer（不只改字段）；另加运行时可见性守卫 | `PhysicsAndPreviewDiagnostics`（断言警戒线常态 alpha ≥ 0.4） |
+| **`Configure(buildArena:false)` 未清理 `Awake` 已建的场地** | 该语义下墙体仍存在，拦住了本该掉出场地的水果 | 显式要求无容器时销毁 Arena 根节点 | `GameFieldLifecycleTests.EscapedFruit_IsRecycledInsteadOfLeaking` |
+| **诊断截图工具自身说谎** | 为把 HUD 拍进图而临时把 Canvas 切成 ScreenSpaceCamera，UI（排序号 0）压住了排序号为负的容器墙体 → 截图误示「容器不可见」，差点去改一个不存在的 bug | 截图工具回到「只渲染世界」；结论以像素/坐标数据为准 | 复查像素与渲染包围盒后确认容器正常 |
+| **HUD 的满屏不透明底板盖住整个世界** | Canvas 是 ScreenSpaceOverlay，**永远绘制在世界之上**：`Canvas/Background`（铺满屏幕、alpha=1）把水果、容器、警戒线、待投水果与落点预测线全部遮住 → 玩家只能看到 HUD，实测为「无法拖动水果确定落点」「改了预览/物理参数也没区别」（与输入链路、物理参数无关） | 删除该满屏底板，底色改由相机 SolidColor 清屏提供：新增 `HudBuilder.BackgroundColor`（0.99/0.93/0.84，与原相机清屏色一致），`HudBuilder.Build` 与 `SceneBuilder.BuildCamera` 共用同一常量；重建 `Main.unity` 使既有场景同步 | `HudLayoutTests.NoOpaqueFullScreenGraphic_HidesTheGameWorld`（新增，扫 Canvas 下所有启用图形，禁止「铺满 + 不透明」；改 `HudBuilder` 后忘记重建场景也会被它拦住） |
+| **对局底色是一块米色纯色，需求方认为「丑」** | 米色底在竖屏上占满整屏、没有任何内容；美术包 `Assets/Art` 里现成的 `GUI/Background_Images/background-1` 一直没被用上 | 按需求方「可以用 Art 文件夹的资源」，复制为 `Art/Resources/bg_night.png`（3840×2160，PPU=100，maxTextureSize 4096），新增 `BackdropView` 用**世界空间 SpriteRenderer + cover 缩放**铺满视口（排序 -100，低于全部对局元素），相机清屏色改为与素材一致的夜空色作为兜底；三张候选背景做了竖屏居中裁切对比后选 `background-1`（中央留白最干净、装饰云留在被裁掉的两侧） | `BackdropViewTests`（5 项：三种宽高比覆盖 + 超宽屏重贴合 + 无素材降级）、`SceneAssetTests.Backdrop_IsBehindEveryWorldElement`、`BootstrappedSceneTests.Backdrop_CoversViewport_AndSitsBehindTheGameplay` |
+| **设置面板没有音量条**（需求方反馈「音量条丢失」） | 设置页只有 音效/音乐/震动 三个开关，玩家只能开/关、无法调音量；美术包 Settings_Demo 本身就是 Sound/Music 两条音量条 | 用美术包 Medium 版 `sound-bar-container`（390×44 轨道）+ `sound-bar-full`（376×24 分段填充）+ 分段素材做滑钮，拼成音量条**行内嵌在 音效/音乐 两行右侧**（不占额外纵向空间）；存档新增 `settingsSfxVolume/settingsMusicVolume`（缺字段默认 100%），`AudioDirector` 音量与开关正交（音乐基准增益 0.4） | `SceneAssetTests.HudView_RequiredElementsAreWired`、`BootstrappedSceneTests.VolumeSliders_AreWiredAtRuntime_AndChangeAudio`；运行时复验：读档回填 0.35/0.60 → 拖动后存档与音频同为 0.80/0.40、填充同步、关开关后音量保留 |
+| **音量条填充只由 `HudBuilder` 挂监听** | 编辑器期挂的 `onValueChanged` 不会被序列化进场景：实机表现为「音量真的变了、填充条却一直满格」（本次实现中真实复现） | 填充与音量的绑定统一挪到运行时装配的 `PanelController.HookButtons`（与按钮监听同一个坑），`HudBuilder` 只创建控件、不再挂监听 | 运行时脚本复验（填充 0.80 跟随）；`BootstrappedSceneTests` 断言 `fillAmount` |
+| **背景图换上后需求方要求「换成原来的就行」** | 米色纯色底 vs 美术包夜空图属观感取舍，需求方看过实际效果后选择保留原底色 | `HudBuilder.BackdropArtName` 置空（`BuildBackdrop` 自动关渲染器）、相机清屏色恢复米色 `(0.99,0.93,0.84)`；`Backdrop` 节点与 `BackdropView` 保留，重新启用只需填回资源名并重建场景。场景断言改为「节点在 + 排序为负 + 有素材时渲染器必须启用」，两种状态都成立 | EditMode 复跑 112/112；运行时复验 `sprite=null / enabled=False / 清屏色=米色` |
+| **取消勾选音效/音乐后仍能拖动音量条** | 开关只静音、滑条照旧可拖，玩家会以为「关了还能调」/「调了没反应」（需求方 2026-09-12：「取消勾选时应该禁止调节大小」） | `PanelController.HookButtons` 运行时接线：开关变化 → 对应滑条 `interactable = isOn`（`DisabledColor` 变暗提示），`SetVolumeStates` 在打开设置/读档回填时对齐；不做强制清零，档位保留 | 运行时脚本复验：取消勾选 → `interactable=False` 且存档音量保留 0.45，重新勾选 → 可调且值仍 0.45；`BootstrappedSceneTests` 同步断言 |
 
 ## 文档健康度
 

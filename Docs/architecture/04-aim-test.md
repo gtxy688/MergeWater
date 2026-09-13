@@ -14,14 +14,15 @@
 | A5 | EditMode | `Aim/AimSolverTests.cs::NormalizeX_IsWithinZeroToOne` | 归一化落点（含越界夹取与退化区间） | 同上 | PASS |
 | A6 | PlayMode | `Assets/Tests/PlayMode/Aim/AimControllerTests.cs::PressDragRelease_RaisesDropRequestedOnceWithClampedX`、`DragBeyondBounds_ClampsToRadiusAdjustedLimit`、`AimState_NormalizedX_TracksBounds` | 按下-拖动-松手发出恰好一次投放指令且 x 被夹取；状态归一化正确 | 实现前无 `AimController` | PASS |
 | A7 | PlayMode | `Aim/AimControllerTests.cs::SetInteractableFalse_CancelsAimWithoutRaisingRequests`、`PointerLeavingScreen_OnRelease_CancelsInsteadOfDropping`、`ItemAim_ReleasesOneTargetRequest_AndCancelRaisesNothing`、`BuildPreview_ReturnsVerticalPathWithinField` | 不可交互/指针离屏时取消且不发指令；道具瞄准恰好一次；预览为垂直下落路径 | 同上 | PASS |
+| A8 | PlayMode | `Assets/Tests/PlayMode/Bootstrap/PhysicsAndPreviewDiagnostics.cs::Aiming_ShowsPreviewReachingTheLandingSurface` | 按住并拖动后：预测线可见、落点 x 跟随（1.00）、**路径最低点到达落点表面**（实测 lowestY=-4.20 = 地面）、待投水果可见且有 sprite | **修复「线断在半空」后新增**（修复前最低只到 y≈2.06） | PASS |
 
 ## 自动化运行记录
 
 | 日期 | Unity 版本与环境 | 命令或 Test Runner 过滤器 | 结果文件 | 结论 |
 |------|------------------|---------------------------|----------|------|
-| 2026-09-11 | Unity 2022.3.62f3 / Windows 10 / `-batchmode -nographics` | EditMode 与 PlayMode 各一次（见 `01-core-test.md` / `02-field-test.md` 记录） | `Logs\editmode-results.xml`、`Logs\playmode-verify.xml` | PASS — 本模块 15 项（EditMode 8 + PlayMode 7） |
+| 2026-09-11 | Unity 2022.3.62f3 / Windows 10 / `-batchmode -nographics` | EditMode 与 PlayMode 各一次（见 `01-core-test.md` / `02-field-test.md` 记录） | `Logs\editmode-results.xml`、`Logs\playmode-verify.xml` | PASS — 本模块 16 项（EditMode 8 + PlayMode 8） |
 
-> 环境说明：同 `01-core-test.md` —— 运行在由真实工程同步出的隔离副本上。
+> 环境说明：先在由真工程同步出的隔离副本上运行，随后 MCP 直连真工程本体复跑，两次结果一致（EditMode 103/103、PlayMode 74/74）。详见 `Docs/evidence/README.md`。
 
 ## 手动验收前置条件
 
@@ -54,8 +55,8 @@
 
 ## 交付结论
 
-- 已验证：A1–A7 与 E1–E3 全部通过（本模块 15 项）。
+- 已验证：A1–A8 与 E1–E3 全部通过（本模块 16 项）。
 - 不适用：无。
 - 待手动验收：H1–H3（手感与真机触屏）。
-- 未验证：在真工程本体内执行 Test Runner（真工程的编译、资产导入与场景接线已验证，见 `Docs/evidence/README.md`）。
+- 未验证：无（201 项自动化测试通过：EditMode 116 + PlayMode 85，见 `Docs/evidence/README.md`）。
 - 未通过：无。

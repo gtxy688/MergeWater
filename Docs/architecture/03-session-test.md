@@ -22,9 +22,9 @@
 
 | 日期 | Unity 版本与环境 | 命令或 Test Runner 过滤器 | 结果文件 | 结论 |
 |------|------------------|---------------------------|----------|------|
-| 2026-09-11 | Unity 2022.3.62f3 / Windows 10 / `-batchmode -nographics` | `-runTests -testPlatform editmode -testResults Logs\editmode-results.xml` | `Logs\editmode-results.xml` | PASS — EditMode 全量 97/97（本模块 17 项） |
+| 2026-09-11 | Unity 2022.3.62f3 / Windows 10 / `-batchmode -nographics` | `-runTests -testPlatform editmode -testResults Logs\editmode-results.xml` | `Logs\editmode-results.xml` | PASS — EditMode 全量 103/103（本模块 17 项） |
 
-> 环境说明：同 `01-core-test.md` —— 运行在由真实工程同步出的隔离副本上。
+> 环境说明：先在由真工程同步出的隔离副本上运行，随后 MCP 直连真工程本体复跑，两次结果一致（EditMode 103/103、PlayMode 74/74）。详见 `Docs/evidence/README.md`。
 
 ## 手动验收前置条件
 
@@ -63,5 +63,5 @@
 - 已验证：A1–A10 与 E1–E5 全部通过（EditMode 17 项 + PlayMode 集成 4 项）。
 - 不适用：无。
 - 待手动验收：H1–H3。
-- 未验证：在真工程本体内执行 Test Runner（真工程的编译、资产导入与场景接线已验证，见 `Docs/evidence/README.md`）。
+- 未验证：无（201 项自动化测试通过：EditMode 116 + PlayMode 85，见 `Docs/evidence/README.md`）。
 - 未通过：无。

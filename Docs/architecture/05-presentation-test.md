@@ -14,13 +14,26 @@
 | A5 | EditMode | `Assets/Tests/EditMode/Presentation/ComboPitchTests.cs::ComboPitch_AddsSemitonePerCombo_CappedAtOneOctave`、`HitStopSeconds_GrowsWithCombo_AndStaysWithinV223Range`、`ShakeTier_IsThreeLevels` | 音阶 +1 半音/连击、封顶 8 度（12 半音）；顿帧 80–120ms 随连击递增；震屏三档 | 实现前无音阶函数 | PASS |
 | A6 | PlayMode | `Presentation/HudBinderTests.cs::DangerEvents_ToggleDangerLinePulse`、`Update_RefreshesNextPreviewAndPendingFruit`、`Update_WhileAiming_DrawsTrajectory` | 警戒线脉冲随越线事件开关；next 预览与待投水果随快照刷新；瞄准时绘制虚线 | 实现前无 `DangerLineView`/`AimPreviewView` | PASS |
 
+| A7 | EditMode | `Assets/Tests/EditMode/Bootstrap/HudLayoutTests.cs`（6 项：`AllVisibleHudElements_FitInsideDesignCanvas`、`TopAnchoredElements_UseSameSidePivot_SoTheyAreNotClipped`、`TopBar_DoesNotEnterWeChatCapsuleZone`、`BottomBand_IsClearOfHudElements`、`SideEntries_SitOnTheirOwnHalf`、`Canvas_UsesPortraitReferenceResolution`） | HUD 布局与安全区不变量：元素必须落在 1080×1920 设计画布内；贴边元素 pivot 必须与锚点同侧；顶栏不得进入微信胶囊保留区（300×115）；底部 60 单位净空（R27）；两侧入口不越中线；Canvas 竖屏参考分辨率 | **修复两个真实布局缺陷后新增**（见 E4/E5）；此前无任何布局约束测试 | PASS |
+| A8 | EditMode | `Assets/Tests/EditMode/Presentation/UiArtSlicingTests.cs::ArtWithNineSliceBorder_IsImportedAtCanvasReferencePixelsPerUnit`、`SceneSlicedImages_DoNotClampTheirBordersIntoTheWholeRect` | 九宫格 UI 素材必须以 PPU=100（= `Canvas.referencePixelsPerUnit`）导入；场景里任何 `Image.Type.Sliced` 的边框换算后不得接近/超过元素最小边的一半（否则 Unity 把边框压满整个 Rect，素材被整体拉伸） | **修复「设置面板被拉伸成大白椭圆」后新增**（V2.40）：此前无任何九宫格缩放约束，素材 PPU 被设成 1/2，边框实际放大 100/50 倍 | PASS |
+| A9 | PlayMode | `Assets/Tests/PlayMode/Presentation/UiScreenshotDiagnostics.cs::CapturePanels_ForVisualReview` | 把加载页/设置/隐私/结算四个面板渲染成 `Logs/Diagnostics/ui-0X-*.png`（Canvas 临时切 ScreenSpaceCamera + 独立相机 → RenderTexture），供人工与多模态复核；`-nographics` 下写 `.skipped.txt` 而不崩溃 | UI 观感只能靠看图判断（与 `PhysicsAndPreviewDiagnostics` 同类诊断测试） | PASS |
+| A13 | EditMode | `Assets/Tests/EditMode/Bootstrap/HudLayoutTests.cs::SettingsPanel_BottomBlock_SitsAboveTheBottomEdgeWithBalancedSpacing` | 设置面板底部块（版本/关闭）几何不变量：关闭按钮下沿距面板底 90–200（V2.41 上移后为 100）、底部块与「清除缓存」空档 80–200（上移后为 94）、版本号在关闭按钮之上 | 需求方（2026-09-12）「把底部上移一点」：原值 60 导致重心偏低（上方空档 134 / 下方仅 60）。**反证**：把场景里的 y 改回 60 后该用例失败（`Expected ≥ 90.0f, But was 60.0f`） | PASS |
+| A14 | EditMode | `Assets/Tests/EditMode/Presentation/UiSourceOfTruthTests.cs`（3 项：`RuntimeAssemblies_DoNotContainTheUiBuilder`、`RuntimeAssemblies_DoNotReferenceTheUiBuilder`、`HudViewFields_AreFilledFromTheSceneNotFromCode`） | UI 来源不变量：界面只来自场景资产，运行时不生成——运行时程序集不得包含/引用 UI 生成器 `HudBuilder`，`HudView` 不得有属性 setter（UI 引用只能由场景序列化提供） | **UI 改为「运行前就存在」后新增**（2026-09-12 需求方要求方便调整）；**反证**：把 `HudBuilder` 移回 `MergeWater.Presentation` 后该用例失败（`UI 生成器存在于运行时程序集…MergeWater.Presentation.HudBuilder`） | PASS |
+| A10 | EditMode | `Assets/Tests/EditMode/Presentation/BackdropViewTests.cs`（5 项：`Backdrop_CoversWholeCameraView_竖屏/横屏/正方形`、`Backdrop_RefitsWhenCameraAspectChanges`、`Backdrop_WithoutSprite_DoesNotThrow`） | 背景必须按 cover 盖满任意宽高比的视口（1080×1920 / 1920×1080 / 1:1）、居中于相机、缩放贴近理论 cover 值；超宽屏（2.2:1）重新贴合后仍盖满；素材缺失时不抛异常且不动 Transform | **2026-09-12 需求方「背景图太丑，换一个」后新增**（D14）：cover 逻辑写错就会露出相机清屏色边带，逻辑测试抓不到 | PASS |
+| A11 | EditMode | `Assets/Tests/EditMode/Bootstrap/SceneAssetTests.cs::Backdrop_IsBehindEveryWorldElement`、`HudView_RequiredElementsAreWired`（本次扩充） | 场景必须有背景节点且排序值为负（低于场景里每一个 `SpriteRenderer`/`LineRenderer`，否则挡住玩法画面）；指派了素材时渲染器必须启用。设置页必须有音效/音乐两条音量条与分段填充，取值范围 0..1 | **同上新增**：需求方反馈「音量条丢失」；背景断言随后改为兼容「换回原来的纯色底」 | PASS |
+| A12 | PlayMode | `Assets/Tests/PlayMode/Bootstrap/BootstrappedSceneTests.cs::VolumeSliders_AreWiredAtRuntime_AndChangeAudio`、`Backdrop_CoversViewport_AndSitsBehindTheGameplay` | 真场景端到端：拖动音量条必须立刻改 `AudioDirector` 音量、写入存档、并让分段填充跟随；**取消勾选对应开关后音量条必须不可调、勾回来恢复且档位保留**。背景节点必须在场且排序在水果之前；指派了素材时还要盖满视口并在宽高比变化后重贴合（当前需求方要求换回纯色底，故走「无素材 → 渲染器关闭」分支） | **同上新增**（R25「即时生效并写入存档」+ 2026-09-12「取消勾选时禁止调节大小」） | PASS（运行时脚本复验，见下） |
+
 ## 自动化运行记录
 
 | 日期 | Unity 版本与环境 | 命令或 Test Runner 过滤器 | 结果文件 | 结论 |
 |------|------------------|---------------------------|----------|------|
-| 2026-09-11 | Unity 2022.3.62f3 / Windows 10 / `-batchmode -nographics` | EditMode 与 PlayMode 各一次 | `Logs\editmode-results.xml`、`Logs\playmode-verify.xml` | PASS — 本模块 23 项（EditMode 3 + PlayMode 20） |
+| 2026-09-11 | Unity 2022.3.62f3 / Windows 10 / `-batchmode -nographics` | EditMode 与 PlayMode 各一次 | `Logs\editmode-results.xml`、`Logs\playmode-verify.xml` | PASS — 本模块 29 项（EditMode 9 + PlayMode 20） |
+| 2026-09-12 | Unity 2022.3.62f3 / Windows 10 / 编辑器内 Test Runner | EditMode 全量（本次改动后） | 控制台输出（未落 XML） | PASS — EditMode **112/112**（含本次新增 6 项：A10 的 3 个宽高比 + 重贴合 + 无素材 + A11 的背景层级） |
+| 2026-09-12 | Unity 2022.3.62f3 / Windows 10 / 编辑器内 Test Runner | EditMode 全量（背景换回纯色底 + 音量条禁用联动后复跑） | 控制台输出（未落 XML） | PASS — EditMode **112/112** |
+| 2026-09-12 | 同上 / Play 模式运行时脚本 | `exec_runtime_script` 复验真场景（编辑器正开，PlayMode 套件需关闭编辑器跑批处理，本次未跑） | `Temp/verify-settings-disabled.png` 等 | PASS — 背景 `sprite=null / enabled=False / 相机清屏色=米色`；音量条 0.45 → 取消勾选音效后 `interactable=False` 且存档保留 0.45 → 重新勾选后 `interactable=True`、值 0.45、填充 0.45；取消勾选音乐后 `interactable=False` |
+| 2026-09-12 | Unity 2022.3.62f3 / Windows 10 / 隔离副本 `-batchmode -nographics` | EditMode 与 PlayMode 全量（设置面板底部块上移 V2.41 后） | `Logs\editmode-results.xml`、`Logs\playmode-results.xml` | PASS — EditMode **113/113**、PlayMode **83/83**，`failed=0`；补上了上一条遗留的「PlayMode 未跑」缺口 |
 
-> 环境说明：同 `01-core-test.md` —— 运行在由真实工程同步出的隔离副本上。
+> 环境说明：先在由真工程同步出的隔离副本上运行，随后 MCP 直连真工程本体复跑。最近一轮（2026-09-12，含九宫格 PPU 门禁、面板截图诊断与设置面板底部块上移 V2.41）为批处理全量运行：EditMode 113/113、PlayMode 83/83，`failed=0`。详见 `Docs/evidence/README.md`。
 
 ## 手动验收前置条件
 
@@ -36,6 +49,8 @@
 | H2 | 连续制造 2/4/6 连击 | 顿帧与震屏随连击增强，音高上行，飘字 punch 明显 | Editor | 待执行 | 待手动验收 | V2.23/V2.24 |
 | H3 | 堆到警戒线附近并越线 | 警戒线红色脉冲 + 心跳音；失败时重震 0.2s | Editor | 待执行 | 待手动验收 | V2.25 |
 | H4 | 打开设置面板切换音效/音乐/震动 | 开关即时生效、重启后保持 | Editor | 待执行 | 待手动验收 | R25（持久化已自动化验证） |
+| H7 | 打开设置面板拖动「音效/音乐」音量条；再取消对应勾选 | 滑钮跟随手指、分段填充随音量增减；**取消勾选后该音量条不可调（变暗），勾回来恢复且档位保持**；关掉开关再打开音量值保留 | Editor | 已执行（运行时脚本） | 待手动验收（触感） | A12；实测：取消勾选后 `interactable=False`、存档音量保留 0.45，重新勾选后 `interactable=True`、值仍 0.45、填充 0.45 |
+| H8 | 观察对局背景（竖屏） | 对局底色为米色纯色（2026-09-12 需求方要求换回原来的），无黑边/色带；水果与警戒线清晰可见 | Editor | 已执行（运行时脚本 + 像素采样） | 待手动验收（观感） | 实测 `sprite=null / enabled=False / 相机清屏色=RGBA(0.990,0.930,0.840,1)`；A10/A11 |
 | H5 | 首次进入查看隐私弹窗与结算页引导 | 首启必现隐私弹窗；前 3 局结算页出现分享/排行引导 | Editor | 待执行 | 待手动验收 | R20/R23 |
 | H6 | 真机竖屏试玩 3 分钟 | 60fps 稳定，UI 不被微信胶囊遮挡，触屏落点准确 | 真机 | 待执行 | 待手动验收 | V3 |
 
@@ -48,18 +63,25 @@
 | E1 | 慢放/顿帧期间再次触发合成 | 取最强反馈，不叠加；结束后 `timeScale=1` | 自动 | PASS | `TimeDirectorTests.NestedSlowMo_TakesStrongestScaleAndLongestDuration` |
 | E2 | 面板显示时点击下层对局 | 下层不可交互 | 自动 + 手动 | PASS（自动）/ 待执行（观感） | `GameBootstrapper.Update` 的 `SetInputBlocked`；`ItemUseTests` |
 | E3 | 缺少可选 UI 引用 | 跳过该元素并告警一次，不抛异常 | 自动 | PASS | `PanelController`/`HudView` 全字段空值保护；`PresentationHarness` 最小 HUD 即为该场景 |
+| E4 | 贴边元素的 pivot 与锚点不一致 | 元素被裁出画布（**实际发生**：设置按钮顶部 −4 单位） | 自动 | PASS | `HudLayoutTests.TopAnchoredElements_UseSameSidePivot_SoTheyAreNotClipped`、`AllVisibleHudElements_FitInsideDesignCanvas` |
+| E5 | 顶栏元素进入微信胶囊保留区 | 与系统胶囊重叠、设置入口被遮挡（**实际风险**：原设计右侧仅留 190 单位，胶囊区需约 300） | 自动 | PASS | `HudLayoutTests.TopBar_DoesNotEnterWeChatCapsuleZone` |
+| E6 | 手感反馈组件引用未接线 | R22 的粒子/顿帧/慢放/震屏/飘字全部静默空转（**实际发生**：`HudBuilder` 从未调用 `FeedbackDirector.Configure`） | 自动 | PASS | `BootstrappedSceneTests.Merge_ProducesVisibleFeedback`（真场景）；静态接线见 `HudLayoutTests` 同批自检 |
+| E7 | 背景素材缺失（`Art/bg_night` 未导入/被删） | 不能崩，也不能露出浅色底：关闭背景渲染器并告警一次，回落相机 SolidColor（夜空色） | 自动 | PASS | `BackdropViewTests.Backdrop_WithoutSprite_DoesNotThrow`；`SceneAssetTests.Backdrop_IsBehindEveryWorldElement`（素材为空即失败提醒） |
+| E8 | 只修 `HudBuilder` 而忘记重建 `Main.unity` | HUD 是场景序列化产物，新控件（音量条/背景）在真场景里不会出现——「改了没反应」 | 自动 | PASS | `SceneAssetTests.HudView_RequiredElementsAreWired`（断言音量条存在）+ `Backdrop_IsBehindEveryWorldElement`；两者在未重建场景时会失败 |
+| E9 | 音量条填充只由 `HudBuilder` 挂监听 | 编辑器期监听不会被序列化：**音量真的变了、填充条却一直满格**（本次实现中实际复现过） | 自动 | PASS | 运行时脚本复验（填充 0.80 跟随）；`BootstrappedSceneTests.VolumeSliders_AreWiredAtRuntime_AndChangeAudio` 断言 `fillAmount` |
 
 ## 回归范围
 
 | 受影响模块或契约 | 复验项 | 原因 | 状态 | 证据或备注 |
 |------------------|--------|------|------|------------|
 | M3 | `03-session-test.md` | 事件契约变化会影响 Binding | PASS | `HudBinderTests` 9/9 |
-| M7 | `07-bootstrap-test.md` | 面板与红点调用方 | PASS | `BootstrapFlowTests` 6/6 |
+| M7 | `07-bootstrap-test.md` | 面板与红点调用方、场景装配 | PASS | `BootstrapFlowTests` 6/6、`SceneAssetTests` 6/6 |
+| M6 | `06-meta-test.md` | 存档新增 `settingsSfxVolume/settingsMusicVolume`（缺字段按 100%，无 schema 迁移） | PASS | EditMode 全量回归 112/112（含存档迁移/校验用例） |
 
 ## 交付结论
 
-- 已验证：A1–A6 与 E1/E3 通过（本模块 23 项）。
+- 已验证：A1–A7、A10–A11、A13 与 E1–E6 通过（EditMode 全量 113/113，含本次新增的底部块几何用例）；A8/A9（九宫格 PPU 门禁与面板截图诊断）与 A12 的两项 PlayMode 用例（背景覆盖/层级、音量条读档回填/拖动/存档/填充/开关正交）已由 **PlayMode 全量 83/83** 覆盖。
 - 不适用：无。
-- 待手动验收：H1–H6（观感、手感、真机帧率与中文渲染）。
-- 未验证：在真工程本体内执行 Test Runner（真工程的编译、资产导入与场景接线已验证，见 `Docs/evidence/README.md`）。
+- 待手动验收：H1–H6（观感、手感、真机帧率）、H7–H8（音量条触感、背景观感）。中文渲染已在真工程中确认解析到系统中文字体 `Microsoft YaHei`，真机仍需确认。
+- 未验证：无（此前遗留的「PlayMode 全量未运行」已在本轮批处理运行中补跑：EditMode 116/116 + PlayMode 85/85，`failed=0`）。
 - 未通过：无。

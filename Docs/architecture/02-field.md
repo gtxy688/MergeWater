@@ -21,6 +21,7 @@
 `GameField` 是场地唯一入口（MonoBehaviour，实现 `IFieldPort`），持有 `FruitBody` 列表与 `fruitId → FruitBody` 字典。生成的水果一律是运行时构造的 GameObject：`SpriteRenderer`（占位圆片，按等级着色并按半径缩放）+ `CircleCollider2D`（半径 = V1 半径）+ `Rigidbody2D`（质量 = V1 质量）+ `FruitBody`。
 
 场地由左右墙与地面构成（`BoxCollider2D`，静态）；警戒线只是一个 y 坐标阈值，由 `GameField.DangerLineY` 暴露，M5 用其绘制警戒线视觉。
+运行时地面高度为「屏幕底边 + `GameBalance.FloorScreenInset`（0.06）」——不贴死屏幕底，否则水果落地后紧贴最后一行像素、观感上像被下边缘切掉（V2.42）；左右墙仍贴屏幕左右边缘（D13）。抬升量由需求方目视定档（2026-09-13 定为 0.06），**改它只能改 `GameBalance`，在场景里挪 `Floor` 会被 `EnsureArena` 覆盖**。
 
 合成数据流：`FruitBody.OnCollisionEnter2D` → `GameField.RequestMerge(a, b)` → 双方进入 `Pending`、碰撞暂停、向中点吸附 → 吸附结束销毁双方并按结果等级生成新水果 → 抛出 `Merged`。M3 收到事件后计分。
 
@@ -36,16 +37,19 @@
 ### 物理稳定性
 
 - 触发条件：任何水果进入仿真。
-- 处理顺序：圆碰撞体 + 共享 `PhysicsMaterial2D`（低弹性、中摩擦）；`Rigidbody2D` 限速（`maxLinearVelocity` 由 `GameBalance` 提供，默认 20 m/s）；开启 CCD；睡眠阈值由 `Rigidbody2D.sleepThreshold` 配置。
-- 成功结果：堆叠稳定，无持续抖动与穿隧。
-- 失败与边界：速度超过上限时被裁剪而非积分爆炸；水果掉出场地底部（y 低于 `killY`）时由 `FieldSanitizer` 回收并记一条告警，不影响对局（属异常保护）。
+- 处理顺序：圆碰撞体 + 共享 `PhysicsMaterial2D`（摩擦 0.6 / 弹性 0.5，V2.29/V2.30）；`Rigidbody2D` 限速（`MaxLinearVelocity`，默认 20 m/s，V3）；开启 CCD；线性阻尼 2.8（V2.27）与角阻尼取 Unity 默认值；**重力倍率随等级 1.6→3.6 线性插值**（V2.28）。求解器迭代沿用 Unity 默认（velocity 8 / position 3）。
+- 成功结果：堆叠稳定、无持续抖动与穿隧，且水果**停得住**。
+- 失败与边界：速度超过上限时被裁剪而非积分爆炸；水果掉出场地底部（y 低于 `killY`）时被回收并记一条告警，不影响对局（异常保护）。
+- 为什么是这些参数（决策 D12，参考开源实现 `game-core-melon-merge`）：圆形碰撞体在平地上**纯滚动不受摩擦阻碍**，线性阻尼过低时水果会一路滚到墙角并摊平成一层（实测偏移 1.95，正好是左墙静止位）。把线性阻尼提到 2.8 让平移迅速衰减，水果才会就地对位；重力倍率随等级递增则让大果下落更快、重果沉底压住堆叠。**注意**：V1 的质量（0.10→3.94，比值 39×）比参考实现（10→30，比值 3×）更大，因此本实现更依赖高阻尼来避免轻果被挤飞。
 
 ### 合成解析与吸附
 
-- 触发条件：两个 `Level` 相同、均非 `Pending`、且 `ScoreRules.CanMerge(level)` 为真的碰撞。
-- 处理顺序：`RequestMerge` 立即把双方标记 `Pending`、互相忽略碰撞、置为动态但关闭重力，随后在 `AbsorbDuration`（V2.21，默认 60ms）内把两者向中点插值；到期时销毁双方，在中点按 `level+1` 生成结果水果，并给结果一个轻微向上初速以脱离相邻堆叠。
+- 触发条件：两个 `Level` 相同、均非 `Pending`、且 `ScoreRules.CanMerge(level)` 为真的碰撞——**碰撞进入（Enter）与碰撞停留（Stay）都会尝试**（V2.32）。只监听进入会让「因一次合成被取消而持续贴合」的同级水果再也不合成。
+- 处理顺序：`RequestMerge` 立即把双方标记 `Pending`、互相忽略碰撞、置为动态但关闭重力，随后在 `AbsorbDuration`（V2.21，默认 60ms）内把两者向中点插值；到期时销毁双方，在中点按 `level+1` 生成结果水果，**结果初速为 0（V2.31，不施加向上冲量）**，由求解器推开相邻水果。
 - 成功结果：抛出一次 `Merged{ SourceLevel, ResultLevel, Position }`。
-- 失败与边界：任一方在吸附期间被道具移除或已销毁时取消合成，不产生新水果也不加 `Merged` 事件；11 级相撞不进入本流程（`CanMerge` 为 false），只保留物理碰撞。
+- 失败与边界：任一方在吸附期间被道具移除或已销毁时取消合成，不产生新水果也不加 `Merged` 事件；11 级相撞不进入本流程（`CanMerge` 为 false），只保留物理碰撞。去重由 `_merging` 集合保证，因此 Stay 的重复调用是安全的。
+
+> 早期版本给合成结果一个向上初速（0.6），结果会跳到别处并在堆顶制造扰动——实测中它是「堆不平」的诱因之一，已按 V2.31 移除。
 
 ### 越线物理查询
 
@@ -83,6 +87,7 @@
 | `SetSimulationEnabled(bool)` | `IFieldPort` | — | — | 成对调用；恢复后速度还原 |
 | `Merged` | 事件 | — | `MergeEvent` | 每次成功合成恰好一次 |
 | `DangerLineY` | 属性 | — | 世界 y | 只读 |
+| `GetLandingY(x, fromY)` | `IPreviewObstacle` | 世界 x、起点 y | 该 x 处向下第一个可落表面的 y（无则地面） | 无副作用；用于瞄准预览停在堆叠面上 |
 | `AbsorbDuration` | 属性 | 秒 | — | 测试可设为 0 以加速 |
 
 ## Unity 装配

@@ -1,352 +1,442 @@
 <?xml version="1.0" encoding="utf-8"?>
-<test-run id="2" testcasecount="97" result="Passed" total="97" passed="97" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.3717836">
-  <test-suite type="TestSuite" id="1119" name="MergeWater" fullname="MergeWater" runstate="Runnable" testcasecount="97" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.371784" total="97" passed="97" failed="0" inconclusive="0" skipped="0" asserts="0">
+<test-run id="2" testcasecount="120" result="Passed" total="120" passed="120" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:30Z" duration="1.2103688">
+  <test-suite type="TestSuite" id="1149" name="MergeWater" fullname="MergeWater" runstate="Runnable" testcasecount="120" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:30Z" duration="1.210369" total="120" passed="120" failed="0" inconclusive="0" skipped="0" asserts="0">
     <properties />
-    <test-suite type="Assembly" id="1230" name="MergeWater.Tests.EditMode.dll" fullname="E:/MergeWaterVerify/Library/ScriptAssemblies/MergeWater.Tests.EditMode.dll" runstate="Runnable" testcasecount="97" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.344016" total="97" passed="97" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <test-suite type="Assembly" id="1289" name="MergeWater.Tests.EditMode.dll" fullname="E:/MergeWaterVerify/Library/ScriptAssemblies/MergeWater.Tests.EditMode.dll" runstate="Runnable" testcasecount="120" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:30Z" duration="1.191126" total="120" passed="120" failed="0" inconclusive="0" skipped="0" asserts="0">
       <properties>
-        <property name="_PID" value="42152" />
+        <property name="_PID" value="48484" />
         <property name="_APPDOMAIN" value="Unity Child Domain" />
         <property name="platform" value="EditMode" />
       </properties>
-      <test-suite type="TestSuite" id="1231" name="MergeWater" fullname="MergeWater" runstate="Runnable" testcasecount="97" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.341929" total="97" passed="97" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <test-suite type="TestSuite" id="1290" name="MergeWater" fullname="MergeWater" runstate="Runnable" testcasecount="120" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:30Z" duration="1.189365" total="120" passed="120" failed="0" inconclusive="0" skipped="0" asserts="0">
         <properties />
-        <test-suite type="TestSuite" id="1232" name="Tests" fullname="MergeWater.Tests" runstate="Runnable" testcasecount="97" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.338464" total="97" passed="97" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <test-suite type="TestSuite" id="1291" name="Tests" fullname="MergeWater.Tests" runstate="Runnable" testcasecount="120" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:30Z" duration="1.185124" total="120" passed="120" failed="0" inconclusive="0" skipped="0" asserts="0">
           <properties />
-          <test-suite type="TestSuite" id="1233" name="EditMode" fullname="MergeWater.Tests.EditMode" runstate="Runnable" testcasecount="97" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.334702" total="97" passed="97" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <test-suite type="TestSuite" id="1292" name="EditMode" fullname="MergeWater.Tests.EditMode" runstate="Runnable" testcasecount="120" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:30Z" duration="1.179681" total="120" passed="120" failed="0" inconclusive="0" skipped="0" asserts="0">
             <properties />
-            <test-suite type="TestFixture" id="1120" name="AimSolverTests" fullname="MergeWater.Tests.EditMode.AimSolverTests" classname="MergeWater.Tests.EditMode.AimSolverTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.049793" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <test-suite type="TestFixture" id="1150" name="AimSolverTests" fullname="MergeWater.Tests.EditMode.AimSolverTests" classname="MergeWater.Tests.EditMode.AimSolverTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.038850" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
               <properties />
-              <test-case id="1121" name="ClampX_KeepsDropInsideBoundsAccountingForRadius" fullname="MergeWater.Tests.EditMode.AimSolverTests.ClampX_KeepsDropInsideBoundsAccountingForRadius" methodname="ClampX_KeepsDropInsideBoundsAccountingForRadius" classname="MergeWater.Tests.EditMode.AimSolverTests" runstate="Runnable" seed="2004468344" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.016929" asserts="0">
+              <test-case id="1151" name="ClampX_KeepsDropInsideBoundsAccountingForRadius" fullname="MergeWater.Tests.EditMode.AimSolverTests.ClampX_KeepsDropInsideBoundsAccountingForRadius" methodname="ClampX_KeepsDropInsideBoundsAccountingForRadius" classname="MergeWater.Tests.EditMode.AimSolverTests" runstate="Runnable" seed="694231903" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.011994" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1122" name="ClampX_WhenBoundsInvert_ReturnsMidpoint" fullname="MergeWater.Tests.EditMode.AimSolverTests.ClampX_WhenBoundsInvert_ReturnsMidpoint" methodname="ClampX_WhenBoundsInvert_ReturnsMidpoint" classname="MergeWater.Tests.EditMode.AimSolverTests" runstate="Runnable" seed="531558245" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000628" asserts="0">
+              <test-case id="1152" name="ClampX_WhenBoundsInvert_ReturnsMidpoint" fullname="MergeWater.Tests.EditMode.AimSolverTests.ClampX_WhenBoundsInvert_ReturnsMidpoint" methodname="ClampX_WhenBoundsInvert_ReturnsMidpoint" classname="MergeWater.Tests.EditMode.AimSolverTests" runstate="Runnable" seed="2079561184" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000479" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1123" name="ClampX_WithoutRadius_MatchesRawBounds" fullname="MergeWater.Tests.EditMode.AimSolverTests.ClampX_WithoutRadius_MatchesRawBounds" methodname="ClampX_WithoutRadius_MatchesRawBounds" classname="MergeWater.Tests.EditMode.AimSolverTests" runstate="Runnable" seed="682250503" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000288" asserts="0">
+              <test-case id="1153" name="ClampX_WithoutRadius_MatchesRawBounds" fullname="MergeWater.Tests.EditMode.AimSolverTests.ClampX_WithoutRadius_MatchesRawBounds" methodname="ClampX_WithoutRadius_MatchesRawBounds" classname="MergeWater.Tests.EditMode.AimSolverTests" runstate="Runnable" seed="1118396278" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000222" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1124" name="NormalizeX_IsWithinZeroToOne" fullname="MergeWater.Tests.EditMode.AimSolverTests.NormalizeX_IsWithinZeroToOne" methodname="NormalizeX_IsWithinZeroToOne" classname="MergeWater.Tests.EditMode.AimSolverTests" runstate="Runnable" seed="507103831" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000531" asserts="0">
+              <test-case id="1154" name="NormalizeX_IsWithinZeroToOne" fullname="MergeWater.Tests.EditMode.AimSolverTests.NormalizeX_IsWithinZeroToOne" methodname="NormalizeX_IsWithinZeroToOne" classname="MergeWater.Tests.EditMode.AimSolverTests" runstate="Runnable" seed="1687858159" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000427" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1125" name="SampleTrajectory_ReturnsOrderedPoints_AndRespectsMaxTime" fullname="MergeWater.Tests.EditMode.AimSolverTests.SampleTrajectory_ReturnsOrderedPoints_AndRespectsMaxTime" methodname="SampleTrajectory_ReturnsOrderedPoints_AndRespectsMaxTime" classname="MergeWater.Tests.EditMode.AimSolverTests" runstate="Runnable" seed="445389959" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.007555" asserts="0">
+              <test-case id="1155" name="SampleTrajectory_ReturnsOrderedPoints_AndRespectsMaxTime" fullname="MergeWater.Tests.EditMode.AimSolverTests.SampleTrajectory_ReturnsOrderedPoints_AndRespectsMaxTime" methodname="SampleTrajectory_ReturnsOrderedPoints_AndRespectsMaxTime" classname="MergeWater.Tests.EditMode.AimSolverTests" runstate="Runnable" seed="587252719" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.006771" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1127" name="SampleTrajectory_WithInitialHorizontalVelocity_ProducesParabola" fullname="MergeWater.Tests.EditMode.AimSolverTests.SampleTrajectory_WithInitialHorizontalVelocity_ProducesParabola" methodname="SampleTrajectory_WithInitialHorizontalVelocity_ProducesParabola" classname="MergeWater.Tests.EditMode.AimSolverTests" runstate="Runnable" seed="1726552259" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000443" asserts="0">
+              <test-case id="1157" name="SampleTrajectory_WithInitialHorizontalVelocity_ProducesParabola" fullname="MergeWater.Tests.EditMode.AimSolverTests.SampleTrajectory_WithInitialHorizontalVelocity_ProducesParabola" methodname="SampleTrajectory_WithInitialHorizontalVelocity_ProducesParabola" classname="MergeWater.Tests.EditMode.AimSolverTests" runstate="Runnable" seed="1765002203" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000541" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1128" name="SampleTrajectory_WithNullOutput_ReturnsZero" fullname="MergeWater.Tests.EditMode.AimSolverTests.SampleTrajectory_WithNullOutput_ReturnsZero" methodname="SampleTrajectory_WithNullOutput_ReturnsZero" classname="MergeWater.Tests.EditMode.AimSolverTests" runstate="Runnable" seed="1263810185" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000238" asserts="0">
+              <test-case id="1158" name="SampleTrajectory_WithNullOutput_ReturnsZero" fullname="MergeWater.Tests.EditMode.AimSolverTests.SampleTrajectory_WithNullOutput_ReturnsZero" methodname="SampleTrajectory_WithNullOutput_ReturnsZero" classname="MergeWater.Tests.EditMode.AimSolverTests" runstate="Runnable" seed="409866008" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000276" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1126" name="SampleTrajectory_WithZeroGravity_ReturnsTwoPoints" fullname="MergeWater.Tests.EditMode.AimSolverTests.SampleTrajectory_WithZeroGravity_ReturnsTwoPoints" methodname="SampleTrajectory_WithZeroGravity_ReturnsTwoPoints" classname="MergeWater.Tests.EditMode.AimSolverTests" runstate="Runnable" seed="1492042513" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000381" asserts="0">
+              <test-case id="1156" name="SampleTrajectory_WithZeroGravity_ReturnsTwoPoints" fullname="MergeWater.Tests.EditMode.AimSolverTests.SampleTrajectory_WithZeroGravity_ReturnsTwoPoints" methodname="SampleTrajectory_WithZeroGravity_ReturnsTwoPoints" classname="MergeWater.Tests.EditMode.AimSolverTests" runstate="Runnable" seed="8078789" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000434" asserts="0">
                 <properties />
               </test-case>
             </test-suite>
-            <test-suite type="TestFixture" id="1208" name="ComboPitchTests" fullname="MergeWater.Tests.EditMode.ComboPitchTests" classname="MergeWater.Tests.EditMode.ComboPitchTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.006365" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <test-suite type="TestFixture" id="1249" name="BackdropViewTests" fullname="MergeWater.Tests.EditMode.BackdropViewTests" classname="MergeWater.Tests.EditMode.BackdropViewTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.033261" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
               <properties />
-              <test-case id="1209" name="ComboPitch_AddsSemitonePerCombo_CappedAtOneOctave" fullname="MergeWater.Tests.EditMode.ComboPitchTests.ComboPitch_AddsSemitonePerCombo_CappedAtOneOctave" methodname="ComboPitch_AddsSemitonePerCombo_CappedAtOneOctave" classname="MergeWater.Tests.EditMode.ComboPitchTests" runstate="Runnable" seed="63053831" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000564" asserts="0">
+              <test-suite type="ParameterizedMethod" id="1253" name="Backdrop_CoversWholeCameraView" fullname="MergeWater.Tests.EditMode.BackdropViewTests.Backdrop_CoversWholeCameraView" classname="MergeWater.Tests.EditMode.BackdropViewTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.027666" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1250" name="Backdrop_CoversWholeCameraView_竖屏" fullname="MergeWater.Tests.EditMode.BackdropViewTests.Backdrop_CoversWholeCameraView_竖屏" methodname="Backdrop_CoversWholeCameraView" classname="MergeWater.Tests.EditMode.BackdropViewTests" runstate="Runnable" seed="105167508" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.022655" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1251" name="Backdrop_CoversWholeCameraView_横屏" fullname="MergeWater.Tests.EditMode.BackdropViewTests.Backdrop_CoversWholeCameraView_横屏" methodname="Backdrop_CoversWholeCameraView" classname="MergeWater.Tests.EditMode.BackdropViewTests" runstate="Runnable" seed="1767978880" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000362" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1252" name="Backdrop_CoversWholeCameraView_正方形" fullname="MergeWater.Tests.EditMode.BackdropViewTests.Backdrop_CoversWholeCameraView_正方形" methodname="Backdrop_CoversWholeCameraView" classname="MergeWater.Tests.EditMode.BackdropViewTests" runstate="Runnable" seed="2002668472" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000296" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="1254" name="Backdrop_RefitsWhenCameraAspectChanges" fullname="MergeWater.Tests.EditMode.BackdropViewTests.Backdrop_RefitsWhenCameraAspectChanges" methodname="Backdrop_RefitsWhenCameraAspectChanges" classname="MergeWater.Tests.EditMode.BackdropViewTests" runstate="Runnable" seed="564611968" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000842" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1210" name="HitStopSeconds_GrowsWithCombo_AndStaysWithinV223Range" fullname="MergeWater.Tests.EditMode.ComboPitchTests.HitStopSeconds_GrowsWithCombo_AndStaysWithinV223Range" methodname="HitStopSeconds_GrowsWithCombo_AndStaysWithinV223Range" classname="MergeWater.Tests.EditMode.ComboPitchTests" runstate="Runnable" seed="1946076901" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.003584" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1211" name="ShakeTier_IsThreeLevels" fullname="MergeWater.Tests.EditMode.ComboPitchTests.ShakeTier_IsThreeLevels" methodname="ShakeTier_IsThreeLevels" classname="MergeWater.Tests.EditMode.ComboPitchTests" runstate="Runnable" seed="2111184916" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000355" asserts="0">
+              <test-case id="1255" name="Backdrop_WithoutSprite_DoesNotThrow" fullname="MergeWater.Tests.EditMode.BackdropViewTests.Backdrop_WithoutSprite_DoesNotThrow" methodname="Backdrop_WithoutSprite_DoesNotThrow" classname="MergeWater.Tests.EditMode.BackdropViewTests" runstate="Runnable" seed="1302082932" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.002325" asserts="0">
                 <properties />
               </test-case>
             </test-suite>
-            <test-suite type="TestFixture" id="1139" name="ComboTrackerTests" fullname="MergeWater.Tests.EditMode.ComboTrackerTests" classname="MergeWater.Tests.EditMode.ComboTrackerTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.005421" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <test-suite type="TestFixture" id="1256" name="ComboPitchTests" fullname="MergeWater.Tests.EditMode.ComboPitchTests" classname="MergeWater.Tests.EditMode.ComboPitchTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.005813" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
               <properties />
-              <test-case id="1141" name="Advance_BeyondWindow_ResetsCombo" fullname="MergeWater.Tests.EditMode.ComboTrackerTests.Advance_BeyondWindow_ResetsCombo" methodname="Advance_BeyondWindow_ResetsCombo" classname="MergeWater.Tests.EditMode.ComboTrackerTests" runstate="Runnable" seed="880757780" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.001646" asserts="0">
+              <test-case id="1257" name="ComboPitch_AddsSemitonePerCombo_CappedAtOneOctave" fullname="MergeWater.Tests.EditMode.ComboPitchTests.ComboPitch_AddsSemitonePerCombo_CappedAtOneOctave" methodname="ComboPitch_AddsSemitonePerCombo_CappedAtOneOctave" classname="MergeWater.Tests.EditMode.ComboPitchTests" runstate="Runnable" seed="1622012215" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000751" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1142" name="Advance_ExactlyAtWindowBoundary_DoesNotReset" fullname="MergeWater.Tests.EditMode.ComboTrackerTests.Advance_ExactlyAtWindowBoundary_DoesNotReset" methodname="Advance_ExactlyAtWindowBoundary_DoesNotReset" classname="MergeWater.Tests.EditMode.ComboTrackerTests" runstate="Runnable" seed="793673609" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000337" asserts="0">
+              <test-case id="1258" name="HitStopSeconds_GrowsWithCombo_AndStaysWithinV223Range" fullname="MergeWater.Tests.EditMode.ComboPitchTests.HitStopSeconds_GrowsWithCombo_AndStaysWithinV223Range" methodname="HitStopSeconds_GrowsWithCombo_AndStaysWithinV223Range" classname="MergeWater.Tests.EditMode.ComboPitchTests" runstate="Runnable" seed="1752930670" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.002904" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1144" name="Advance_NonPositiveDelta_IsIgnored" fullname="MergeWater.Tests.EditMode.ComboTrackerTests.Advance_NonPositiveDelta_IsIgnored" methodname="Advance_NonPositiveDelta_IsIgnored" classname="MergeWater.Tests.EditMode.ComboTrackerTests" runstate="Runnable" seed="1717445103" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000254" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1143" name="RegisterMerge_AfterReset_RestartsFromOne" fullname="MergeWater.Tests.EditMode.ComboTrackerTests.RegisterMerge_AfterReset_RestartsFromOne" methodname="RegisterMerge_AfterReset_RestartsFromOne" classname="MergeWater.Tests.EditMode.ComboTrackerTests" runstate="Runnable" seed="156309239" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000286" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1140" name="RegisterMerge_WithinWindow_IncrementsAndCapsMultiplier" fullname="MergeWater.Tests.EditMode.ComboTrackerTests.RegisterMerge_WithinWindow_IncrementsAndCapsMultiplier" methodname="RegisterMerge_WithinWindow_IncrementsAndCapsMultiplier" classname="MergeWater.Tests.EditMode.ComboTrackerTests" runstate="Runnable" seed="1949749448" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000377" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1145" name="Reset_ClearsComboAndMultiplier" fullname="MergeWater.Tests.EditMode.ComboTrackerTests.Reset_ClearsComboAndMultiplier" methodname="Reset_ClearsComboAndMultiplier" classname="MergeWater.Tests.EditMode.ComboTrackerTests" runstate="Runnable" seed="148024625" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000236" asserts="0">
+              <test-case id="1259" name="ShakeTier_IsThreeLevels" fullname="MergeWater.Tests.EditMode.ComboPitchTests.ShakeTier_IsThreeLevels" methodname="ShakeTier_IsThreeLevels" classname="MergeWater.Tests.EditMode.ComboPitchTests" runstate="Runnable" seed="35368508" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000564" asserts="0">
                 <properties />
               </test-case>
             </test-suite>
-            <test-suite type="TestFixture" id="1129" name="ConfigAssetTests" fullname="MergeWater.Tests.EditMode.ConfigAssetTests" classname="MergeWater.Tests.EditMode.ConfigAssetTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.010745" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <test-suite type="TestFixture" id="1180" name="ComboTrackerTests" fullname="MergeWater.Tests.EditMode.ComboTrackerTests" classname="MergeWater.Tests.EditMode.ComboTrackerTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.005562" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
               <properties />
-              <test-case id="1130" name="GameBalanceAsset_Exists_AndMatchesCodeDefault" fullname="MergeWater.Tests.EditMode.ConfigAssetTests.GameBalanceAsset_Exists_AndMatchesCodeDefault" methodname="GameBalanceAsset_Exists_AndMatchesCodeDefault" classname="MergeWater.Tests.EditMode.ConfigAssetTests" runstate="Runnable" seed="1421312491" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.005256" asserts="0">
+              <test-case id="1182" name="Advance_BeyondWindow_ResetsCombo" fullname="MergeWater.Tests.EditMode.ComboTrackerTests.Advance_BeyondWindow_ResetsCombo" methodname="Advance_BeyondWindow_ResetsCombo" classname="MergeWater.Tests.EditMode.ComboTrackerTests" runstate="Runnable" seed="945985270" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.001177" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1131" name="MetaSettingsAsset_Exists_WithExpectedDefaults" fullname="MergeWater.Tests.EditMode.ConfigAssetTests.MetaSettingsAsset_Exists_WithExpectedDefaults" methodname="MetaSettingsAsset_Exists_WithExpectedDefaults" classname="MergeWater.Tests.EditMode.ConfigAssetTests" runstate="Runnable" seed="2059370233" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.001480" asserts="0">
+              <test-case id="1183" name="Advance_ExactlyAtWindowBoundary_DoesNotReset" fullname="MergeWater.Tests.EditMode.ComboTrackerTests.Advance_ExactlyAtWindowBoundary_DoesNotReset" methodname="Advance_ExactlyAtWindowBoundary_DoesNotReset" classname="MergeWater.Tests.EditMode.ComboTrackerTests" runstate="Runnable" seed="1728824042" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000261" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1132" name="PlaceholderArt_ExistsAndImportsAsSprite" fullname="MergeWater.Tests.EditMode.ConfigAssetTests.PlaceholderArt_ExistsAndImportsAsSprite" methodname="PlaceholderArt_ExistsAndImportsAsSprite" classname="MergeWater.Tests.EditMode.ConfigAssetTests" runstate="Runnable" seed="111979406" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.002516" asserts="0">
+              <test-case id="1185" name="Advance_NonPositiveDelta_IsIgnored" fullname="MergeWater.Tests.EditMode.ComboTrackerTests.Advance_NonPositiveDelta_IsIgnored" methodname="Advance_NonPositiveDelta_IsIgnored" classname="MergeWater.Tests.EditMode.ComboTrackerTests" runstate="Runnable" seed="1369415097" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000246" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1184" name="RegisterMerge_AfterReset_RestartsFromOne" fullname="MergeWater.Tests.EditMode.ComboTrackerTests.RegisterMerge_AfterReset_RestartsFromOne" methodname="RegisterMerge_AfterReset_RestartsFromOne" classname="MergeWater.Tests.EditMode.ComboTrackerTests" runstate="Runnable" seed="1295892803" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000296" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1181" name="RegisterMerge_WithinWindow_IncrementsAndCapsMultiplier" fullname="MergeWater.Tests.EditMode.ComboTrackerTests.RegisterMerge_WithinWindow_IncrementsAndCapsMultiplier" methodname="RegisterMerge_WithinWindow_IncrementsAndCapsMultiplier" classname="MergeWater.Tests.EditMode.ComboTrackerTests" runstate="Runnable" seed="1136623380" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000466" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1186" name="Reset_ClearsComboAndMultiplier" fullname="MergeWater.Tests.EditMode.ComboTrackerTests.Reset_ClearsComboAndMultiplier" methodname="Reset_ClearsComboAndMultiplier" classname="MergeWater.Tests.EditMode.ComboTrackerTests" runstate="Runnable" seed="1545415033" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000266" asserts="0">
                 <properties />
               </test-case>
             </test-suite>
-            <test-suite type="TestFixture" id="1146" name="DropQueueTests" fullname="MergeWater.Tests.EditMode.DropQueueTests" classname="MergeWater.Tests.EditMode.DropQueueTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.031486" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <test-suite type="TestFixture" id="1159" name="ConfigAssetTests" fullname="MergeWater.Tests.EditMode.ConfigAssetTests" classname="MergeWater.Tests.EditMode.ConfigAssetTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.015949" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
               <properties />
-              <test-case id="1152" name="DifferentSeeds_ProduceDifferentSequences" fullname="MergeWater.Tests.EditMode.DropQueueTests.DifferentSeeds_ProduceDifferentSequences" methodname="DifferentSeeds_ProduceDifferentSequences" classname="MergeWater.Tests.EditMode.DropQueueTests" runstate="Runnable" seed="1339477344" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.001550" asserts="0">
+              <test-case id="1160" name="GameBalanceAsset_Exists_AndMatchesCodeDefault" fullname="MergeWater.Tests.EditMode.ConfigAssetTests.GameBalanceAsset_Exists_AndMatchesCodeDefault" methodname="GameBalanceAsset_Exists_AndMatchesCodeDefault" classname="MergeWater.Tests.EditMode.ConfigAssetTests" runstate="Runnable" seed="938398450" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.009792" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1148" name="Next_AfterTwentyDrops_CanProduceTierThree" fullname="MergeWater.Tests.EditMode.DropQueueTests.Next_AfterTwentyDrops_CanProduceTierThree" methodname="Next_AfterTwentyDrops_CanProduceTierThree" classname="MergeWater.Tests.EditMode.DropQueueTests" runstate="Runnable" seed="1039556572" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000308" asserts="0">
+              <test-case id="1161" name="MetaSettingsAsset_Exists_WithExpectedDefaults" fullname="MergeWater.Tests.EditMode.ConfigAssetTests.MetaSettingsAsset_Exists_WithExpectedDefaults" methodname="MetaSettingsAsset_Exists_WithExpectedDefaults" classname="MergeWater.Tests.EditMode.ConfigAssetTests" runstate="Runnable" seed="1487310004" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.001697" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1149" name="Next_AtSixtyDropsAndBeyond_KeepsSamePool" fullname="MergeWater.Tests.EditMode.DropQueueTests.Next_AtSixtyDropsAndBeyond_KeepsSamePool" methodname="Next_AtSixtyDropsAndBeyond_KeepsSamePool" classname="MergeWater.Tests.EditMode.DropQueueTests" runstate="Runnable" seed="1859997287" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.006668" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1147" name="Next_FirstTwentyDrops_OnlyTierOneOrTwo" fullname="MergeWater.Tests.EditMode.DropQueueTests.Next_FirstTwentyDrops_OnlyTierOneOrTwo" methodname="Next_FirstTwentyDrops_OnlyTierOneOrTwo" classname="MergeWater.Tests.EditMode.DropQueueTests" runstate="Runnable" seed="955914482" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.001631" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1150" name="Next_WeightDistribution_MatchesV1WithinTolerance" fullname="MergeWater.Tests.EditMode.DropQueueTests.Next_WeightDistribution_MatchesV1WithinTolerance" methodname="Next_WeightDistribution_MatchesV1WithinTolerance" classname="MergeWater.Tests.EditMode.DropQueueTests" runstate="Runnable" seed="2123055801" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.017023" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1151" name="SameSeed_ProducesReproducibleSequence" fullname="MergeWater.Tests.EditMode.DropQueueTests.SameSeed_ProducesReproducibleSequence" methodname="SameSeed_ProducesReproducibleSequence" classname="MergeWater.Tests.EditMode.DropQueueTests" runstate="Runnable" seed="709267556" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.001385" asserts="0">
+              <test-case id="1162" name="PlaceholderArt_ExistsAndImportsAsSprite" fullname="MergeWater.Tests.EditMode.ConfigAssetTests.PlaceholderArt_ExistsAndImportsAsSprite" methodname="PlaceholderArt_ExistsAndImportsAsSprite" classname="MergeWater.Tests.EditMode.ConfigAssetTests" runstate="Runnable" seed="1361204588" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.002820" asserts="0">
                 <properties />
               </test-case>
             </test-suite>
-            <test-suite type="TestFixture" id="1174" name="EconomyTests" fullname="MergeWater.Tests.EditMode.EconomyTests" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.029376" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <test-suite type="TestFixture" id="1187" name="DropQueueTests" fullname="MergeWater.Tests.EditMode.DropQueueTests" classname="MergeWater.Tests.EditMode.DropQueueTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.028815" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
               <properties />
-              <test-case id="1178" name="DailyLimits_ResetOnNextLocalDay" fullname="MergeWater.Tests.EditMode.EconomyTests.DailyLimits_ResetOnNextLocalDay" methodname="DailyLimits_ResetOnNextLocalDay" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="11249695" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.007428" asserts="0">
+              <test-case id="1193" name="DifferentSeeds_ProduceDifferentSequences" fullname="MergeWater.Tests.EditMode.DropQueueTests.DifferentSeeds_ProduceDifferentSequences" methodname="DifferentSeeds_ProduceDifferentSequences" classname="MergeWater.Tests.EditMode.DropQueueTests" runstate="Runnable" seed="744306705" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.001419" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1184" name="Gift_OncePerDay_AndRequiresCompletedAd" fullname="MergeWater.Tests.EditMode.EconomyTests.Gift_OncePerDay_AndRequiresCompletedAd" methodname="Gift_OncePerDay_AndRequiresCompletedAd" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="1041707094" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.002900" asserts="0">
+              <test-case id="1189" name="Next_AfterTwentyDrops_CanProduceTierThree" fullname="MergeWater.Tests.EditMode.DropQueueTests.Next_AfterTwentyDrops_CanProduceTierThree" methodname="Next_AfterTwentyDrops_CanProduceTierThree" classname="MergeWater.Tests.EditMode.DropQueueTests" runstate="Runnable" seed="512904818" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000272" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1175" name="Grant_BeyondDailyCap_IsRejected_AndSpendBelowZero_IsRejected" fullname="MergeWater.Tests.EditMode.EconomyTests.Grant_BeyondDailyCap_IsRejected_AndSpendBelowZero_IsRejected" methodname="Grant_BeyondDailyCap_IsRejected_AndSpendBelowZero_IsRejected" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="2099673703" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000903" asserts="0">
+              <test-case id="1190" name="Next_AtSixtyDropsAndBeyond_KeepsSamePool" fullname="MergeWater.Tests.EditMode.DropQueueTests.Next_AtSixtyDropsAndBeyond_KeepsSamePool" methodname="Next_AtSixtyDropsAndBeyond_KeepsSamePool" classname="MergeWater.Tests.EditMode.DropQueueTests" runstate="Runnable" seed="190467820" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.006300" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1177" name="GrantGiftBundle_GrantsThreeItems_OncePerDay" fullname="MergeWater.Tests.EditMode.EconomyTests.GrantGiftBundle_GrantsThreeItems_OncePerDay" methodname="GrantGiftBundle_GrantsThreeItems_OncePerDay" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="1704894004" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000484" asserts="0">
+              <test-case id="1188" name="Next_FirstTwentyDrops_OnlyTierOneOrTwo" fullname="MergeWater.Tests.EditMode.DropQueueTests.Next_FirstTwentyDrops_OnlyTierOneOrTwo" methodname="Next_FirstTwentyDrops_OnlyTierOneOrTwo" classname="MergeWater.Tests.EditMode.DropQueueTests" runstate="Runnable" seed="58969937" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.001467" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1179" name="GrantUnlimited_IgnoresDailyCap" fullname="MergeWater.Tests.EditMode.EconomyTests.GrantUnlimited_IgnoresDailyCap" methodname="GrantUnlimited_IgnoresDailyCap" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="1074428863" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000679" asserts="0">
+              <test-case id="1191" name="Next_WeightDistribution_MatchesV1WithinTolerance" fullname="MergeWater.Tests.EditMode.DropQueueTests.Next_WeightDistribution_MatchesV1WithinTolerance" methodname="Next_WeightDistribution_MatchesV1WithinTolerance" classname="MergeWater.Tests.EditMode.DropQueueTests" runstate="Runnable" seed="1271329254" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.015781" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1185" name="Interstitial_ShowsAtMostOncePerThreeGames_AndRespectsToggle" fullname="MergeWater.Tests.EditMode.EconomyTests.Interstitial_ShowsAtMostOncePerThreeGames_AndRespectsToggle" methodname="Interstitial_ShowsAtMostOncePerThreeGames_AndRespectsToggle" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="1834878871" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.002881" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1176" name="ItemDailyCaps_MatchV213ToV215" fullname="MergeWater.Tests.EditMode.EconomyTests.ItemDailyCaps_MatchV213ToV215" methodname="ItemDailyCaps_MatchV213ToV215" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="1900004543" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000695" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1182" name="ItemGrant_RespectsDailyCap_RegardlessOfAdsAvailability" fullname="MergeWater.Tests.EditMode.EconomyTests.ItemGrant_RespectsDailyCap_RegardlessOfAdsAvailability" methodname="ItemGrant_RespectsDailyCap_RegardlessOfAdsAvailability" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="689273997" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.001359" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1183" name="ItemGrant_WhenAdSkipped_DoesNotGrant" fullname="MergeWater.Tests.EditMode.EconomyTests.ItemGrant_WhenAdSkipped_DoesNotGrant" methodname="ItemGrant_WhenAdSkipped_DoesNotGrant" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="2036784139" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000660" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1181" name="Revive_OfflinePolicy_FollowsOfflineGrantAll" fullname="MergeWater.Tests.EditMode.EconomyTests.Revive_OfflinePolicy_FollowsOfflineGrantAll" methodname="Revive_OfflinePolicy_FollowsOfflineGrantAll" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="760616223" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000791" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1180" name="Revive_RespectsNinetySecondGlobalCooldown" fullname="MergeWater.Tests.EditMode.EconomyTests.Revive_RespectsNinetySecondGlobalCooldown" methodname="Revive_RespectsNinetySecondGlobalCooldown" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="1196365776" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.001630" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1187" name="RoundFinished_AccumulatesGamesAndBestScore" fullname="MergeWater.Tests.EditMode.EconomyTests.RoundFinished_AccumulatesGamesAndBestScore" methodname="RoundFinished_AccumulatesGamesAndBestScore" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="365553565" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.001339" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1186" name="ShareChallenge_FirstSucceeds_ThenCooldownForSixtySeconds" fullname="MergeWater.Tests.EditMode.EconomyTests.ShareChallenge_FirstSucceeds_ThenCooldownForSixtySeconds" methodname="ShareChallenge_FirstSucceeds_ThenCooldownForSixtySeconds" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="873427122" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.002564" asserts="0">
+              <test-case id="1192" name="SameSeed_ProducesReproducibleSequence" fullname="MergeWater.Tests.EditMode.DropQueueTests.SameSeed_ProducesReproducibleSequence" methodname="SameSeed_ProducesReproducibleSequence" classname="MergeWater.Tests.EditMode.DropQueueTests" runstate="Runnable" seed="47343776" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.001342" asserts="0">
                 <properties />
               </test-case>
             </test-suite>
-            <test-suite type="TestFixture" id="1153" name="GameBalanceTests" fullname="MergeWater.Tests.EditMode.GameBalanceTests" classname="MergeWater.Tests.EditMode.GameBalanceTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.007189" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <test-suite type="TestFixture" id="1215" name="EconomyTests" fullname="MergeWater.Tests.EditMode.EconomyTests" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.023746" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
               <properties />
-              <test-case id="1158" name="Clone_IsDeepCopy_AndDoesNotShareArrays" fullname="MergeWater.Tests.EditMode.GameBalanceTests.Clone_IsDeepCopy_AndDoesNotShareArrays" methodname="Clone_IsDeepCopy_AndDoesNotShareArrays" classname="MergeWater.Tests.EditMode.GameBalanceTests" runstate="Runnable" seed="1417179207" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000829" asserts="0">
+              <test-case id="1219" name="DailyLimits_ResetOnNextLocalDay" fullname="MergeWater.Tests.EditMode.EconomyTests.DailyLimits_ResetOnNextLocalDay" methodname="DailyLimits_ResetOnNextLocalDay" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="150723610" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.005627" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1159" name="Default_FeelAndRuleValues_MatchV2" fullname="MergeWater.Tests.EditMode.GameBalanceTests.Default_FeelAndRuleValues_MatchV2" methodname="Default_FeelAndRuleValues_MatchV2" classname="MergeWater.Tests.EditMode.GameBalanceTests" runstate="Runnable" seed="528407380" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000934" asserts="0">
+              <test-case id="1225" name="Gift_OncePerDay_AndRequiresCompletedAd" fullname="MergeWater.Tests.EditMode.EconomyTests.Gift_OncePerDay_AndRequiresCompletedAd" methodname="Gift_OncePerDay_AndRequiresCompletedAd" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="1913310043" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.002251" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1154" name="Default_MatchesRequirementsV1Table" fullname="MergeWater.Tests.EditMode.GameBalanceTests.Default_MatchesRequirementsV1Table" methodname="Default_MatchesRequirementsV1Table" classname="MergeWater.Tests.EditMode.GameBalanceTests" runstate="Runnable" seed="1337596335" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000740" asserts="0">
+              <test-case id="1216" name="Grant_BeyondDailyCap_IsRejected_AndSpendBelowZero_IsRejected" fullname="MergeWater.Tests.EditMode.EconomyTests.Grant_BeyondDailyCap_IsRejected_AndSpendBelowZero_IsRejected" methodname="Grant_BeyondDailyCap_IsRejected_AndSpendBelowZero_IsRejected" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="644992348" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000701" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1157" name="Default_StageMilestones_MatchV218" fullname="MergeWater.Tests.EditMode.GameBalanceTests.Default_StageMilestones_MatchV218" methodname="Default_StageMilestones_MatchV218" classname="MergeWater.Tests.EditMode.GameBalanceTests" runstate="Runnable" seed="961325058" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000857" asserts="0">
+              <test-case id="1218" name="GrantGiftBundle_GrantsThreeItems_OncePerDay" fullname="MergeWater.Tests.EditMode.EconomyTests.GrantGiftBundle_GrantsThreeItems_OncePerDay" methodname="GrantGiftBundle_GrantsThreeItems_OncePerDay" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="463984459" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000345" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1155" name="Default_Tiers_AreMonotonicAndWeightsSumToOne" fullname="MergeWater.Tests.EditMode.GameBalanceTests.Default_Tiers_AreMonotonicAndWeightsSumToOne" methodname="Default_Tiers_AreMonotonicAndWeightsSumToOne" classname="MergeWater.Tests.EditMode.GameBalanceTests" runstate="Runnable" seed="959451552" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000826" asserts="0">
+              <test-case id="1220" name="GrantUnlimited_IgnoresDailyCap" fullname="MergeWater.Tests.EditMode.EconomyTests.GrantUnlimited_IgnoresDailyCap" methodname="GrantUnlimited_IgnoresDailyCap" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="1053927240" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000363" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1156" name="GetTier_OutOfRange_ReturnsInvalidDefaultWithoutThrowing" fullname="MergeWater.Tests.EditMode.GameBalanceTests.GetTier_OutOfRange_ReturnsInvalidDefaultWithoutThrowing" methodname="GetTier_OutOfRange_ReturnsInvalidDefaultWithoutThrowing" classname="MergeWater.Tests.EditMode.GameBalanceTests" runstate="Runnable" seed="2004247664" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000518" asserts="0">
+              <test-case id="1226" name="Interstitial_ShowsAtMostOncePerThreeGames_AndRespectsToggle" fullname="MergeWater.Tests.EditMode.EconomyTests.Interstitial_ShowsAtMostOncePerThreeGames_AndRespectsToggle" methodname="Interstitial_ShowsAtMostOncePerThreeGames_AndRespectsToggle" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="504741925" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.002519" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1217" name="ItemDailyCaps_MatchV213ToV215" fullname="MergeWater.Tests.EditMode.EconomyTests.ItemDailyCaps_MatchV213ToV215" methodname="ItemDailyCaps_MatchV213ToV215" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="1539520406" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000623" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1223" name="ItemGrant_RespectsDailyCap_RegardlessOfAdsAvailability" fullname="MergeWater.Tests.EditMode.EconomyTests.ItemGrant_RespectsDailyCap_RegardlessOfAdsAvailability" methodname="ItemGrant_RespectsDailyCap_RegardlessOfAdsAvailability" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="1790618466" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.001234" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1224" name="ItemGrant_WhenAdSkipped_DoesNotGrant" fullname="MergeWater.Tests.EditMode.EconomyTests.ItemGrant_WhenAdSkipped_DoesNotGrant" methodname="ItemGrant_WhenAdSkipped_DoesNotGrant" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="1592003858" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000428" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1222" name="Revive_OfflinePolicy_FollowsOfflineGrantAll" fullname="MergeWater.Tests.EditMode.EconomyTests.Revive_OfflinePolicy_FollowsOfflineGrantAll" methodname="Revive_OfflinePolicy_FollowsOfflineGrantAll" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="732581987" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000646" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1221" name="Revive_RespectsNinetySecondGlobalCooldown" fullname="MergeWater.Tests.EditMode.EconomyTests.Revive_RespectsNinetySecondGlobalCooldown" methodname="Revive_RespectsNinetySecondGlobalCooldown" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="14372219" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.001376" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1228" name="RoundFinished_AccumulatesGamesAndBestScore" fullname="MergeWater.Tests.EditMode.EconomyTests.RoundFinished_AccumulatesGamesAndBestScore" methodname="RoundFinished_AccumulatesGamesAndBestScore" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="1920339580" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.001346" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1227" name="ShareChallenge_FirstSucceeds_ThenCooldownForSixtySeconds" fullname="MergeWater.Tests.EditMode.EconomyTests.ShareChallenge_FirstSucceeds_ThenCooldownForSixtySeconds" methodname="ShareChallenge_FirstSucceeds_ThenCooldownForSixtySeconds" classname="MergeWater.Tests.EditMode.EconomyTests" runstate="Runnable" seed="1702849478" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.002282" asserts="0">
                 <properties />
               </test-case>
             </test-suite>
-            <test-suite type="TestFixture" id="1188" name="MetaServiceTests" fullname="MergeWater.Tests.EditMode.MetaServiceTests" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.016300" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <test-suite type="TestFixture" id="1194" name="GameBalanceTests" fullname="MergeWater.Tests.EditMode.GameBalanceTests" classname="MergeWater.Tests.EditMode.GameBalanceTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.006650" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
               <properties />
-              <test-case id="1199" name="AdsServiceProxy_BeforeSwap_BehavesAsUnavailable" fullname="MergeWater.Tests.EditMode.MetaServiceTests.AdsServiceProxy_BeforeSwap_BehavesAsUnavailable" methodname="AdsServiceProxy_BeforeSwap_BehavesAsUnavailable" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="172959136" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000940" asserts="0">
+              <test-case id="1199" name="Clone_IsDeepCopy_AndDoesNotShareArrays" fullname="MergeWater.Tests.EditMode.GameBalanceTests.Clone_IsDeepCopy_AndDoesNotShareArrays" methodname="Clone_IsDeepCopy_AndDoesNotShareArrays" classname="MergeWater.Tests.EditMode.GameBalanceTests" runstate="Runnable" seed="1084043030" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000648" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1196" name="Analytics_AfterInitialize_RecordsNameAndParameters" fullname="MergeWater.Tests.EditMode.MetaServiceTests.Analytics_AfterInitialize_RecordsNameAndParameters" methodname="Analytics_AfterInitialize_RecordsNameAndParameters" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="985788674" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.001892" asserts="0">
+              <test-case id="1200" name="Default_FeelAndRuleValues_MatchV2" fullname="MergeWater.Tests.EditMode.GameBalanceTests.Default_FeelAndRuleValues_MatchV2" methodname="Default_FeelAndRuleValues_MatchV2" classname="MergeWater.Tests.EditMode.GameBalanceTests" runstate="Runnable" seed="1177378023" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000702" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1195" name="Analytics_BeforeInitialize_IsIgnored" fullname="MergeWater.Tests.EditMode.MetaServiceTests.Analytics_BeforeInitialize_IsIgnored" methodname="Analytics_BeforeInitialize_IsIgnored" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="1500484768" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000962" asserts="0">
+              <test-case id="1195" name="Default_MatchesRequirementsV1Table" fullname="MergeWater.Tests.EditMode.GameBalanceTests.Default_MatchesRequirementsV1Table" methodname="Default_MatchesRequirementsV1Table" classname="MergeWater.Tests.EditMode.GameBalanceTests" runstate="Runnable" seed="1465364397" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000921" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1197" name="Analytics_WhenSinkThrows_DoesNotThrow" fullname="MergeWater.Tests.EditMode.MetaServiceTests.Analytics_WhenSinkThrows_DoesNotThrow" methodname="Analytics_WhenSinkThrows_DoesNotThrow" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="557908579" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.004120" asserts="0">
+              <test-case id="1198" name="Default_StageMilestones_MatchV218" fullname="MergeWater.Tests.EditMode.GameBalanceTests.Default_StageMilestones_MatchV218" methodname="Default_StageMilestones_MatchV218" classname="MergeWater.Tests.EditMode.GameBalanceTests" runstate="Runnable" seed="542012873" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000873" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1196" name="Default_Tiers_AreMonotonicAndWeightsSumToOne" fullname="MergeWater.Tests.EditMode.GameBalanceTests.Default_Tiers_AreMonotonicAndWeightsSumToOne" methodname="Default_Tiers_AreMonotonicAndWeightsSumToOne" classname="MergeWater.Tests.EditMode.GameBalanceTests" runstate="Runnable" seed="2033372100" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000673" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1197" name="GetTier_OutOfRange_ReturnsInvalidDefaultWithoutThrowing" fullname="MergeWater.Tests.EditMode.GameBalanceTests.GetTier_OutOfRange_ReturnsInvalidDefaultWithoutThrowing" methodname="GetTier_OutOfRange_ReturnsInvalidDefaultWithoutThrowing" classname="MergeWater.Tests.EditMode.GameBalanceTests" runstate="Runnable" seed="659770561" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:29Z" duration="0.000431" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="1163" name="HudLayoutTests" fullname="MergeWater.Tests.EditMode.HudLayoutTests" classname="MergeWater.Tests.EditMode.HudLayoutTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:30Z" duration="0.640225" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1164" name="AllVisibleHudElements_FitInsideDesignCanvas" fullname="MergeWater.Tests.EditMode.HudLayoutTests.AllVisibleHudElements_FitInsideDesignCanvas" methodname="AllVisibleHudElements_FitInsideDesignCanvas" classname="MergeWater.Tests.EditMode.HudLayoutTests" runstate="Runnable" seed="128808317" result="Passed" start-time="2026-09-13 03:47:29Z" end-time="2026-09-13 03:47:30Z" duration="0.244354" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1168" name="BottomBand_IsClearOfHudElements" fullname="MergeWater.Tests.EditMode.HudLayoutTests.BottomBand_IsClearOfHudElements" methodname="BottomBand_IsClearOfHudElements" classname="MergeWater.Tests.EditMode.HudLayoutTests" runstate="Runnable" seed="1798171402" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.047879" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1170" name="Canvas_UsesPortraitReferenceResolution" fullname="MergeWater.Tests.EditMode.HudLayoutTests.Canvas_UsesPortraitReferenceResolution" methodname="Canvas_UsesPortraitReferenceResolution" classname="MergeWater.Tests.EditMode.HudLayoutTests" runstate="Runnable" seed="739726416" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.048560" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1171" name="NoOpaqueFullScreenGraphic_HidesTheGameWorld" fullname="MergeWater.Tests.EditMode.HudLayoutTests.NoOpaqueFullScreenGraphic_HidesTheGameWorld" methodname="NoOpaqueFullScreenGraphic_HidesTheGameWorld" classname="MergeWater.Tests.EditMode.HudLayoutTests" runstate="Runnable" seed="797271187" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.046509" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1167" name="SettingsPanel_BottomBlock_SitsAboveTheBottomEdgeWithBalancedSpacing" fullname="MergeWater.Tests.EditMode.HudLayoutTests.SettingsPanel_BottomBlock_SitsAboveTheBottomEdgeWithBalancedSpacing" methodname="SettingsPanel_BottomBlock_SitsAboveTheBottomEdgeWithBalancedSpacing" classname="MergeWater.Tests.EditMode.HudLayoutTests" runstate="Runnable" seed="881349812" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.048501" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1169" name="SideEntries_SitOnTheirOwnHalf" fullname="MergeWater.Tests.EditMode.HudLayoutTests.SideEntries_SitOnTheirOwnHalf" methodname="SideEntries_SitOnTheirOwnHalf" classname="MergeWater.Tests.EditMode.HudLayoutTests" runstate="Runnable" seed="1289567590" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.080222" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1165" name="TopAnchoredElements_UseSameSidePivot_SoTheyAreNotClipped" fullname="MergeWater.Tests.EditMode.HudLayoutTests.TopAnchoredElements_UseSameSidePivot_SoTheyAreNotClipped" methodname="TopAnchoredElements_UseSameSidePivot_SoTheyAreNotClipped" classname="MergeWater.Tests.EditMode.HudLayoutTests" runstate="Runnable" seed="2139159376" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.064362" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1166" name="TopBar_DoesNotEnterWeChatCapsuleZone" fullname="MergeWater.Tests.EditMode.HudLayoutTests.TopBar_DoesNotEnterWeChatCapsuleZone" methodname="TopBar_DoesNotEnterWeChatCapsuleZone" classname="MergeWater.Tests.EditMode.HudLayoutTests" runstate="Runnable" seed="178008461" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.053114" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="1229" name="MetaServiceTests" fullname="MergeWater.Tests.EditMode.MetaServiceTests" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.021474" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1240" name="AdsServiceProxy_BeforeSwap_BehavesAsUnavailable" fullname="MergeWater.Tests.EditMode.MetaServiceTests.AdsServiceProxy_BeforeSwap_BehavesAsUnavailable" methodname="AdsServiceProxy_BeforeSwap_BehavesAsUnavailable" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="503198158" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.001799" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1237" name="Analytics_AfterInitialize_RecordsNameAndParameters" fullname="MergeWater.Tests.EditMode.MetaServiceTests.Analytics_AfterInitialize_RecordsNameAndParameters" methodname="Analytics_AfterInitialize_RecordsNameAndParameters" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="864227338" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.002393" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1236" name="Analytics_BeforeInitialize_IsIgnored" fullname="MergeWater.Tests.EditMode.MetaServiceTests.Analytics_BeforeInitialize_IsIgnored" methodname="Analytics_BeforeInitialize_IsIgnored" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="1720098109" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000815" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1238" name="Analytics_WhenSinkThrows_DoesNotThrow" fullname="MergeWater.Tests.EditMode.MetaServiceTests.Analytics_WhenSinkThrows_DoesNotThrow" methodname="Analytics_WhenSinkThrows_DoesNotThrow" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="62570033" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.003940" asserts="0">
                 <properties />
                 <output><![CDATA[[Analytics] Sink 写入失败，已忽略后续错误：sink failure
 ]]></output>
               </test-case>
-              <test-case id="1191" name="Leaderboard_IsSelfBeaten_OnlyWhenFriendScoreHigher" fullname="MergeWater.Tests.EditMode.MetaServiceTests.Leaderboard_IsSelfBeaten_OnlyWhenFriendScoreHigher" methodname="Leaderboard_IsSelfBeaten_OnlyWhenFriendScoreHigher" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="693316610" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.001223" asserts="0">
+              <test-case id="1232" name="Leaderboard_IsSelfBeaten_OnlyWhenFriendScoreHigher" fullname="MergeWater.Tests.EditMode.MetaServiceTests.Leaderboard_IsSelfBeaten_OnlyWhenFriendScoreHigher" methodname="Leaderboard_IsSelfBeaten_OnlyWhenFriendScoreHigher" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="282401900" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.001228" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1190" name="Leaderboard_Submit_DoesNotLowerExistingScore_AndIgnoresZero" fullname="MergeWater.Tests.EditMode.MetaServiceTests.Leaderboard_Submit_DoesNotLowerExistingScore_AndIgnoresZero" methodname="Leaderboard_Submit_DoesNotLowerExistingScore_AndIgnoresZero" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="617827246" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000508" asserts="0">
+              <test-case id="1231" name="Leaderboard_Submit_DoesNotLowerExistingScore_AndIgnoresZero" fullname="MergeWater.Tests.EditMode.MetaServiceTests.Leaderboard_Submit_DoesNotLowerExistingScore_AndIgnoresZero" methodname="Leaderboard_Submit_DoesNotLowerExistingScore_AndIgnoresZero" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="1215070102" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000459" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1189" name="Leaderboard_Submit_OrdersByScore_AndGetTopRespectsPageSize" fullname="MergeWater.Tests.EditMode.MetaServiceTests.Leaderboard_Submit_OrdersByScore_AndGetTopRespectsPageSize" methodname="Leaderboard_Submit_OrdersByScore_AndGetTopRespectsPageSize" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="959855019" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000681" asserts="0">
+              <test-case id="1230" name="Leaderboard_Submit_OrdersByScore_AndGetTopRespectsPageSize" fullname="MergeWater.Tests.EditMode.MetaServiceTests.Leaderboard_Submit_OrdersByScore_AndGetTopRespectsPageSize" methodname="Leaderboard_Submit_OrdersByScore_AndGetTopRespectsPageSize" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="1072610672" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000677" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1192" name="Leaderboard_TrimsToMaxEntries" fullname="MergeWater.Tests.EditMode.MetaServiceTests.Leaderboard_TrimsToMaxEntries" methodname="Leaderboard_TrimsToMaxEntries" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="512784887" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000526" asserts="0">
+              <test-case id="1233" name="Leaderboard_TrimsToMaxEntries" fullname="MergeWater.Tests.EditMode.MetaServiceTests.Leaderboard_TrimsToMaxEntries" methodname="Leaderboard_TrimsToMaxEntries" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="565614827" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000492" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1198" name="NullAnalytics_NeverInitializesOrRecords" fullname="MergeWater.Tests.EditMode.MetaServiceTests.NullAnalytics_NeverInitializesOrRecords" methodname="NullAnalytics_NeverInitializesOrRecords" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="189555064" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000326" asserts="0">
+              <test-case id="1239" name="NullAnalytics_NeverInitializesOrRecords" fullname="MergeWater.Tests.EditMode.MetaServiceTests.NullAnalytics_NeverInitializesOrRecords" methodname="NullAnalytics_NeverInitializesOrRecords" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="539914514" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000318" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1193" name="PrivacyGate_BeforeAccept_Blocks_AfterAccept_Persists" fullname="MergeWater.Tests.EditMode.MetaServiceTests.PrivacyGate_BeforeAccept_Blocks_AfterAccept_Persists" methodname="PrivacyGate_BeforeAccept_Blocks_AfterAccept_Persists" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="2073106543" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000891" asserts="0">
+              <test-case id="1234" name="PrivacyGate_BeforeAccept_Blocks_AfterAccept_Persists" fullname="MergeWater.Tests.EditMode.MetaServiceTests.PrivacyGate_BeforeAccept_Blocks_AfterAccept_Persists" methodname="PrivacyGate_BeforeAccept_Blocks_AfterAccept_Persists" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="1380766531" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000864" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1194" name="Settings_Persist_AndClearCacheResetsEverything" fullname="MergeWater.Tests.EditMode.MetaServiceTests.Settings_Persist_AndClearCacheResetsEverything" methodname="Settings_Persist_AndClearCacheResetsEverything" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="1031623134" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000824" asserts="0">
-                <properties />
-              </test-case>
-            </test-suite>
-            <test-suite type="TestFixture" id="1212" name="RoundSessionTests" fullname="MergeWater.Tests.EditMode.RoundSessionTests" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" testcasecount="17" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.022248" total="17" passed="17" failed="0" inconclusive="0" skipped="0" asserts="0">
-              <properties />
-              <test-case id="1222" name="ApplyRevive_OnFirstCall_RemovesClusterAndResumes_SecondCallIsRejected" fullname="MergeWater.Tests.EditMode.RoundSessionTests.ApplyRevive_OnFirstCall_RemovesClusterAndResumes_SecondCallIsRejected" methodname="ApplyRevive_OnFirstCall_RemovesClusterAndResumes_SecondCallIsRejected" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="418761315" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.005352" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1223" name="ApplyRevive_WhenNotInReviving_ReturnsNotInGameOver_AndChangesNothing" fullname="MergeWater.Tests.EditMode.RoundSessionTests.ApplyRevive_WhenNotInReviving_ReturnsNotInGameOver_AndChangesNothing" methodname="ApplyRevive_WhenNotInReviving_ReturnsNotInGameOver_AndChangesNothing" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="479658009" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000595" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1217" name="Combo_WithinThreeSeconds_IncreasesThenResetsAfterWindow" fullname="MergeWater.Tests.EditMode.RoundSessionTests.Combo_WithinThreeSeconds_IncreasesThenResetsAfterWindow" methodname="Combo_WithinThreeSeconds_IncreasesThenResetsAfterWindow" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="104161215" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.001922" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1219" name="Danger_AfterReviveUsed_SecondFailureGoesToGameOver" fullname="MergeWater.Tests.EditMode.RoundSessionTests.Danger_AfterReviveUsed_SecondFailureGoesToGameOver" methodname="Danger_AfterReviveUsed_SecondFailureGoesToGameOver" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="1981232620" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000535" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1218" name="Danger_RequiresContinuousOnePointTwoSeconds_ThenEntersRevivingPage" fullname="MergeWater.Tests.EditMode.RoundSessionTests.Danger_RequiresContinuousOnePointTwoSeconds_ThenEntersRevivingPage" methodname="Danger_RequiresContinuousOnePointTwoSeconds_ThenEntersRevivingPage" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="1151671655" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000539" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1220" name="Danger_TimerResets_WhenViolationClears" fullname="MergeWater.Tests.EditMode.RoundSessionTests.Danger_TimerResets_WhenViolationClears" methodname="Danger_TimerResets_WhenViolationClears" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="2023786789" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000509" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1221" name="DangerEvents_ArePairedOncePerViolationEpisode" fullname="MergeWater.Tests.EditMode.RoundSessionTests.DangerEvents_ArePairedOncePerViolationEpisode" methodname="DangerEvents_ArePairedOncePerViolationEpisode" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="2104517879" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000575" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1229" name="Dispose_UnsubscribesFromField" fullname="MergeWater.Tests.EditMode.RoundSessionTests.Dispose_UnsubscribesFromField" methodname="Dispose_UnsubscribesFromField" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="153986189" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000356" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1227" name="DropCooldown_BlocksImmediateSecondDrop_ThenAllowsAfterTick" fullname="MergeWater.Tests.EditMode.RoundSessionTests.DropCooldown_BlocksImmediateSecondDrop_ThenAllowsAfterTick" methodname="DropCooldown_BlocksImmediateSecondDrop_ThenAllowsAfterTick" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="1761459070" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000445" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1216" name="Merged_AddsScoreWithMultiplier_AndTracksBestScore" fullname="MergeWater.Tests.EditMode.RoundSessionTests.Merged_AddsScoreWithMultiplier_AndTracksBestScore" methodname="Merged_AddsScoreWithMultiplier_AndTracksBestScore" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="2046732836" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000660" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1228" name="MergeDuringReviving_IsIgnored" fullname="MergeWater.Tests.EditMode.RoundSessionTests.MergeDuringReviving_IsIgnored" methodname="MergeDuringReviving_IsIgnored" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="1776361354" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000355" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1225" name="MilestoneReached_IsGrantedOncePerRound" fullname="MergeWater.Tests.EditMode.RoundSessionTests.MilestoneReached_IsGrantedOncePerRound" methodname="MilestoneReached_IsGrantedOncePerRound" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="1044545906" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.002375" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1226" name="ReleaseDrop_AfterGameOver_IsRejected_AndLateMergesDoNotScore" fullname="MergeWater.Tests.EditMode.RoundSessionTests.ReleaseDrop_AfterGameOver_IsRejected_AndLateMergesDoNotScore" methodname="ReleaseDrop_AfterGameOver_IsRejected_AndLateMergesDoNotScore" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="1727278836" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000668" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1215" name="ReleaseDrop_WhenFieldRejects_DoesNotConsumeQueue" fullname="MergeWater.Tests.EditMode.RoundSessionTests.ReleaseDrop_WhenFieldRejects_DoesNotConsumeQueue" methodname="ReleaseDrop_WhenFieldRejects_DoesNotConsumeQueue" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="1665254185" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000425" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1214" name="ReleaseDrop_WhilePlaying_UsesQueueTierAndAdvancesQueue" fullname="MergeWater.Tests.EditMode.RoundSessionTests.ReleaseDrop_WhilePlaying_UsesQueueTierAndAdvancesQueue" methodname="ReleaseDrop_WhilePlaying_UsesQueueTierAndAdvancesQueue" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="282867309" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000638" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1224" name="Reviving_RejectsDropAndItemUse" fullname="MergeWater.Tests.EditMode.RoundSessionTests.Reviving_RejectsDropAndItemUse" methodname="Reviving_RejectsDropAndItemUse" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="1691693169" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000377" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1213" name="StartRound_ResetsStateAndEntersReady_ThenFirstDropEntersPlaying" fullname="MergeWater.Tests.EditMode.RoundSessionTests.StartRound_ResetsStateAndEntersReady_ThenFirstDropEntersPlaying" methodname="StartRound_ResetsStateAndEntersReady_ThenFirstDropEntersPlaying" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="1746691452" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000552" asserts="0">
+              <test-case id="1235" name="Settings_Persist_AndClearCacheResetsEverything" fullname="MergeWater.Tests.EditMode.MetaServiceTests.Settings_Persist_AndClearCacheResetsEverything" methodname="Settings_Persist_AndClearCacheResetsEverything" classname="MergeWater.Tests.EditMode.MetaServiceTests" runstate="Runnable" seed="659626221" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000794" asserts="0">
                 <properties />
               </test-case>
             </test-suite>
-            <test-suite type="TestFixture" id="1200" name="SaveServiceTests" fullname="MergeWater.Tests.EditMode.SaveServiceTests" classname="MergeWater.Tests.EditMode.SaveServiceTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.007462" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <test-suite type="TestSuite" id="1293" name="Presentation" fullname="MergeWater.Tests.EditMode.Presentation" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.012056" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
               <properties />
-              <test-case id="1206" name="ClearAll_DeletesFileAndResetsToDefault" fullname="MergeWater.Tests.EditMode.SaveServiceTests.ClearAll_DeletesFileAndResetsToDefault" methodname="ClearAll_DeletesFileAndResetsToDefault" classname="MergeWater.Tests.EditMode.SaveServiceTests" runstate="Runnable" seed="981005838" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000659" asserts="0">
+              <test-suite type="TestFixture" id="1285" name="UiSourceOfTruthTests" fullname="MergeWater.Tests.EditMode.Presentation.UiSourceOfTruthTests" classname="MergeWater.Tests.EditMode.Presentation.UiSourceOfTruthTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.011382" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1288" name="HudViewFields_AreFilledFromTheSceneNotFromCode" fullname="MergeWater.Tests.EditMode.Presentation.UiSourceOfTruthTests.HudViewFields_AreFilledFromTheSceneNotFromCode" methodname="HudViewFields_AreFilledFromTheSceneNotFromCode" classname="MergeWater.Tests.EditMode.Presentation.UiSourceOfTruthTests" runstate="Runnable" seed="1262033430" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.001587" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1286" name="RuntimeAssemblies_DoNotContainTheUiBuilder" fullname="MergeWater.Tests.EditMode.Presentation.UiSourceOfTruthTests.RuntimeAssemblies_DoNotContainTheUiBuilder" methodname="RuntimeAssemblies_DoNotContainTheUiBuilder" classname="MergeWater.Tests.EditMode.Presentation.UiSourceOfTruthTests" runstate="Runnable" seed="502912846" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.002979" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1287" name="RuntimeAssemblies_DoNotReferenceTheUiBuilder" fullname="MergeWater.Tests.EditMode.Presentation.UiSourceOfTruthTests.RuntimeAssemblies_DoNotReferenceTheUiBuilder" methodname="RuntimeAssemblies_DoNotReferenceTheUiBuilder" classname="MergeWater.Tests.EditMode.Presentation.UiSourceOfTruthTests" runstate="Runnable" seed="1391645605" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.001937" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+            </test-suite>
+            <test-suite type="TestFixture" id="1267" name="RoundSessionTests" fullname="MergeWater.Tests.EditMode.RoundSessionTests" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" testcasecount="17" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.027799" total="17" passed="17" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1277" name="ApplyRevive_OnFirstCall_RemovesClusterAndResumes_SecondCallIsRejected" fullname="MergeWater.Tests.EditMode.RoundSessionTests.ApplyRevive_OnFirstCall_RemovesClusterAndResumes_SecondCallIsRejected" methodname="ApplyRevive_OnFirstCall_RemovesClusterAndResumes_SecondCallIsRejected" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="628837642" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.007714" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1202" name="Load_CorruptedJson_BacksUpAndReturnsDefault" fullname="MergeWater.Tests.EditMode.SaveServiceTests.Load_CorruptedJson_BacksUpAndReturnsDefault" methodname="Load_CorruptedJson_BacksUpAndReturnsDefault" classname="MergeWater.Tests.EditMode.SaveServiceTests" runstate="Runnable" seed="1778735032" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.001336" asserts="0">
+              <test-case id="1278" name="ApplyRevive_WhenNotInReviving_ReturnsNotInGameOver_AndChangesNothing" fullname="MergeWater.Tests.EditMode.RoundSessionTests.ApplyRevive_WhenNotInReviving_ReturnsNotInGameOver_AndChangesNothing" methodname="ApplyRevive_WhenNotInReviving_ReturnsNotInGameOver_AndChangesNothing" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="2095283132" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000455" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1272" name="Combo_WithinThreeSeconds_IncreasesThenResetsAfterWindow" fullname="MergeWater.Tests.EditMode.RoundSessionTests.Combo_WithinThreeSeconds_IncreasesThenResetsAfterWindow" methodname="Combo_WithinThreeSeconds_IncreasesThenResetsAfterWindow" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="330613980" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.002307" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1274" name="Danger_AfterReviveUsed_SecondFailureGoesToGameOver" fullname="MergeWater.Tests.EditMode.RoundSessionTests.Danger_AfterReviveUsed_SecondFailureGoesToGameOver" methodname="Danger_AfterReviveUsed_SecondFailureGoesToGameOver" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="73738882" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000536" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1273" name="Danger_RequiresContinuousOnePointTwoSeconds_ThenEntersRevivingPage" fullname="MergeWater.Tests.EditMode.RoundSessionTests.Danger_RequiresContinuousOnePointTwoSeconds_ThenEntersRevivingPage" methodname="Danger_RequiresContinuousOnePointTwoSeconds_ThenEntersRevivingPage" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="722441270" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000499" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1275" name="Danger_TimerResets_WhenViolationClears" fullname="MergeWater.Tests.EditMode.RoundSessionTests.Danger_TimerResets_WhenViolationClears" methodname="Danger_TimerResets_WhenViolationClears" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="496698146" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000702" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1276" name="DangerEvents_ArePairedOncePerViolationEpisode" fullname="MergeWater.Tests.EditMode.RoundSessionTests.DangerEvents_ArePairedOncePerViolationEpisode" methodname="DangerEvents_ArePairedOncePerViolationEpisode" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="926090036" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000846" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1284" name="Dispose_UnsubscribesFromField" fullname="MergeWater.Tests.EditMode.RoundSessionTests.Dispose_UnsubscribesFromField" methodname="Dispose_UnsubscribesFromField" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="1380665696" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000641" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1282" name="DropCooldown_BlocksImmediateSecondDrop_ThenAllowsAfterTick" fullname="MergeWater.Tests.EditMode.RoundSessionTests.DropCooldown_BlocksImmediateSecondDrop_ThenAllowsAfterTick" methodname="DropCooldown_BlocksImmediateSecondDrop_ThenAllowsAfterTick" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="1752055778" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000453" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1271" name="Merged_AddsScoreWithMultiplier_AndTracksBestScore" fullname="MergeWater.Tests.EditMode.RoundSessionTests.Merged_AddsScoreWithMultiplier_AndTracksBestScore" methodname="Merged_AddsScoreWithMultiplier_AndTracksBestScore" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="994109750" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000661" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1283" name="MergeDuringReviving_IsIgnored" fullname="MergeWater.Tests.EditMode.RoundSessionTests.MergeDuringReviving_IsIgnored" methodname="MergeDuringReviving_IsIgnored" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="1260872628" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000331" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1280" name="MilestoneReached_IsGrantedOncePerRound" fullname="MergeWater.Tests.EditMode.RoundSessionTests.MilestoneReached_IsGrantedOncePerRound" methodname="MilestoneReached_IsGrantedOncePerRound" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="349265136" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.002520" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1281" name="ReleaseDrop_AfterGameOver_IsRejected_AndLateMergesDoNotScore" fullname="MergeWater.Tests.EditMode.RoundSessionTests.ReleaseDrop_AfterGameOver_IsRejected_AndLateMergesDoNotScore" methodname="ReleaseDrop_AfterGameOver_IsRejected_AndLateMergesDoNotScore" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="67822292" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000916" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1270" name="ReleaseDrop_WhenFieldRejects_DoesNotConsumeQueue" fullname="MergeWater.Tests.EditMode.RoundSessionTests.ReleaseDrop_WhenFieldRejects_DoesNotConsumeQueue" methodname="ReleaseDrop_WhenFieldRejects_DoesNotConsumeQueue" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="891930246" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000622" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1269" name="ReleaseDrop_WhilePlaying_UsesQueueTierAndAdvancesQueue" fullname="MergeWater.Tests.EditMode.RoundSessionTests.ReleaseDrop_WhilePlaying_UsesQueueTierAndAdvancesQueue" methodname="ReleaseDrop_WhilePlaying_UsesQueueTierAndAdvancesQueue" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="1314369944" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000690" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1279" name="Reviving_RejectsDropAndItemUse" fullname="MergeWater.Tests.EditMode.RoundSessionTests.Reviving_RejectsDropAndItemUse" methodname="Reviving_RejectsDropAndItemUse" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="1224088413" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000411" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1268" name="StartRound_ResetsStateAndEntersReady_ThenFirstDropEntersPlaying" fullname="MergeWater.Tests.EditMode.RoundSessionTests.StartRound_ResetsStateAndEntersReady_ThenFirstDropEntersPlaying" methodname="StartRound_ResetsStateAndEntersReady_ThenFirstDropEntersPlaying" classname="MergeWater.Tests.EditMode.RoundSessionTests" runstate="Runnable" seed="494375798" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000502" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="1241" name="SaveServiceTests" fullname="MergeWater.Tests.EditMode.SaveServiceTests" classname="MergeWater.Tests.EditMode.SaveServiceTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.007657" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1247" name="ClearAll_DeletesFileAndResetsToDefault" fullname="MergeWater.Tests.EditMode.SaveServiceTests.ClearAll_DeletesFileAndResetsToDefault" methodname="ClearAll_DeletesFileAndResetsToDefault" classname="MergeWater.Tests.EditMode.SaveServiceTests" runstate="Runnable" seed="307158823" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000519" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1243" name="Load_CorruptedJson_BacksUpAndReturnsDefault" fullname="MergeWater.Tests.EditMode.SaveServiceTests.Load_CorruptedJson_BacksUpAndReturnsDefault" methodname="Load_CorruptedJson_BacksUpAndReturnsDefault" classname="MergeWater.Tests.EditMode.SaveServiceTests" runstate="Runnable" seed="36369612" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.001238" asserts="0">
                 <properties />
                 <output><![CDATA[[SaveService] 存档 JSON 损坏，已备份并回退默认值：JSON parse error: Missing a name for object member.
 ]]></output>
               </test-case>
-              <test-case id="1204" name="Load_FutureSchema_FallsBackToDefaultAndKeepsBackup" fullname="MergeWater.Tests.EditMode.SaveServiceTests.Load_FutureSchema_FallsBackToDefaultAndKeepsBackup" methodname="Load_FutureSchema_FallsBackToDefaultAndKeepsBackup" classname="MergeWater.Tests.EditMode.SaveServiceTests" runstate="Runnable" seed="1627200426" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.001046" asserts="0">
+              <test-case id="1245" name="Load_FutureSchema_FallsBackToDefaultAndKeepsBackup" fullname="MergeWater.Tests.EditMode.SaveServiceTests.Load_FutureSchema_FallsBackToDefaultAndKeepsBackup" methodname="Load_FutureSchema_FallsBackToDefaultAndKeepsBackup" classname="MergeWater.Tests.EditMode.SaveServiceTests" runstate="Runnable" seed="563258255" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000876" asserts="0">
                 <properties />
                 <output><![CDATA[[SaveService] 存档版本 99 高于当前 2，按默认值处理。
 ]]></output>
               </test-case>
-              <test-case id="1207" name="Load_IgnoresInvalidLeaderboardRecords" fullname="MergeWater.Tests.EditMode.SaveServiceTests.Load_IgnoresInvalidLeaderboardRecords" methodname="Load_IgnoresInvalidLeaderboardRecords" classname="MergeWater.Tests.EditMode.SaveServiceTests" runstate="Runnable" seed="240068364" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000447" asserts="0">
+              <test-case id="1248" name="Load_IgnoresInvalidLeaderboardRecords" fullname="MergeWater.Tests.EditMode.SaveServiceTests.Load_IgnoresInvalidLeaderboardRecords" methodname="Load_IgnoresInvalidLeaderboardRecords" classname="MergeWater.Tests.EditMode.SaveServiceTests" runstate="Runnable" seed="371090538" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000363" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1203" name="Load_OldSchema_MigratesAndClampsOutOfRangeValues" fullname="MergeWater.Tests.EditMode.SaveServiceTests.Load_OldSchema_MigratesAndClampsOutOfRangeValues" methodname="Load_OldSchema_MigratesAndClampsOutOfRangeValues" classname="MergeWater.Tests.EditMode.SaveServiceTests" runstate="Runnable" seed="351387402" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000480" asserts="0">
+              <test-case id="1244" name="Load_OldSchema_MigratesAndClampsOutOfRangeValues" fullname="MergeWater.Tests.EditMode.SaveServiceTests.Load_OldSchema_MigratesAndClampsOutOfRangeValues" methodname="Load_OldSchema_MigratesAndClampsOutOfRangeValues" classname="MergeWater.Tests.EditMode.SaveServiceTests" runstate="Runnable" seed="446859189" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000637" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1201" name="Load_WhenNoFile_ReturnsDefaultWithCurrentSchema" fullname="MergeWater.Tests.EditMode.SaveServiceTests.Load_WhenNoFile_ReturnsDefaultWithCurrentSchema" methodname="Load_WhenNoFile_ReturnsDefaultWithCurrentSchema" classname="MergeWater.Tests.EditMode.SaveServiceTests" runstate="Runnable" seed="729795120" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000427" asserts="0">
+              <test-case id="1242" name="Load_WhenNoFile_ReturnsDefaultWithCurrentSchema" fullname="MergeWater.Tests.EditMode.SaveServiceTests.Load_WhenNoFile_ReturnsDefaultWithCurrentSchema" methodname="Load_WhenNoFile_ReturnsDefaultWithCurrentSchema" classname="MergeWater.Tests.EditMode.SaveServiceTests" runstate="Runnable" seed="1187431407" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000590" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1205" name="Save_WritesCurrentSchemaVersionAndRoundTrips" fullname="MergeWater.Tests.EditMode.SaveServiceTests.Save_WritesCurrentSchemaVersionAndRoundTrips" methodname="Save_WritesCurrentSchemaVersionAndRoundTrips" classname="MergeWater.Tests.EditMode.SaveServiceTests" runstate="Runnable" seed="673580627" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000351" asserts="0">
-                <properties />
-              </test-case>
-            </test-suite>
-            <test-suite type="TestFixture" id="1133" name="SceneAssetTests" fullname="MergeWater.Tests.EditMode.SceneAssetTests" classname="MergeWater.Tests.EditMode.SceneAssetTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.130072" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
-              <properties />
-              <test-case id="1135" name="Bootstrapper_SerializedReferencesAreWired" fullname="MergeWater.Tests.EditMode.SceneAssetTests.Bootstrapper_SerializedReferencesAreWired" methodname="Bootstrapper_SerializedReferencesAreWired" classname="MergeWater.Tests.EditMode.SceneAssetTests" runstate="Runnable" seed="15329109" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.058290" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1136" name="HudView_RequiredElementsAreWired" fullname="MergeWater.Tests.EditMode.SceneAssetTests.HudView_RequiredElementsAreWired" methodname="HudView_RequiredElementsAreWired" classname="MergeWater.Tests.EditMode.SceneAssetTests" runstate="Runnable" seed="2135229720" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.018699" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1134" name="MainScene_ContainsBootstrapperFieldAimCanvasAndPresentation" fullname="MergeWater.Tests.EditMode.SceneAssetTests.MainScene_ContainsBootstrapperFieldAimCanvasAndPresentation" methodname="MainScene_ContainsBootstrapperFieldAimCanvasAndPresentation" classname="MergeWater.Tests.EditMode.SceneAssetTests" runstate="Runnable" seed="1150193053" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.018796" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1137" name="MainScene_HasNoBottomBannerOrCrossPromotionSlots" fullname="MergeWater.Tests.EditMode.SceneAssetTests.MainScene_HasNoBottomBannerOrCrossPromotionSlots" methodname="MainScene_HasNoBottomBannerOrCrossPromotionSlots" classname="MergeWater.Tests.EditMode.SceneAssetTests" runstate="Runnable" seed="472366128" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.016371" asserts="0">
-                <properties />
-              </test-case>
-              <test-case id="1138" name="MainScene_IsInBuildSettings" fullname="MergeWater.Tests.EditMode.SceneAssetTests.MainScene_IsInBuildSettings" methodname="MainScene_IsInBuildSettings" classname="MergeWater.Tests.EditMode.SceneAssetTests" runstate="Runnable" seed="938697796" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.015368" asserts="0">
+              <test-case id="1246" name="Save_WritesCurrentSchemaVersionAndRoundTrips" fullname="MergeWater.Tests.EditMode.SaveServiceTests.Save_WritesCurrentSchemaVersionAndRoundTrips" methodname="Save_WritesCurrentSchemaVersionAndRoundTrips" classname="MergeWater.Tests.EditMode.SaveServiceTests" runstate="Runnable" seed="826414579" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000368" asserts="0">
                 <properties />
               </test-case>
             </test-suite>
-            <test-suite type="TestFixture" id="1160" name="ScoreRulesTests" fullname="MergeWater.Tests.EditMode.ScoreRulesTests" classname="MergeWater.Tests.EditMode.ScoreRulesTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.007395" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <test-suite type="TestFixture" id="1172" name="SceneAssetTests" fullname="MergeWater.Tests.EditMode.SceneAssetTests" classname="MergeWater.Tests.EditMode.SceneAssetTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.211651" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
               <properties />
-              <test-case id="1165" name="CanMerge_OutOfRangeLevels_AreFalse" fullname="MergeWater.Tests.EditMode.ScoreRulesTests.CanMerge_OutOfRangeLevels_AreFalse" methodname="CanMerge_OutOfRangeLevels_AreFalse" classname="MergeWater.Tests.EditMode.ScoreRulesTests" runstate="Runnable" seed="1540432884" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000450" asserts="0">
+              <test-case id="1176" name="Backdrop_IsBehindEveryWorldElement" fullname="MergeWater.Tests.EditMode.SceneAssetTests.Backdrop_IsBehindEveryWorldElement" methodname="Backdrop_IsBehindEveryWorldElement" classname="MergeWater.Tests.EditMode.SceneAssetTests" runstate="Runnable" seed="1278515944" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.031246" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1164" name="CanMerge_TopTier_IsFalse" fullname="MergeWater.Tests.EditMode.ScoreRulesTests.CanMerge_TopTier_IsFalse" methodname="CanMerge_TopTier_IsFalse" classname="MergeWater.Tests.EditMode.ScoreRulesTests" runstate="Runnable" seed="329715944" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000295" asserts="0">
+              <test-case id="1174" name="Bootstrapper_SerializedReferencesAreWired" fullname="MergeWater.Tests.EditMode.SceneAssetTests.Bootstrapper_SerializedReferencesAreWired" methodname="Bootstrapper_SerializedReferencesAreWired" classname="MergeWater.Tests.EditMode.SceneAssetTests" runstate="Runnable" seed="821584139" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.030369" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1166" name="MaxTier_IsEleven" fullname="MergeWater.Tests.EditMode.ScoreRulesTests.MaxTier_IsEleven" methodname="MaxTier_IsEleven" classname="MergeWater.Tests.EditMode.ScoreRulesTests" runstate="Runnable" seed="755922594" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000303" asserts="0">
+              <test-case id="1175" name="HudView_RequiredElementsAreWired" fullname="MergeWater.Tests.EditMode.SceneAssetTests.HudView_RequiredElementsAreWired" methodname="HudView_RequiredElementsAreWired" classname="MergeWater.Tests.EditMode.SceneAssetTests" runstate="Runnable" seed="1761159186" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.028634" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1161" name="ScoreFor_AppliesMultiplierAndRounds" fullname="MergeWater.Tests.EditMode.ScoreRulesTests.ScoreFor_AppliesMultiplierAndRounds" methodname="ScoreFor_AppliesMultiplierAndRounds" classname="MergeWater.Tests.EditMode.ScoreRulesTests" runstate="Runnable" seed="223883278" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000322" asserts="0">
+              <test-case id="1173" name="MainScene_ContainsBootstrapperFieldAimCanvasAndPresentation" fullname="MergeWater.Tests.EditMode.SceneAssetTests.MainScene_ContainsBootstrapperFieldAimCanvasAndPresentation" methodname="MainScene_ContainsBootstrapperFieldAimCanvasAndPresentation" classname="MergeWater.Tests.EditMode.SceneAssetTests" runstate="Runnable" seed="1630956922" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.033587" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1163" name="ScoreFor_NonPositiveMultiplier_FallsBackToOne" fullname="MergeWater.Tests.EditMode.ScoreRulesTests.ScoreFor_NonPositiveMultiplier_FallsBackToOne" methodname="ScoreFor_NonPositiveMultiplier_FallsBackToOne" classname="MergeWater.Tests.EditMode.ScoreRulesTests" runstate="Runnable" seed="1779109432" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000207" asserts="0">
+              <test-case id="1177" name="MainScene_HasNoBottomBannerOrCrossPromotionSlots" fullname="MergeWater.Tests.EditMode.SceneAssetTests.MainScene_HasNoBottomBannerOrCrossPromotionSlots" methodname="MainScene_HasNoBottomBannerOrCrossPromotionSlots" classname="MergeWater.Tests.EditMode.SceneAssetTests" runstate="Runnable" seed="545244176" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.026862" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1162" name="ScoreFor_UnknownLevel_ReturnsZero" fullname="MergeWater.Tests.EditMode.ScoreRulesTests.ScoreFor_UnknownLevel_ReturnsZero" methodname="ScoreFor_UnknownLevel_ReturnsZero" classname="MergeWater.Tests.EditMode.ScoreRulesTests" runstate="Runnable" seed="1132750374" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000197" asserts="0">
+              <test-case id="1179" name="MainScene_HasNoReferencesToMissingScripts" fullname="MergeWater.Tests.EditMode.SceneAssetTests.MainScene_HasNoReferencesToMissingScripts" methodname="MainScene_HasNoReferencesToMissingScripts" classname="MergeWater.Tests.EditMode.SceneAssetTests" runstate="Runnable" seed="1854029618" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.033516" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1178" name="MainScene_IsInBuildSettings" fullname="MergeWater.Tests.EditMode.SceneAssetTests.MainScene_IsInBuildSettings" methodname="MainScene_IsInBuildSettings" classname="MergeWater.Tests.EditMode.SceneAssetTests" runstate="Runnable" seed="919034730" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.024125" asserts="0">
                 <properties />
               </test-case>
             </test-suite>
-            <test-suite type="TestFixture" id="1167" name="StageProgressTests" fullname="MergeWater.Tests.EditMode.StageProgressTests" classname="MergeWater.Tests.EditMode.StageProgressTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.004107" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <test-suite type="TestFixture" id="1201" name="ScoreRulesTests" fullname="MergeWater.Tests.EditMode.ScoreRulesTests" classname="MergeWater.Tests.EditMode.ScoreRulesTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.005928" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
               <properties />
-              <test-case id="1169" name="Advance_BelowFirstMilestone_ReturnsNothing" fullname="MergeWater.Tests.EditMode.StageProgressTests.Advance_BelowFirstMilestone_ReturnsNothing" methodname="Advance_BelowFirstMilestone_ReturnsNothing" classname="MergeWater.Tests.EditMode.StageProgressTests" runstate="Runnable" seed="1096736260" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000374" asserts="0">
+              <test-case id="1206" name="CanMerge_OutOfRangeLevels_AreFalse" fullname="MergeWater.Tests.EditMode.ScoreRulesTests.CanMerge_OutOfRangeLevels_AreFalse" methodname="CanMerge_OutOfRangeLevels_AreFalse" classname="MergeWater.Tests.EditMode.ScoreRulesTests" runstate="Runnable" seed="965873139" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000367" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1168" name="Advance_CrossingMultipleMilestones_ReturnsEachOnce" fullname="MergeWater.Tests.EditMode.StageProgressTests.Advance_CrossingMultipleMilestones_ReturnsEachOnce" methodname="Advance_CrossingMultipleMilestones_ReturnsEachOnce" classname="MergeWater.Tests.EditMode.StageProgressTests" runstate="Runnable" seed="499743630" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000353" asserts="0">
+              <test-case id="1205" name="CanMerge_TopTier_IsFalse" fullname="MergeWater.Tests.EditMode.ScoreRulesTests.CanMerge_TopTier_IsFalse" methodname="CanMerge_TopTier_IsFalse" classname="MergeWater.Tests.EditMode.ScoreRulesTests" runstate="Runnable" seed="952962896" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000264" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1173" name="Constructor_WithNullBalance_YieldsEmptyMilestones" fullname="MergeWater.Tests.EditMode.StageProgressTests.Constructor_WithNullBalance_YieldsEmptyMilestones" methodname="Constructor_WithNullBalance_YieldsEmptyMilestones" classname="MergeWater.Tests.EditMode.StageProgressTests" runstate="Runnable" seed="898247748" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000336" asserts="0">
+              <test-case id="1207" name="MaxTier_IsEleven" fullname="MergeWater.Tests.EditMode.ScoreRulesTests.MaxTier_IsEleven" methodname="MaxTier_IsEleven" classname="MergeWater.Tests.EditMode.ScoreRulesTests" runstate="Runnable" seed="15819014" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000233" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1172" name="GetNormalizedProgress_IsZeroAtStart_OneWhenAllReached" fullname="MergeWater.Tests.EditMode.StageProgressTests.GetNormalizedProgress_IsZeroAtStart_OneWhenAllReached" methodname="GetNormalizedProgress_IsZeroAtStart_OneWhenAllReached" classname="MergeWater.Tests.EditMode.StageProgressTests" runstate="Runnable" seed="2071930998" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000526" asserts="0">
+              <test-case id="1202" name="ScoreFor_AppliesMultiplierAndRounds" fullname="MergeWater.Tests.EditMode.ScoreRulesTests.ScoreFor_AppliesMultiplierAndRounds" methodname="ScoreFor_AppliesMultiplierAndRounds" classname="MergeWater.Tests.EditMode.ScoreRulesTests" runstate="Runnable" seed="1837083679" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000278" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1170" name="Reset_AllowsMilestonesToBeGrantedAgainInNextRound" fullname="MergeWater.Tests.EditMode.StageProgressTests.Reset_AllowsMilestonesToBeGrantedAgainInNextRound" methodname="Reset_AllowsMilestonesToBeGrantedAgainInNextRound" classname="MergeWater.Tests.EditMode.StageProgressTests" runstate="Runnable" seed="853013924" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000231" asserts="0">
+              <test-case id="1204" name="ScoreFor_NonPositiveMultiplier_FallsBackToOne" fullname="MergeWater.Tests.EditMode.ScoreRulesTests.ScoreFor_NonPositiveMultiplier_FallsBackToOne" methodname="ScoreFor_NonPositiveMultiplier_FallsBackToOne" classname="MergeWater.Tests.EditMode.ScoreRulesTests" runstate="Runnable" seed="1706949305" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000184" asserts="0">
                 <properties />
               </test-case>
-              <test-case id="1171" name="TryGetNext_TracksRemainingMilestones" fullname="MergeWater.Tests.EditMode.StageProgressTests.TryGetNext_TracksRemainingMilestones" methodname="TryGetNext_TracksRemainingMilestones" classname="MergeWater.Tests.EditMode.StageProgressTests" runstate="Runnable" seed="616462543" result="Passed" start-time="2026-09-11 05:25:33Z" end-time="2026-09-11 05:25:33Z" duration="0.000294" asserts="0">
+              <test-case id="1203" name="ScoreFor_UnknownLevel_ReturnsZero" fullname="MergeWater.Tests.EditMode.ScoreRulesTests.ScoreFor_UnknownLevel_ReturnsZero" methodname="ScoreFor_UnknownLevel_ReturnsZero" classname="MergeWater.Tests.EditMode.ScoreRulesTests" runstate="Runnable" seed="1735280210" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000193" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="1208" name="StageProgressTests" fullname="MergeWater.Tests.EditMode.StageProgressTests" classname="MergeWater.Tests.EditMode.StageProgressTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.003786" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1210" name="Advance_BelowFirstMilestone_ReturnsNothing" fullname="MergeWater.Tests.EditMode.StageProgressTests.Advance_BelowFirstMilestone_ReturnsNothing" methodname="Advance_BelowFirstMilestone_ReturnsNothing" classname="MergeWater.Tests.EditMode.StageProgressTests" runstate="Runnable" seed="1605215448" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000321" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1209" name="Advance_CrossingMultipleMilestones_ReturnsEachOnce" fullname="MergeWater.Tests.EditMode.StageProgressTests.Advance_CrossingMultipleMilestones_ReturnsEachOnce" methodname="Advance_CrossingMultipleMilestones_ReturnsEachOnce" classname="MergeWater.Tests.EditMode.StageProgressTests" runstate="Runnable" seed="1124209217" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000317" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1214" name="Constructor_WithNullBalance_YieldsEmptyMilestones" fullname="MergeWater.Tests.EditMode.StageProgressTests.Constructor_WithNullBalance_YieldsEmptyMilestones" methodname="Constructor_WithNullBalance_YieldsEmptyMilestones" classname="MergeWater.Tests.EditMode.StageProgressTests" runstate="Runnable" seed="1907119675" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000343" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1213" name="GetNormalizedProgress_IsZeroAtStart_OneWhenAllReached" fullname="MergeWater.Tests.EditMode.StageProgressTests.GetNormalizedProgress_IsZeroAtStart_OneWhenAllReached" methodname="GetNormalizedProgress_IsZeroAtStart_OneWhenAllReached" classname="MergeWater.Tests.EditMode.StageProgressTests" runstate="Runnable" seed="522998508" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000460" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1211" name="Reset_AllowsMilestonesToBeGrantedAgainInNextRound" fullname="MergeWater.Tests.EditMode.StageProgressTests.Reset_AllowsMilestonesToBeGrantedAgainInNextRound" methodname="Reset_AllowsMilestonesToBeGrantedAgainInNextRound" classname="MergeWater.Tests.EditMode.StageProgressTests" runstate="Runnable" seed="1396183833" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000212" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1212" name="TryGetNext_TracksRemainingMilestones" fullname="MergeWater.Tests.EditMode.StageProgressTests.TryGetNext_TracksRemainingMilestones" methodname="TryGetNext_TracksRemainingMilestones" classname="MergeWater.Tests.EditMode.StageProgressTests" runstate="Runnable" seed="534129590" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.000285" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="1260" name="TMPFontAssetTests" fullname="MergeWater.Tests.EditMode.TMPFontAssetTests" classname="MergeWater.Tests.EditMode.TMPFontAssetTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.039852" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1262" name="BundledFont_CoversRequiredTexts_AndPrintablePunctuation" fullname="MergeWater.Tests.EditMode.TMPFontAssetTests.BundledFont_CoversRequiredTexts_AndPrintablePunctuation" methodname="BundledFont_CoversRequiredTexts_AndPrintablePunctuation" classname="MergeWater.Tests.EditMode.TMPFontAssetTests" runstate="Runnable" seed="1860564629" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.008145" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1261" name="BundledFont_Exists_IsStatic_AndSingleAtlas" fullname="MergeWater.Tests.EditMode.TMPFontAssetTests.BundledFont_Exists_IsStatic_AndSingleAtlas" methodname="BundledFont_Exists_IsStatic_AndSingleAtlas" classname="MergeWater.Tests.EditMode.TMPFontAssetTests" runstate="Runnable" seed="685350819" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.002382" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1263" name="EveryTmpText_InMainScene_UsesBundledFont_WithNoDanglingMaterial" fullname="MergeWater.Tests.EditMode.TMPFontAssetTests.EveryTmpText_InMainScene_UsesBundledFont_WithNoDanglingMaterial" methodname="EveryTmpText_InMainScene_UsesBundledFont_WithNoDanglingMaterial" classname="MergeWater.Tests.EditMode.TMPFontAssetTests" runstate="Runnable" seed="795751000" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.027879" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="1264" name="UiArtSlicingTests" fullname="MergeWater.Tests.EditMode.UiArtSlicingTests" classname="MergeWater.Tests.EditMode.UiArtSlicingTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.041079" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1265" name="ArtWithNineSliceBorder_IsImportedAtCanvasReferencePixelsPerUnit" fullname="MergeWater.Tests.EditMode.UiArtSlicingTests.ArtWithNineSliceBorder_IsImportedAtCanvasReferencePixelsPerUnit" methodname="ArtWithNineSliceBorder_IsImportedAtCanvasReferencePixelsPerUnit" classname="MergeWater.Tests.EditMode.UiArtSlicingTests" runstate="Runnable" seed="1792351237" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.015300" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1266" name="SceneSlicedImages_DoNotClampTheirBordersIntoTheWholeRect" fullname="MergeWater.Tests.EditMode.UiArtSlicingTests.SceneSlicedImages_DoNotClampTheirBordersIntoTheWholeRect" methodname="SceneSlicedImages_DoNotClampTheirBordersIntoTheWholeRect" classname="MergeWater.Tests.EditMode.UiArtSlicingTests" runstate="Runnable" seed="1691703166" result="Passed" start-time="2026-09-13 03:47:30Z" end-time="2026-09-13 03:47:30Z" duration="0.023382" asserts="0">
                 <properties />
               </test-case>
             </test-suite>

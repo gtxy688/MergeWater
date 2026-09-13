@@ -1,5 +1,8 @@
 {
     "files.exclude": {
+        "**/.codely": true,
+        "**/.codely-cli": true,
+        "**/.codely.packages": true,
         "**/.DS_Store": true,
         "**/.git": true,
         "**/.vs": true,
