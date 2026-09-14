@@ -156,8 +156,6 @@ namespace MergeWater.Tests.PlayMode
             view.settlementBestText = MakeText(canvasGo.transform, "SettlementBest");
             view.settlementHintText = MakeText(canvasGo.transform, "SettlementHint");
 
-            view.leaderboardPanel = MakePanel(canvasGo.transform, "Leaderboard");
-            view.leaderboardText = MakeText(canvasGo.transform, "LeaderboardText");
 
             view.toastPanel = MakePanel(canvasGo.transform, "Toast");
             view.toastText = MakeText(canvasGo.transform, "ToastText");

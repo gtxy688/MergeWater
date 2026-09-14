@@ -25,9 +25,6 @@ namespace MergeWater.Presentation
         public event Action RetryClicked;
         public event Action ReviveClicked;
         public event Action ShareClicked;
-        public event Action LeaderboardClicked;
-        public event Action LeaderboardCloseClicked;
-        public event Action LeaderboardNextPageClicked;
         public event Action PrivacyAcceptClicked;
         public event Action PrivacyDeclineClicked;
         public event Action PrivacyPolicyClicked;
@@ -98,7 +95,6 @@ namespace MergeWater.Presentation
             _panels[PanelId.Privacy] = view.privacyPanel;
             _panels[PanelId.Settlement] = view.settlementPanel;
             _panels[PanelId.Settings] = view.settingsPanel;
-            _panels[PanelId.Leaderboard] = view.leaderboardPanel;
             _panels[PanelId.AdOverlay] = view.adOverlay;
             _panels[PanelId.Loading] = view.loadingPanel;
 
@@ -115,8 +111,6 @@ namespace MergeWater.Presentation
             Hook(view.retryButton, () => RetryClicked?.Invoke());
             Hook(view.reviveButton, () => ReviveClicked?.Invoke());
             Hook(view.shareButton, () => ShareClicked?.Invoke());
-            Hook(view.leaderboardCloseButton, () => LeaderboardCloseClicked?.Invoke());
-            Hook(view.leaderboardNextPageButton, () => LeaderboardNextPageClicked?.Invoke());
             Hook(view.privacyAcceptButton, () => PrivacyAcceptClicked?.Invoke());
             Hook(view.privacyDeclineButton, () => PrivacyDeclineClicked?.Invoke());
             Hook(view.privacyPolicyButton, () => PrivacyPolicyClicked?.Invoke());
@@ -255,36 +249,6 @@ namespace MergeWater.Presentation
                 view.reviveLabel.text = canRevive ? "复活（看视频）" : "复活已用完";
             if (view.shareButton != null)
                 view.shareButton.gameObject.SetActive(showShare);
-        }
-
-        public void SetLeaderboard(IReadOnlyList<LeaderboardEntry> entries, int page)
-        {
-            if (view?.leaderboardText == null)
-                return;
-
-            var builder = new System.Text.StringBuilder();
-            builder.Append("本地排行榜（第 ").Append(page).Append(" 页）\n\n");
-
-            if (entries == null || entries.Count == 0)
-            {
-                builder.Append("暂无记录，先玩一局吧");
-            }
-            else
-            {
-                for (var i = 0; i < entries.Count; i++)
-                {
-                    var entry = entries[i];
-                    builder.Append(i + 1 + (page - 1) * 20).Append(". ");
-                    if (entry.IsSelf)
-                        builder.Append("<color=#FFD24D>");
-                    builder.Append(entry.Name).Append("  ").Append(entry.Score);
-                    if (entry.IsSelf)
-                        builder.Append("</color>");
-                    builder.Append('\n');
-                }
-            }
-
-            view.leaderboardText.text = builder.ToString();
         }
 
         public void SetToggleStates(bool sfx, bool music, bool vibrate)

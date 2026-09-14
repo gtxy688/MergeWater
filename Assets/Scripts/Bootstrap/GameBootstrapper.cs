@@ -33,7 +33,6 @@ namespace MergeWater.Bootstrap
 
         private HudView _view;
 
-        private int _leaderboardPage = 1;
 
         private float _loadingElapsed;
 
@@ -447,9 +446,6 @@ namespace MergeWater.Bootstrap
             panels.ReviveClicked += OnRevive;
             panels.ShareClicked += OnShare;
             panels.SettingsClicked += OnSettings;
-            panels.LeaderboardClicked += () => ShowLeaderboard(1);
-            panels.LeaderboardCloseClicked += () => panels.Hide(PanelId.Leaderboard);
-            panels.LeaderboardNextPageClicked += () => ShowLeaderboard(_leaderboardPage + 1);
             panels.ItemEntryClicked += OnItemEntryClicked;
             panels.ClearCacheClicked += OnClearCache;
             panels.PrivacyPolicyClicked += () => Context.Notify("隐私政策：MVP 为离线 Demo，不收集可识别个人信息");
@@ -580,19 +576,6 @@ namespace MergeWater.Bootstrap
 
             panels.Show(PanelId.Privacy);
             Context.Notify("已清除本地缓存，请重新确认隐私政策");
-        }
-
-        private void ShowLeaderboard(int page)
-        {
-            _leaderboardPage = Math.Max(1, page);
-            IReadOnlyList<LeaderboardEntry> entries = Context.Leaderboard.GetTop(20, _leaderboardPage);
-
-            panels.SetLeaderboard(entries, _leaderboardPage);
-            panels.Show(PanelId.Leaderboard);
-
-            Context.Analytics.Track(AnalyticsEventNames.LeaderboardView,
-                AnalyticsParam.Int("page", _leaderboardPage));
-            Context.RefreshBadges();
         }
 
         private void TrackSetting(string key, bool value)

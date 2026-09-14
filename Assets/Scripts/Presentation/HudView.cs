@@ -10,7 +10,6 @@ namespace MergeWater.Presentation
         Privacy = 1,
         Settlement = 2,
         Settings = 3,
-        Leaderboard = 4,
         AdOverlay = 5,
         Loading = 6
     }
@@ -76,11 +75,6 @@ namespace MergeWater.Presentation
         public Button antiAddictionButton;
         public Button clearCacheButton;
         public TextMeshProUGUI versionText;
-
-        [Header("排行榜")] public UiPanel leaderboardPanel;
-        public TextMeshProUGUI leaderboardText;
-        public Button leaderboardCloseButton;
-        public Button leaderboardNextPageButton;
 
         [Header("广告占位遮罩")] public UiPanel adOverlay;
         public TextMeshProUGUI adOverlayText;

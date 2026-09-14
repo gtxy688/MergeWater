@@ -118,7 +118,6 @@ namespace MergeWater.Tests.EditMode
             Assert.That(view.sfxSlider.minValue, Is.EqualTo(0f).Within(0.001f));
             Assert.That(view.sfxSlider.maxValue, Is.EqualTo(1f).Within(0.001f));
             Assert.That(view.musicSlider.maxValue, Is.EqualTo(1f).Within(0.001f));
-            Assert.That(view.leaderboardPanel, Is.Not.Null);
             Assert.That(view.toastText, Is.Not.Null);
 
             // 两侧入口（2026-09-14 需求方删除锤子/炸弹/大礼包后，只剩两个道具入口：左 摇一摇、右 清屏）
