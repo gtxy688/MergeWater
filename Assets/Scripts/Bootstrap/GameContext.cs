@@ -114,6 +114,17 @@ namespace MergeWater.Bootstrap
         public void Notify(string message) => _notify(message ?? string.Empty);
 
         /// <summary>
+        /// 广告非成功结果的**统一提示**（2026-09-14 需求方要求六个入口文案一致）：
+        /// 「用户中途关闭」是自己的选择，用温和措辞；失败 / 无广告才让玩家「稍后再试」。
+        ///
+        /// <para>措辞只能用**已烘进字体**的字（硬约束 9）：`Assets/Fonts/ChineseUI SDF.asset` 里没有
+        /// 「消」字，Static 模式下会渲染成空白，所以这里用「未看完广告」而不是「已取消观看广告」；
+        /// 想换成别的措辞，先重跑 `MergeWater/Font/1. 收集字符` + `/2. 烘焙中文 TMP 字体资产`。</para>
+        /// </summary>
+        public static string AdFailureMessage(RewardedResult result) =>
+            result == RewardedResult.Skipped ? "未看完广告" : "暂无可用广告，请稍后再试";
+
+        /// <summary>
         /// 隐私同意后才初始化埋点与广告（R20）。适配器由 <see cref="Meta.AdsAdapterFactory"/> 按模式创建：
         /// Mock（默认，无需广告位）或真实微信激励视频（需要 adUnitId + 微信小游戏真机；否则自动退回 Mock）。
         /// </summary>
@@ -260,11 +271,8 @@ namespace MergeWater.Bootstrap
 
                 if (result != RewardedResult.Completed)
                 {
-                    // 三种非成功结果给不同提示（2026-09-14 需求）：
-                    // 中途关闭 → 温和提示、保留结算页；失败/不可用 → 明确告知稍后再试。
-                    var reason = result == RewardedResult.Skipped
-                        ? "已取消观看广告"
-                        : "暂无可用广告，请稍后再试";
+                    // 中途关闭 / 失败 / 无广告：走统一文案（2026-09-14）
+                    var reason = AdFailureMessage(result);
                     Notify(reason);
                     onResolved?.Invoke(false, reason);
                     return;
@@ -300,7 +308,7 @@ namespace MergeWater.Bootstrap
             if (Ads.IsAvailable)
                 Panels?.SetAdOverlay(true, $"激励视频（测试位）：领取{kind}");
 
-            Economy.RequestItemGrant(kind, (grant, _) =>
+            Economy.RequestItemGrant(kind, (grant, _, ad) =>
             {
                 Panels?.SetAdOverlay(false, null);
 
@@ -311,9 +319,15 @@ namespace MergeWater.Bootstrap
                     RefreshBadges();
                     onGranted?.Invoke();
                 }
+                else if (ad != RewardedResult.Completed)
+                {
+                    // 取消 / 无广告：与复活同一套文案
+                    Notify(AdFailureMessage(ad));
+                }
                 else
                 {
-                    Notify("领取失败，请稍后再试");
+                    // 广告确实看完了，是每日上限或库存拒绝的
+                    Notify(grant == GrantResult.DailyCapReached ? "今日领取次数已用完" : "领取失败，请稍后再试");
                 }
             });
         }
@@ -330,13 +344,14 @@ namespace MergeWater.Bootstrap
             if (Ads.IsAvailable)
                 Panels?.SetAdOverlay(true, "激励视频（测试位）：摇一摇");
 
-            Economy.RequestShakeAd((granted, reason) =>
+            Economy.RequestShakeAd((granted, reason, ad) =>
             {
                 Panels?.SetAdOverlay(false, null);
 
                 if (!granted)
                 {
-                    Notify(reason.Reason);
+                    // 广告没看完 → 统一文案；广告看完了但被放行规则拒绝 → 说清原因
+                    Notify(ad != RewardedResult.Completed ? AdFailureMessage(ad) : reason.Reason);
                     return;
                 }
 
@@ -359,7 +374,7 @@ namespace MergeWater.Bootstrap
             if (Ads.IsAvailable)
                 Panels?.SetAdOverlay(true, "激励视频（测试位）：大礼包");
 
-            Economy.RequestGiftGrant((grant, _) =>
+            Economy.RequestGiftGrant((grant, _, ad) =>
             {
                 Panels?.SetAdOverlay(false, null);
 
@@ -368,6 +383,10 @@ namespace MergeWater.Bootstrap
                     Feedback?.PlayClaim();
                     Notify("大礼包：撤销 / 炸弹 / 锤子 各 +1");
                     RefreshBadges();
+                }
+                else if (ad != RewardedResult.Completed)
+                {
+                    Notify(AdFailureMessage(ad));
                 }
                 else
                 {

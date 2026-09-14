@@ -93,21 +93,26 @@ namespace MergeWater.Meta
         public AdDecisionResult CanGrantItem(ItemKind kind) =>
             AdsPlacementRules.CanGrantItem(kind, _daily, _balance, AdsAvailable, OfflineGrantAll);
 
-        /// <summary>看激励视频领取一次道具（撤销/炸弹/锤子/摇一摇）。</summary>
-        public void RequestItemGrant(ItemKind kind, Action<GrantResult, AdDecisionResult> onComplete)
+        /// <summary>
+        /// 看激励视频领取一次道具（清屏/炸弹/锤子，摇一摇见 <see cref="RequestShakeAd"/>）。
+        /// 回调第三个参数是**广告层结果**：`Skipped` = 用户中途关闭、`Failed/Unavailable` = 广告失败/不可用——
+        /// 透出给 M7 是为了让「取消」与「失败」有不同文案（2026-09-14 需求方要求六个入口一致）。
+        /// </summary>
+        public void RequestItemGrant(ItemKind kind, Action<GrantResult, AdDecisionResult, RewardedResult> onComplete)
         {
             var decision = CanGrantItem(kind);
             if (!decision.IsAllowed)
             {
-                onComplete?.Invoke(GrantResult.DailyCapReached, decision);
+                onComplete?.Invoke(GrantResult.DailyCapReached, decision, RewardedResult.Unavailable);
                 return;
             }
 
             if (!AdsAvailable)
             {
+                // 离线降级（D6）：不发广告直接给，广告结果按「完成」上报，避免 M7 弹失败提示。
                 var offlineResult = _inventory.Grant(kind, _balance);
                 Persist();
-                onComplete?.Invoke(offlineResult, decision);
+                onComplete?.Invoke(offlineResult, decision, RewardedResult.Completed);
                 return;
             }
 
@@ -115,13 +120,13 @@ namespace MergeWater.Meta
             {
                 if (result != RewardedResult.Completed)
                 {
-                    onComplete?.Invoke(GrantResult.Failed, decision);
+                    onComplete?.Invoke(GrantResult.Failed, decision, result);
                     return;
                 }
 
                 var grant = _inventory.Grant(kind, _balance);
                 Persist();
-                onComplete?.Invoke(grant, decision);
+                onComplete?.Invoke(grant, decision, result);
             });
         }
 
@@ -150,13 +155,13 @@ namespace MergeWater.Meta
         public AdDecisionResult CanShake() =>
             AdsPlacementRules.CanGrantItem(ItemKind.Shake, _daily, _balance, AdsAvailable, OfflineGrantAll);
 
-        /// <summary>看激励视频触发一次摇一摇；成功只记录当日次数，不发放库存道具。</summary>
-        public void RequestShakeAd(Action<bool, AdDecisionResult> onComplete)
+        /// <summary>看激励视频触发一次摇一摇；成功只记录当日次数，不发放库存道具。第三个回调参数含义同 <see cref="RequestItemGrant"/>。</summary>
+        public void RequestShakeAd(Action<bool, AdDecisionResult, RewardedResult> onComplete)
         {
             var decision = CanShake();
             if (!decision.IsAllowed)
             {
-                onComplete?.Invoke(false, decision);
+                onComplete?.Invoke(false, decision, RewardedResult.Unavailable);
                 return;
             }
 
@@ -164,7 +169,7 @@ namespace MergeWater.Meta
             {
                 _daily.RecordGrant(ItemKind.Shake);
                 Persist();
-                onComplete?.Invoke(true, decision);
+                onComplete?.Invoke(true, decision, RewardedResult.Completed);
             }
 
             if (!AdsAvailable)
@@ -178,7 +183,7 @@ namespace MergeWater.Meta
                 if (result == RewardedResult.Completed)
                     Finish();
                 else
-                    onComplete?.Invoke(false, decision);
+                    onComplete?.Invoke(false, decision, result);
             });
         }
 
@@ -187,12 +192,13 @@ namespace MergeWater.Meta
         public AdDecisionResult CanGrantGift() =>
             AdsPlacementRules.CanGrantGift(_daily, _balance, AdsAvailable, OfflineGrantAll);
 
-        public void RequestGiftGrant(Action<GrantResult, AdDecisionResult> onComplete)
+        /// <summary>看激励视频领大礼包（每日一次）。第三个回调参数含义同 <see cref="RequestItemGrant"/>。</summary>
+        public void RequestGiftGrant(Action<GrantResult, AdDecisionResult, RewardedResult> onComplete)
         {
             var decision = CanGrantGift();
             if (!decision.IsAllowed)
             {
-                onComplete?.Invoke(GrantResult.DailyCapReached, decision);
+                onComplete?.Invoke(GrantResult.DailyCapReached, decision, RewardedResult.Unavailable);
                 return;
             }
 
@@ -200,7 +206,7 @@ namespace MergeWater.Meta
             {
                 var offline = _inventory.GrantGiftBundle(_balance);
                 Persist();
-                onComplete?.Invoke(offline, decision);
+                onComplete?.Invoke(offline, decision, RewardedResult.Completed);
                 return;
             }
 
@@ -208,13 +214,13 @@ namespace MergeWater.Meta
             {
                 if (result != RewardedResult.Completed)
                 {
-                    onComplete?.Invoke(GrantResult.Failed, decision);
+                    onComplete?.Invoke(GrantResult.Failed, decision, result);
                     return;
                 }
 
                 var grant = _inventory.GrantGiftBundle(_balance);
                 Persist();
-                onComplete?.Invoke(grant, decision);
+                onComplete?.Invoke(grant, decision, result);
             });
         }
 

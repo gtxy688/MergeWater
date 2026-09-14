@@ -162,7 +162,7 @@ namespace MergeWater.Tests.EditMode
             for (var i = 0; i < 3; i++)
             {
                 GrantResult granted = GrantResult.Failed;
-                economy.RequestItemGrant(ItemKind.Bomb, (result, _) => granted = result);
+                economy.RequestItemGrant(ItemKind.Bomb, (result, _, _) => granted = result);
                 Assert.That(granted, Is.EqualTo(GrantResult.Granted), $"第 {i + 1} 次领取应成功");
             }
 
@@ -171,7 +171,7 @@ namespace MergeWater.Tests.EditMode
             Assert.That(decision.Decision, Is.EqualTo(AdDecision.DailyCapReached));
 
             GrantResult fourth = GrantResult.Granted;
-            economy.RequestItemGrant(ItemKind.Bomb, (result, _) => fourth = result);
+            economy.RequestItemGrant(ItemKind.Bomb, (result, _, _) => fourth = result);
             Assert.That(fourth, Is.EqualTo(GrantResult.DailyCapReached));
             Assert.That(economy.ItemCount(ItemKind.Bomb), Is.EqualTo(3), "上限后不再增加");
         }
@@ -185,7 +185,7 @@ namespace MergeWater.Tests.EditMode
             var economy = _context.CreateEconomy(ads);
 
             GrantResult result = GrantResult.Granted;
-            economy.RequestItemGrant(ItemKind.Hammer, (grant, _) => result = grant);
+            economy.RequestItemGrant(ItemKind.Hammer, (grant, _, _) => result = grant);
 
             Assert.That(result, Is.EqualTo(GrantResult.Failed), "广告未完成不发道具");
             Assert.That(economy.ItemCount(ItemKind.Hammer), Is.EqualTo(0));
@@ -199,12 +199,12 @@ namespace MergeWater.Tests.EditMode
             var economy = _context.CreateEconomy();
 
             GrantResult first = GrantResult.Failed;
-            economy.RequestGiftGrant((grant, _) => first = grant);
+            economy.RequestGiftGrant((grant, _, _) => first = grant);
             Assert.That(first, Is.EqualTo(GrantResult.Granted));
             Assert.That(economy.ItemCount(ItemKind.Undo), Is.EqualTo(1));
 
             GrantResult second = GrantResult.Granted;
-            economy.RequestGiftGrant((grant, _) => second = grant);
+            economy.RequestGiftGrant((grant, _, _) => second = grant);
             Assert.That(second, Is.EqualTo(GrantResult.DailyCapReached), "V2.15：大礼包每日 1 次");
             Assert.That(economy.ItemCount(ItemKind.Undo), Is.EqualTo(1));
         }
