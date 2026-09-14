@@ -38,7 +38,7 @@
 
 | 缺口 | 位置 | 影响 |
 |------|------|------|
-| `MiniGameConfig` 未配置：`Appid` / `CDN` / `relativeDST` 全空 | `Assets/WX-WASM-SDK-V2/Editor/MiniGameConfig.asset` | **转换直接失败** |
+| ~~`MiniGameConfig` 未配置~~ → **已配置**（2026-09-14 复核：`Appid`、`relativeDST`、`projectName` 均已填；**`CDN` 仍为空**、`assetLoadType` 仍为 1=包内） | `Assets/WX-WASM-SDK-V2/Editor/MiniGameConfig.asset` | 仅剩 CDN 未配（包体现值见 §C3） |
 | 广告是测试位 | `GameContext.ApplyConsent()` 无条件 new `MockAdsService`（`GameContext.cs:107-124`） | 真机没有广告 → 无收入、复活/道具链路不可用 |
 | 隐私门控是关的 | `GameBootstrapper.cs:32` `requirePrivacyConsent`（场景序列化值） | ⚠️ 未同意隐私即初始化广告/埋点 = 合规事故 |
 | 隐私政策/用户协议/防沉迷是 Toast 占位 | `GameBootstrapper.cs:387-389` | 提审会被驳回 |
@@ -48,7 +48,7 @@
 | `WX.InitSDK` 未调用 | 必须在使用任何 `WX.*` 前调用（`Runtime/WXBase.cs:55`） | 真机 WX API 全失效 |
 | `MergeWater.Meta` 未引用 `Wx` 程序集 | `Assets/Scripts/Meta/MergeWater.Meta.asmdef`（asmdef 之间不自动引用） | 写适配器时编译不过 |
 | 构建场景列表含 `SampleScene` | `ProjectSettings/EditorBuildSettings.asset`（`enabled: 1`） | `GetScenePaths()` 只取 enabled → 白进包（见 §10.1） |
-| URP 需要 WebGL2 | `MiniGameConfig.CompileOptions.Webgl2: 0` | 不开则被设为 `{OpenGLES2}` → URP 渲染失败（见 §10.2） |
+| ~~URP 需要 WebGL2~~ → **不适用**（V2.48 已切回 Built-in RP）；`CompileOptions.Webgl2` 现值 **1**，真机日志实测跑在 `WebGL 2.0(OpenGL ES 3.2)` | — | 无 |
 | `Assets/WX-WASM-SDK-V2/` 是插件硬编码路径 | `WXConvertCore.defaultImgSrc`、`WXEditorSettingHelper`「更多配置项」 | 不能移动/改名 |
 
 ---
@@ -115,7 +115,7 @@
 | B4 | 新增 `WX.InitSDK` 引导 | 在**首场景最早**处调用一次（`WXBase.cs:55` 要求回调后再跑主逻辑）；建议放 M7 引导流程里，位于`BeginEntryFlow()` 之前 | 不调用则所有 WX API 无效 |
 | B5 | `Assets/Scripts/Bootstrap/GameBootstrapper.cs:239-243` | `OnApplicationPause(true)` 之外补 `WX.OnHide` 兜底 + 同步存储 | 见 §10.3 |
 | B6 | EventSystem 所在对象 | 挂 `WXTouchInputOverride`（SDK 自带，`[RequireComponent(typeof(StandaloneInputModule))]`） | Unity WebGL 多点触控粘连，uGUI 按钮会点错 |
-| B7 | `MiniGameConfig.SDKOptions` | 按需评估 `UseCompressedTexture` / `PreloadWXFont`（本工程字体已自烘焙，**不需要**预加载系统字体）/ `disableMultiTouch` | 降低首包与内存 |
+| B7 | `MiniGameConfig.SDKOptions` | ~~按需评估 `UseCompressedTexture`~~ ⚠️ **该字段在本 SDK 版本（202609030748）无效**：全包 grep 只有序列化数据与成员文档引用它，**没有任何 Editor C# 读取**，设置面板的 `formCheckbox` 列表（`WXEditorSettingHelper.cs:363-439`）里也没有这个勾选框；导出产物 `minigame/texture-config.js` 恒为 `USED_TEXTURE_COMPRESSION = false`。贴图压缩的正确做法见 **§C4**。`PreloadWXFont` 仍不需要（字体已自烘焙）；`disableMultiTouch` 按需 | 降低首包与内存 |
 | B8 | 帧率 | 小游戏侧设置目标帧率；`GameBalance`/`TimeDirector` 不动（硬约束 5） | 见 E2 |
 
 **文案改动提醒（硬约束 9）**：B3 一定会新增面向玩家的中文文案。改完**必须**重跑 `MergeWater/Font/1. 收集字符` + `MergeWater/Font/2. 烘焙中文 TMP 字体资产`，否则新字在 Static 模式下渲染为**空白**（`TMPFontAssetTests` 是门禁）。这条在发布阶段最容易忘。
@@ -128,15 +128,15 @@
 
 | 字段 | 当前 | 目标 | 依据 |
 |------|------|------|------|
-| `ProjectConf.Appid` | 空 | A1 的 AppID（`wx` 开头） | 必填 |
-| `ProjectConf.relativeDST` | **空** | 例如 `wx-export`（相对工程根，或绝对路径） | **为空则 PreCheck 直接失败** |
-| `ProjectConf.CDN` | 空 | A7 的 CDN 根 URL | `assetLoadType: 0`=CDN |
-| `ProjectConf.assetLoadType` | 0 (CDN) | 保持 0；若临时本地调试可改 1（小游戏包内），但**总包会超限** | `WXEditorSettingHelper.cs:362` |
+| `ProjectConf.Appid` | ✅ `wx6fccfe6e1ff08b05` | — | 2026-09-14 复核（已填） |
+| `ProjectConf.relativeDST` | ✅ `D:/游戏Demo/MergeWater`（工程外目录） | — | 2026-09-14 复核（已填，PreCheck 可过） |
+| `ProjectConf.CDN` | **仍为空** | A7 的 CDN 根 URL | `assetLoadType: 0`=CDN |
+| `ProjectConf.assetLoadType` | **1（包内分包）** | 配好 CDN 后改回 0 | 当前 `data-package` 12.81 MB 走包内，见 §C3 |
 | `ProjectConf.Orientation` | 0 | 保持 0 = Portrait（竖屏） | `WXEditorSettingHelper.cs:323` |
-| `CompileOptions.Webgl2` | 0 | **可选**——2026-09-13 切 Built-in 后已不是硬要求（见 §10.2） | 勾 = ES3（性能更好，但依赖设备支持 WebGL2）；不勾 = ES2（兼容面更宽） |
+| `CompileOptions.Webgl2` | **1** | 保持 1 | 真机日志实测 `WebGL 2.0(OpenGL ES 3.2)`；§10.2 的 ES2 顾虑已随 Built-in 切换作废 |
 | `CompileOptions.Il2CppOptimizeSize` | 1 | 保持 1（体积优先） | 已在 `WXConvertCore.cs:1201` 映射到 `OptimizeSize` |
 | `CompileOptions.DevelopBuild` | 0 | 调试期可开，**提审必须关** | — |
-| `ProjectConf.projectName` | 空 | 填 `MergeWater` | 导出工程名 |
+| `ProjectConf.projectName` | ✅ `星体大融合` | — | 2026-09-14 复核（`project.config.json` 的 `projectname`） |
 | `ProjectConf.defaultReleaseSize` | 31457280 | 保持（30MB，即平台总包上限的量级） | 佐证包体预算 |
 
 ### C2 构建配置清理
@@ -152,7 +152,21 @@
 |----|------|------|
 | 主包（平台限制 4MB ⚠️） | `game.js` / 框架 / 首屏 | 模板已把 `wasmcode`、`data-package` 拆成**分包**（`Runtime/wechat-default/game.json` 的 `subpackages` + `parallelPreloadSubpackages`），所以 wasm 与首包资源不占主包 |
 | 首包资源（CDN） | `webgl.data`（本工程几乎只有占位图 + 字体 + 配置资产） | 已通过"UI 图移出 Resources"瘦身 −4.9MB |
-| 总包（⚠️ 30MB 量级） | 全部分包之和 | 已由 `defaultReleaseSize: 31457280` 反映 |
+| 总包（⚠️ 30MB 量级） | 主包 + 全部**计入上传**的分包 | 见下方 2026-09-14 实测；`defaultReleaseSize: 31457280` |
+
+> **2026-09-14 更正**：上表「首包资源（CDN）」一行已过期——当前 `CDN` 为空、`assetLoadType: 1`，首包资源走**包内分包**，不是 CDN。
+
+**2026-09-14 实测**（`D:\游戏Demo\MergeWater\minigame`，即真机调试所用那份导出）：
+
+| 项 | 体积 | 计入上传包 |
+|----|------|-----------|
+| 主包（`game.js` / `framework` / `unity-sdk` / `images` / …） | 0.88 MB | ✅（平台限制 4 MB） |
+| 分包 `wasmcode`（`.wasm.br`，已 Brotli） | 6.74 MB | ✅ |
+| 分包 `data-package`（`*.bin.txt`，**未压缩**） | **12.81 MB** | ✅ |
+| `webgl.wasm.symbols.unityweb` + `.br` | 7.86 MB | ❌（`project.config.json` 的 `packOptions.ignore` 按后缀忽略） |
+| **上传合计** | **≈ 20.43 MB** | 主包 0.88 ✅ / 总包 ✅ |
+
+与上一版记录的 27.3 MB（`data-package` 19.70 MB）相比**少了约 6.9 MB**，已确认的结构性差异是 `EditorBuildSettings.asset` 里 `SampleScene` 已移出（见 §10.1）。仍可动的两个开关：`compressDataPackage`（Brotli 压首包资源，代价是首启 +约 200 ms）与 CDN（`assetLoadType: 0`，让首包资源不占总包）。
 
 **本项目最大的包体风险曾是 URP** —— 2026-09-13 已按 V2.48 **切回 Built-in RP** 解决（URP 会带进一整套 shader 变体与管线代码，而本工程一个 URP 特性都没用）。当时的核对结论留档：
 
@@ -160,7 +174,32 @@
 2. 工程内**只有 TMP 自带的两个示例材质**（`.mat`），没有任何项目材质依赖 URP shader；
 3. URP 的**唯一**绑定点是 `GraphicsSettings.m_CustomRenderPipeline`（QualitySettings 各档全是 `{fileID: 0}`）—— 所以切换只需两处改动。
 
-剩下可做的减重（按收益排序）：① 核对已用 UI 图的纹理压缩格式；② `Resources/` 继续只留运行时 `Load` 的东西（硬约束 10）；③ 按真机表现决定是否开 `UseCompressedTexture`。
+剩下可做的减重（按收益排序）：① ~~核对已用 UI 图的纹理压缩格式~~ → **已完成，见 §C4**；② `Resources/` 继续只留运行时 `Load` 的东西（硬约束 10）；③ ~~按真机表现决定是否开 `UseCompressedTexture`~~ → **该开关在本 SDK 版本无效，见 §B7 / §C4**。
+
+### C4 贴图压缩：真机上的 DXT5 解压（2026-09-14 实测并修复）
+
+**现象**（微信小游戏真机调试日志，Redmi `23113RKC6C` / Android / arm64-v8a）：
+
+```
+WARNING: RGBA Compressed DXT5|BC3 UNorm format is not supported, decompressing texture
+```
+
+**根因链**（每一环都有实测证据）：
+
+| # | 环节 | 证据 |
+|---|------|------|
+| 1 | Unity **WebGL 平台的「自动」贴图格式是 DXT**（带 alpha 的图 → DXT5/BC3） | 46 张工程贴图的 `WebGL` 平台项全是 `overridden: 0` + `textureFormat: -1`；`ProjectSettings/ProjectSettings.asset:407` 的 `m_BuildTargetDefaultTextureCompressionFormat: []` 也是空的 |
+| 2 | Android 基本不支持 S3TC/DXT，但**支持 ASTC 与 ETC2** | 同一份真机日志的扩展列表里有 `WEBGL_compressed_texture_astc` 与 `WEBGL_compressed_texture_etc`，**没有** `WEBGL_compressed_texture_s3tc` |
+| 3 | 于是运行时把 DXT5 **解压成 RGBA32** | 即上面那条 WARNING。RGBA32 = 4 B/px，是 DXT5 的 4 倍、ASTC 6×6 的 9 倍，且首屏要付解压耗时 |
+| 4 | SDK 自带的压缩纹理兼容层是关的 | 导出产物 `minigame/texture-config.js` 第 1 行：`GameGlobal.USED_TEXTURE_COMPRESSION = false` |
+
+**修法（2026-09-14 已落地）**：给工程自产贴图的 `WebGL` 平台项加显式覆盖 = **`ASTC_6x6`（枚举值 50）**，共 46 个 `.png.meta`（`Assets/UI/Art` 30 + `Assets/Resources` 15 + `Assets/Art/Vfx` 1）。UI 图集 `Assets/Atlases/UIAtlas.spriteatlas` 的 WebGL 项**本来就是** `50`，无需改动。门禁：`Assets/Tests/EditMode/Presentation/WebGlTextureFormatTests.cs`（2 项）。
+
+微信官方对 2021 以上引擎的建议正是「直接使用引擎自身的 ASTC 压缩格式」；设备不支持 ASTC 时 Unity 仍会走「解压成 RGBA32」的老路，因此**不会比现状更差**。
+
+> ⚠️ **命名陷阱**：`ASTC_RGB_6x6`（48–53）与 `ASTC_RGBA_6x6`（54–59）是 **Unity 2019.1 之前**的旧名字，在 2022.3 里已标 `[Obsolete]`。自 2019.1 起 `ASTC_NxN` 的官方标签就是 **「RGB(A)」**——带 alpha 的贴图**保留透明通道**（Unity 自带包 `com.unity.2d.psdimporter` 的 `TexturePlatformSettingsModal`，`#if UNITY_2019_1_OR_NEWER` 分支）。所以看到序列化值 `50` **不要**误判成「RGB、丢了 alpha」；写代码也只用现代名字 50，避免 CS0618 破坏工程的 0 warning。
+
+**仍需真机复核（本机跑不出结论）**：导出一次 → 真机调试，确认上面那条 WARNING 消失，并顺带记录冷启动（清缓存）耗时与包体变化。若以后要换 ETC2（牺牲体积换更老的设备覆盖），改门禁里那一个常量 + 重跑 46 个 `.meta`。
 
 ---
 
@@ -216,6 +255,7 @@
 | E5 | 冷启动时间 | 首屏可接受（`LoadingMinSeconds` 与 CDN 命中率相关） |
 | E6 | 断网/弱网 | 有可读提示，不白屏 |
 | E7 | 音频 | 首次触摸后能出声（小游戏音频需用户交互解锁） |
+| E8 | 贴图压缩（2026-09-14 新增） | 真机调试日志里**不得**再出现 `RGBA Compressed DXT5|BC3 UNorm format is not supported, decompressing texture`（出现即说明 WebGL 平台覆盖没生效，显存 ×4，见 §C4）。同时收一份**清缓存后的冷启动**日志：报告里应看到真实的 wasm/data 下载耗时，而不是 `资源有缓存` |
 
 ---
 
@@ -322,3 +362,41 @@ SDK 的 `Editor/Node` 只带 `binaryen`，需系统 Node。本机 v26.7.0 属于
 | 开发者工具「优化建议」弹窗 | 是**建议不是错误**，可忽略。三条的处置：①「首包资源较大」= 启动要下的 `data-package` **19.70 MB**（因 `assetLoadType: 1` 包内）→ 正解是 A7 配 CDN / 云开发后改回 `assetLoadType: 0`；②「未使用 wasm 代码分包」与 ③「未使用预下载」**本工程已配好**（`minigame/game.json` 的 `subpackages` + `parallelPreloadSubpackages`），属工具通用提示 |
 | EditMode 测试 | `Unity.exe -batchmode -nographics -projectPath <工程> -runTests -testPlatform editmode -testResults Logs/editmode-results.xml -logFile Logs/editmode.log` |
 | PlayMode 测试 | 同上，`-testPlatform playmode` |
+
+## A7 补充：CDN 怎么开通（2026-09-14 落地指南）
+
+本节回答 §「仍待确认」里的那条悬而未决的问题（"用微信云开发还是自备已备案域名"），并给出可执行步骤。
+插件侧已核实：`cdn` 只是一个纯 URL 输入（`WXEditorSettingHelper.cs:321`），**插件不会替你上传资源**——
+那条「构建后自动上传首包」注明"仅在开启 AutoStreaming 生效"，不是通用 CDN 上传。
+
+### 三条路，按省事程度排序
+
+**方案 A：微信云开发「静态网站托管」（个人开发者推荐）**
+1. 小游戏后台 → 云开发 → 开通（按量付费，个人可开）
+2. 云开发控制台 → 静态网站托管 → 开通（自带 HTTPS 域名 `xxx.tcloudbaseapp.com`，**免备案**）
+3. 按**原目录结构**上传导出产物里需放 CDN 的资源（有 `.br` 一并上传）
+4. 小游戏后台 → 开发 → 开发设置 → 服务器域名 → **downloadFile 合法域名**：加入该域名
+5. 插件导出面板：`cdn` 填该域名、`assetLoadType` 改 **CDN(0)** → 生成并转换
+6. 真机预览验证可正常进入游戏
+
+**方案 B：自备域名 + 对象存储 + CDN（腾讯云 COS / 阿里云 OSS）**
+买域名 → ICP 备案（大陆节点必须）→ 建桶（公有读）→ 上传资源 → 绑自定义域名 + 免费 HTTPS 证书 →
+可选开 CDN 加速 → 域名加入 downloadFile 合法域名 → 填入 `cdn`。比 A 麻烦，但域名可控、流量更便宜。
+
+**方案 C：微信 AutoStreaming**
+插件里 `autoUploadFirstBundle`「构建后自动上传首包」注明"仅在开启 AutoStreaming 生效"，
+且开启后插件会用 `GetInstantGameAutoStreamingCDN()` **自动填写 `cdn` 字段**（`WXEditorSettingHelper.cs:604`）。
+若小游戏后台提供该能力入口，这是最省事的路径（无需自备域名）。**先查后台有没有入口再决定**。
+
+### 四个硬约束（任何方案都适用）
+
+1. 必须 **HTTPS**
+2. 域名必须登记在**小游戏后台的 downloadFile 合法域名**，否则真机报 `url not in domain list`
+3. 大陆节点域名必须 **ICP 备案**（云开发默认域名免备案）
+4. **上传时目录结构与文件名不得改动**（插件按相对路径 + hash 查找），有 `.br` 一起上传
+
+### 验证顺序（一次只改一个变量）
+
+配好托管并上传 → 加合法域名 → 导出面板填 `cdn` 且 `assetLoadType = CDN(0)` → **真机预览能进游戏** →
+再跑真机性能面板，确认「未使用 wasm 代码分包 / 未使用预下载能力」两条建议是否消失。
+若真机加载失败：先把 `compressDataPackage` 关掉重导一次，用于区分"压缩问题"与"域名/路径问题"。
