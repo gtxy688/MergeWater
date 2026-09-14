@@ -26,9 +26,7 @@
 
 `NewRound()`：解绑上一局 `SessionEvents` 订阅 → `field.ClearAll()` → 新建 `RoundSession` → `hud.Bind(session, aim, balance)` → `aim.SetInteractable(true)` → `session.StartRound()` → 引导：若为首局则启动 `TutorialDirector`。
 
-输入编排：`AimController.DropRequested` → `session.ReleaseDrop(x)`；`AimController.ItemTargetRequested` → `ItemUseController.Apply(kind, point)`：校验 `economy` 库存 → 调用对应场地方法（炸弹/锤子）或 `session`/`field`（清屏/摇一摇，摇一摇先要广告放行）→ 扣减库存 → `session.NotifyItemUsed(kind, result)` 发事件 → `analytics.Track`。全程在 `session.Snapshot.Phase == Playing` 且非瞄准广告时执行。
-
-`TutorialDirector`：读取存档 `tutorialFlags`；第 1 局显示「按住拖动—松手」箭头、首次合成高亮、越线前脉冲预警（由 `DangerStarted` 触发）；前 3 局结算页显示分享/排行引导；标记写回存档。
+输入编排：`AimController.DropRequested` → `session.ReleaseDrop(x)`；第 1 局显示「按住拖动—松手」箭头、首次合成高亮、越线前脉冲预警（由 `DangerStarted` 触发）；前 3 局结算页显示分享/排行引导；标记写回存档。
 
 红点汇总：`ItemUseController`/`EconomyService` 计算「存在可领取机会」与「被超越」状态 → `PanelController.SetBadge`。
 

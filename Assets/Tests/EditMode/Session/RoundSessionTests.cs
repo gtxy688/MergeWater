@@ -283,11 +283,11 @@ namespace MergeWater.Tests.EditMode
             Assert.That(_grantedItems[1].Score, Is.EqualTo(500));
             Assert.That(_grantedItems[2].Score, Is.EqualTo(1000));
 
-            var rewards = new List<ItemKind>();
-            foreach (var milestone in _grantedItems)
-                rewards.Add(milestone.Reward);
-
-            Assert.That(rewards, Is.Unique, "每个里程碑奖励只发放一次");
+            // V2.58：道具裁到只剩「清屏 / 摇一摇」两种，三个里程碑的奖励不再可能互不相同，
+            // 因此把原来的 Is.Unique 断言改成逐档断言具体奖励（配置本身由 GameBalanceTests 守住）。
+            Assert.That(_grantedItems[0].Reward, Is.EqualTo(ItemKind.Undo), "200 分 → 清屏");
+            Assert.That(_grantedItems[1].Reward, Is.EqualTo(ItemKind.Undo), "500 分 → 清屏（原炸弹）");
+            Assert.That(_grantedItems[2].Reward, Is.EqualTo(ItemKind.Shake), "1000 分 → 摇一摇（原锤子）");
         }
 
         // A10 + E4

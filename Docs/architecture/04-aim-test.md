@@ -1,7 +1,7 @@
 # M4 Aim 验收文档
 
 > 对应架构：`04-aim.md`
-> 对应需求：`Docs/requirements.md` 的 R1、R2、R8、R11、R12、R13
+> 对应需求：`Docs/requirements.md` 的 R1、R2、R8、R11（R12/R13 已于 V2.58 删除）
 
 ## 自动化测试计划与证据
 

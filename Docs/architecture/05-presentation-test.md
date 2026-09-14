@@ -1,7 +1,7 @@
 # M5 Presentation 验收文档
 
 > 对应架构：`05-presentation.md`
-> 对应需求：`Docs/requirements.md` 的 R6、R8、R10、R12、R18、R20、R21、R22、R23、R25、R27
+> 对应需求：`Docs/requirements.md` 的 R6、R8、R10、R18、R20、R21、R22、R23、R25、R27
 
 ## 自动化测试计划与证据
 
@@ -20,6 +20,8 @@
 | A13 | EditMode | `Assets/Tests/EditMode/Bootstrap/HudLayoutTests.cs::SettingsPanel_BottomBlock_SitsAboveTheBottomEdgeWithBalancedSpacing` | 设置面板底部块（版本/关闭）几何不变量：关闭按钮下沿距面板底 90–200（V2.41 上移后为 100）、底部块与「清除缓存」空档 80–200（上移后为 94）、版本号在关闭按钮之上 | 需求方（2026-09-12）「把底部上移一点」：原值 60 导致重心偏低（上方空档 134 / 下方仅 60）。**反证**：把场景里的 y 改回 60 后该用例失败（`Expected ≥ 90.0f, But was 60.0f`） | PASS |
 | A14 | EditMode | `Assets/Tests/EditMode/Presentation/UiSourceOfTruthTests.cs`（3 项：`RuntimeSources_DoNotCreateUiComponents`、`RuntimeAssemblies_DoNotReferenceTheEditorAssembly`、`HudViewFields_AreFilledFromTheSceneNotFromCode`） | UI 来源不变量：界面只来自场景资产、**只靠手动编辑**——运行时代码不得 `AddComponent` 任何 UI 组件（`Canvas`/`Image`/`Button`/`Toggle`/`Slider`/TMP/`HudView`/`PanelController`…），运行时程序集不得引用 `MergeWater.Editor`（编辑器工具不进运行时装配），`HudView` 不得有属性 setter（UI 引用只能由场景序列化提供） | **UI 改为「运行前就存在」后新增**（2026-09-12 需求方要求方便调整）；2026-09-13 生成器被删除后，前两项从「按类型名扫反射」改为**源码扫描**门禁——生成器不存在了，扫反射会变成空断言 | PASS |
 | A15 | EditMode | `Assets/Tests/EditMode/Presentation/SpriteAtlasTests.cs`（4 项：UI 图集内容与 `Assets/UI/Art` 实际文件一致、排除项没进图集、尺寸 ≤ 2048、星球图集条件校验） | UI 图集必须真的覆盖它该覆盖的 27 张小图、且**不含**满屏大图（`bg_star`/`Gamebg`/`bg_night`）；尺寸上限 ≤ 2048（ES2 只保证 2048²）；新增美术若既没进图集也不在排除名单里 → 红灯（漂移守卫） | 需求方（2026-09-14）「帮我打一下图集」；实测收益：开局无堆叠 `Batches 12 → 3`、堆满星球 `20 → 15` | PASS |
+| A16 | EditMode | `Assets/Tests/EditMode/Core/FruitAccentPaletteTests.cs`（6 项：`AccentPalette_MatchesTheActualPlanetArt_SoTheArtCannotDriftSilently`、`AccentPalette_CoversEveryTier_AndRejectsOutOfRange`、`AccentColors_AreNotTheFruitPalette_SoTheRegressionCannotComeBack`、`BurstColorForLevel_UsesPlanetAccent_WhenArtExists`、`BurstColorForLevel_FallsBackToFruitPalette_WhenArtIsMissing`、`BurstColorForLevel_OutOfRange_FallsBackWithoutThrowing`）+ `Assets/Tests/EditMode/Bootstrap/SceneAssetTests.cs::MergeParticle_UsesSpaceVfxSprite_NotTheFruitPlaceholder`（真场景） | 合成特效取色与形态的不变量：① `FruitAccentPalette` 必须与 10 张 planetNN.png **按同一口径实测**的主色一致（口径 = 不透明像素中饱和度最高 20% 的 RGB 均值；容差 4/255）——美术换了而表没跟着改会立刻红灯；② 星球主色不得退回水果色板（整体距离守卫）；③ 有美术 → 星球主色、缺图/越界 → 水果色板且不抛异常；④ 真场景里合成粒子的贴图必须是 `Assets/Art/Vfx/merge_spark.png`，不得再用水果占位圆片 | 需求方（2026-09-14）「项目从水果变成行星了，合成特效有点违和感」。根因：V2.44 换美术、V2.52 改文案后，**合成粒子仍停留在水果时代**（贴图 = 水果占位圆片、颜色 = 水果色板）。**反证（隔离副本实测）**：把 L1 主色改回葡萄紫 → 2 项红（`Expected: 0.343911201f, But was: 0.560000002f`）；把粒子贴图换回 `fruit_circle` → 1 项红（`Expected: "Assets/Art/Vfx/merge_spark.png", But was: "Assets/Resources/Placeholder/fruit_circle.png"`） | PASS |
+| A17 | PlayMode | `Assets/Tests/PlayMode/Bootstrap/BootstrappedSceneTests.cs::Merge_ProducesVisibleFeedback`（本次扩充） | 真场景端到端：真实「按下→松手」投放两颗 9 级星球 → 合成 10 级；断言 **合成火花的颜色 = 结果星球（planet09）主色提亮一档**、**尺寸 = `ParticleBurst.SparkWorldSize`（0 档连击基准 0.18）**。读的是 `ParticleBurst.Play` 同步写入的配置值，不依赖 headless 下的粒子模拟，因此确定性成立 | **V2.56 扩充**。这条断言同时守住「`GameBootstrapper` 真的把 `FruitArt` 注入了 `FeedbackDirector`」——漏注入**不会报错**，只会静默退回水果色板。**反证（隔离副本实测）**：摘掉 `feedback.SetFruitArt(fruitArt)` 一行 → `Expected: 0.553000033f +/- 0.001f, But was: 0.347499996f`（正是水果色板里 10 级「西瓜绿」的提亮值） | PASS |
 | A10 | EditMode | `Assets/Tests/EditMode/Presentation/BackdropViewTests.cs`（5 项：`Backdrop_CoversWholeCameraView_竖屏/横屏/正方形`、`Backdrop_RefitsWhenCameraAspectChanges`、`Backdrop_WithoutSprite_DoesNotThrow`） | 背景必须按 cover 盖满任意宽高比的视口（1080×1920 / 1920×1080 / 1:1）、居中于相机、缩放贴近理论 cover 值；超宽屏（2.2:1）重新贴合后仍盖满；素材缺失时不抛异常且不动 Transform | **2026-09-12 需求方「背景图太丑，换一个」后新增**（D14）：cover 逻辑写错就会露出相机清屏色边带，逻辑测试抓不到 | PASS |
 | A11 | EditMode | `Assets/Tests/EditMode/Bootstrap/SceneAssetTests.cs::Backdrop_IsBehindEveryWorldElement`、`HudView_RequiredElementsAreWired`（本次扩充） | 场景必须有背景节点且排序值为负（低于场景里每一个 `SpriteRenderer`/`LineRenderer`，否则挡住玩法画面）；指派了素材时渲染器必须启用。设置页必须有音效/音乐两条音量条与分段填充，取值范围 0..1 | **同上新增**：需求方反馈「音量条丢失」；背景断言随后改为兼容「换回原来的纯色底」 | PASS |
 | A12 | PlayMode | `Assets/Tests/PlayMode/Bootstrap/BootstrappedSceneTests.cs::VolumeSliders_AreWiredAtRuntime_AndChangeAudio`、`Backdrop_CoversViewport_AndSitsBehindTheGameplay` | 真场景端到端：拖动音量条必须立刻改 `AudioDirector` 音量、写入存档、并让分段填充跟随；**取消勾选对应开关后音量条必须不可调、勾回来恢复且档位保留**。背景节点必须在场且排序在水果之前；指派了素材时还要盖满视口并在宽高比变化后重贴合（**2026-09-13 起走「有素材」分支**：`bg_star` 已启用） | **同上新增**（R25「即时生效并写入存档」+ 2026-09-12「取消勾选时禁止调节大小」） | PASS（2026-09-13 启用背景素材后复跑仍全绿） |
@@ -58,6 +60,7 @@
 | H8 | 观察对局背景（竖屏）+ 落点预览线与警戒线的可辨识度 | 背景为 `bg_star` 星体主视觉、铺满且无黑边/色带；**水果、落点预览线、警戒线在高对比高饱和背景上仍清晰可辨**（这是本次换图最大的观感风险）；顶部标题不被顶栏分数区压成杂乱 | Editor | 待执行（需人工目视） | 待手动验收（观感 + 可读性） | A10/A11/A12；若观感打架，直接在场景里改 `Backdrop` 的 SpriteRenderer.Color 压暗（如 0.55/0.55/0.62），无需改代码 |
 | H5 | 首次进入查看隐私弹窗与结算页引导 | 首启必现隐私弹窗；前 3 局结算页出现分享/排行引导 | Editor | 待执行 | 待手动验收 | R20/R23 |
 | H6 | 真机竖屏试玩 3 分钟 | 60fps 稳定，UI 不被微信胶囊遮挡，触屏落点准确 | 真机 | 待执行 | 待手动验收 | V3 |
+| H9 | 连续合成不同等级的星球（尤其 1 级青蓝星球与 9/10 级暖色星球），观察合成瞬间的火花 | 火花是**四芒星**形态（不是圆点）、向外炸开后淡出收缩，**颜色与刚合成出的那颗星球同色系**（青蓝星球 → 青蓝火花，不该再出现葡萄紫/西瓜绿这类水果色）；连击越高越亮越大 | Editor | 已执行（运行时脚本 + 录屏） | 待手动验收（观感） | A16/A17、V2.56。**运行时实测**：10 个等级的火花色分别 = 对应星球主色提亮一档（如 L1 `(0.508,0.726,0.783)`、L10 `(0.553,0.441,0.727)`），与水果色板距离 0.39~1.28（确实换掉了）。**视频复核**（`screenshots/mergefx-sparks-v3.mp4`，7.5× 慢放）：四芒星形态可见、向外辐射并淡出、观感属「星尘/宇宙火花」。**仍需人工确认**：1080×1920 竖屏下的实际亮度/尺寸是否合意（单颗 0.18 世界单位） |
 
 > 中文渲染备注（决策 D9）：UI 用 uGUI 旧版 `Text` + 运行时解析的系统 CJK 字体。若目标设备缺少候选中文字体，会回退内置字体并告警一次，此时中文可能显示为方块——需要在真机 H6 中确认。
 
@@ -94,4 +97,5 @@
 - 不适用：无。
 - 待手动验收：H1–H6（观感、手感、真机帧率）、H7–H8（音量条触感、背景观感）。中文渲染已在真工程中确认解析到系统中文字体 `Microsoft YaHei`，真机仍需确认。**H2 本轮追加待验内容**：`pop.ogg` 的实际听感与连击变调是否自然。
 - 未验证：无（此前遗留的「PlayMode 全量未运行」已在本轮批处理运行中补跑：EditMode 116/116 + PlayMode 85/85，`failed=0`）。
+- **追加（2026-09-14，V2.56 合成特效行星主题化）**：已验证 A16/A17 与 A1–A15 的回归——隔离副本 `E:\MergeWaterVerify` 全量 **EditMode 147/148**（唯一失败是**既存**的 `HudLayoutTests.SettingsPanel_BottomBlock_SitsAboveTheBottomEdgeWithBalancedSpacing`：场景里 `CloseButton` 被手工改到距底 216、门槛上限 200，本轮未触碰面板几何，与本改动无关）、**PlayMode 87/87**、`failed=0`。反证两项均成立（改回水果主色 / 换回水果占位贴图 / 摘掉 `FruitArt` 注入 → 各自红在预期断言上）。结果 XML：`E:\MergeWaterVerify\Logs\final-editmode.xml`、`final-playmode.xml`、`red-mergefx.xml`、`red-inject.xml`。**待手动验收**：H9（火花观感、亮度、与星球配色是否协调）。
 - 未通过：无。

@@ -1,11 +1,11 @@
 # M2 Field 对局场地
 
-> 相关需求：`Docs/requirements.md` 的 R2、R3、R6、R11、R12、R13、R14、V3
+> 相关需求：`Docs/requirements.md` 的 R2、R3、R6、R11、R14、V3（R12/R13 已于 V2.58 删除）
 > 验收文档：`02-field-test.md`
 
 ## 职责边界
 
-- 本模块负责：水果实体的生成/销毁与视觉同步、2D 物理堆叠参数、同级碰撞到合成的解析与吸附时序、越线物理查询、道具对场地的直接作用（清屏/炸弹/锤子/摇一摇）、场地边界与仿真开关。
+- 本模块负责：水果实体的生成/销毁与视觉同步、2D 物理堆叠参数、同级碰撞到合成的解析与吸附时序、越线物理查询、道具对场地的直接作用（清屏/摇一摇）、场地边界与仿真开关。
 - 本模块不负责：得分与连击计算（M3）、投放等级决策（M3）、指针输入与瞄准（M4）、库存与广告（M6）、HUD 表现（M5 负责订阅事件后的表现）。
 - 本模块实现 `Core.IFieldPort`。
 
@@ -61,8 +61,7 @@
 ### 道具对场地的作用
 
 - 清屏（原「撤销」，2026-09-13 需求方改写 R11）：直接调用 `ClearAll()` 清空全场——不再有「最后一颗投放记录」这一概念，配套的 `DropRecord` / `IFieldPort.TryPeekLastDrop` / `GameField.MarkLastDropMerged` 已一并删除。是否可用（空场拒绝、扣库存、Toast 文案）由 M7 的 `ItemUseController.UseClearField` 判断。
-- 炸弹：`RemoveFruitInRadius(point, 0.6m)` 移除半径内全部水果（V2.17），返回移除数量。
-- 锤子：`RemoveSingleNearest(point, maxRadius, out id)` 只移除最近的一颗。
+- 炸弹 / 锤子（**V2.58 删除**）：原 `RemoveFruitInRadius` / `RemoveSingleNearest` / `HasFruitInRadius` 已从 `IFieldPort` 与 `GameField` 一并移除——入口、瞄准模式与数值（`BombRadius`/`HammerMaxRadius`）也都不在了。
 - 摇一摇：`ApplyShakeShuffle(impulse, seed)` 对全场水果施加小幅确定性随机冲量（同一 seed 可复现），不直接移除任何水果（R14）。
 - 边界：道具作用于空场地时返回 0/false，不报错。
 

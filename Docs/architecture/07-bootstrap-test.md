@@ -12,7 +12,7 @@
 | A3 | PlayMode | `Assets/Tests/PlayMode/Bootstrap/BootstrapFlowTests.cs::WhenPrivacyNotAccepted_AnalyticsAndAdsAreNotInitialized_AndPanelShown`、`Analytics_BeforeConsent_DropsEvents` | 未同意隐私时零上报零广告并显示隐私弹窗 | 实现前无门控 | PASS |
 | A4 | PlayMode | `Bootstrap/BootstrapFlowTests.cs::AfterPrivacyAccepted_RoundStartsDirectlyWithoutHomePage`、`AcceptButton_InitializesAnalyticsAndStartsRound`、`SharedScene_OnAccept_RoundIsPlayableThroughRealAimPath` | 同意后直接进入可操作对局（R26）；真实「按下→松手」路径能完成首投 | 同上 | PASS |
 | A5 | PlayMode | `Bootstrap/RoundLifecycleTests.cs::NewRound_ResetsScoreComboDangerAndQueue_WithoutLeakingPreviousEvents`、`RetryButton_CompletesRoundAndStartsNewOne` | 重开一局完整重置、旧局事件不串局；「再来一局」结算并累计局数 | 实现前无 `NewRound` | PASS |
-| A6 | PlayMode | `Bootstrap/ItemUseTests.cs`（7 项，含 `UseBomb_DeductsStockAndRemovesFruits`、`ClearField_RemovesEveryFruit_AndDeductsStock`、`ClearField_OnEmptyField_IsRejectedWithoutSpendingStock`、`CancelAim_DoesNotDeductStockOrRemoveFruit`、`EmptyStock_PlaysRewardedAdThenContinuesToAim`、`Shake_PlaysAd_MovesFruitsAndConsumesDailyQuota`、`UseBomb_WithNoFruitInRadius_DoesNotDeductStock`） | 道具生效与扣减一致；库存为 0 时先看广告再自动继续使用（D11）；取消/空放都不扣库存。**2026-09-13：「撤销」改清屏后，原 `Undo_RemovesLastUnmergedDrop_AndDeductsStock` 改写为两条用例**（清空全场并扣 1；空场拒绝且不扣） | 实现前无编排 | PASS |
+| A6 | PlayMode | `Bootstrap/ItemUseTests.cs`（3 项：清屏全场清除与扣库存、空场清屏被拒绝不扣库存、摇一摇播广告后重排且消耗当日额度） | 道具入口只剩清屏与摇一摇（V2.58 删除炸弹/锤子后同步删掉 4 项瞄准用例） | PASS（V2.58 批次） |
 | A7 | PlayMode | `Bootstrap/MilestoneRewardTests.cs::MilestoneReached_GrantsItemOnceAndPersists`、`MilestoneReached_IsNotGrantedTwiceInSameRound` | 阶段目标奖励每局每节点一次并写入存档 | 同上 | PASS |
 | A8 | PlayMode | `Bootstrap/RoundLifecycleTests.cs::Revive_WhenAdCompletes_RemovesClusterAndResumes_ThenSecondAttemptRejected`、`Revive_WhenAdSkipped_KeepsRevivingState` | 复活只播放一次广告；完成后清簇续玩并写冷却；广告未完成时状态不变 | 同上 | PASS |
 | A9 | PlayMode | `Bootstrap/BootstrapFlowTests.cs::MissingFieldReference_LogsErrorAndDoesNotThrow` | 场景缺少 `GameField` 时记录错误并停止对局初始化，不抛未捕获异常 | 同上 | PASS |
@@ -38,7 +38,7 @@
 |------|----------|----------------|------------|-------------|------|------------|
 | H1 | 首次启动（无存档） | 必现隐私弹窗；同意后直接进入可操作对局，无独立开始页 | Editor | 待执行 | 待手动验收 | R20/R26（自动化已验证门控与直接开局） |
 | H2 | 首局按提示完成第一次合成 | 出现拖动箭头、首次合成高亮、越线预警；前 3 局结算页有分享/排行引导 | Editor | 待执行 | 待手动验收 | R23 |
-| H3 | 依次使用清屏/炸弹/锤子/摇一摇 | 各自效果符合 R11–R14（R11 已改为**清屏**），数量正确扣减，摇一摇不直接消除水果；**空场时点清屏应被拒绝且不扣库存** | Editor | 待执行 | 待手动验收 | R11–R14（自动化已验证效果与扣减） |
+| H3 | 依次使用清屏、摇一摇 | 各自效果符合 R11/R14（R12/R13 已删除）：清屏一次性清空全场且扣 1 库存、**空场时被拒绝且不扣库存**；摇一摇经激励视频后全场轻微重排、不直接消除水果 | Editor | 待执行 |
 | H4 | 真机竖屏完整试玩一局 | 3 秒内理解操作；单局 2–4 分钟；中端机 60fps；顶部设置按钮不被微信胶囊遮挡 | 真机 | 待执行 | 待手动验收 | GDD §12、V3 |
 | H5 | 启动游戏（含慢机/编辑器卡顿、失焦后切回） | 进度条从 0 看得见地走到 100%，再提示「点击开始」；不会一上来就是 100% 且静止 | Editor + 真机 | 待执行 | 待手动验收 | V2.35（2026-09-12「进度条永远是 100%、不会动」；自动化已用 3 s 单帧卡顿复现并锁定） |
 

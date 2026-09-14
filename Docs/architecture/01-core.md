@@ -1,6 +1,6 @@
 # M1 Core 契约与领域规则
 
-> 相关需求：`Docs/requirements.md` 的 R1、R2、R3、R4、R5、R6、R7、R8、R9、R10、R11–R15、R22、R24
+> 相关需求：`Docs/requirements.md` 的 R1、R2、R3、R4、R5、R6、R7、R8、R9、R10、R11、R14、R15、R22（R12/R13 已于 V2.58 删除）、R24
 > 验收文档：`01-core-test.md`
 
 ## 职责边界

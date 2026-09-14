@@ -1,6 +1,6 @@
 # M5 Presentation 表现与反馈
 
-> 相关需求：`Docs/requirements.md` 的 R6、R8、R10、R12、R13、R18、R20、R21、R22、R23、R25、R26、R27
+> 相关需求：`Docs/requirements.md` 的 R6、R8、R10、R18、R20、R21、R22、R23、R25、R26、R27
 > 验收文档：`05-presentation-test.md`
 
 ## 职责边界
@@ -36,6 +36,12 @@ UI 文本一律使用 **TextMeshPro**（`TextMeshProUGUI` / 世界空间 `TextMe
 - 接线规则：Inspector 里手工连的事件（持久监听）**会**随场景序列化；代码里 `AddListener` 只在该代码运行时生效。需要「随值同步的联动」（如音量条的填充）必须在运行时装配，见 `PanelController.HookButtons` 的注释。
 - 仍有少量世界空间对象按事件在运行时创建：飘字 `FloatingText`（`FloatingTextSpawner.Spawn` 每次一个 `TextMesh`）与合成粒子（`ParticleBurst` 用常驻 `ParticleSystem` + `Emit`，不实例化）。这些是「一次性的瞬时特效」，不是界面结构。
 
+**合成特效（V2.56，2026-09-14：行星主题化）**：合成火花由 `ParticleBurst` 在 `FeedbackDirector.PlayMerge` 里按需 `Emit`，两件事各有唯一出处——
+
+- **形态**：场景 `GameRoot/Presentation/ParticleBurst/Burst` 上的常驻 `ParticleSystem` + `Assets/Art/Vfx/merge_spark.png`（白色**可染色**的四芒星火花，配套材质 `Assets/Art/Vfx/MergeSpark.mat`）。贴图在编辑器里手工换；不要再用 `Resources/Placeholder/` 的占位圆片（那是缺图兜底，也是水果时代的遗留形态）。
+- **取色**：`FruitArt.BurstColorForLevel(level)` —— 有正式美术时取**该星球自己的主色**（`FruitAccentPalette` 实测色板），缺图/越界才回退 `FruitPalette`。`FeedbackDirector.BurstColor` 再与白色混合提亮一档。`FruitArt` 仍由组合根注入，`GameField` / `HudBinder` / `FeedbackDirector` 共用**同一个实例**。
+- **注意事项**：单颗尺寸由代码常量 `ParticleBurst.SparkWorldSize` 在每次 `Play` 时写入，**Inspector 里的 `startSize` 不生效**（场景值只是对齐后的初值）。改尺寸请改那个常量。发射形状用 `Circle` 而不是 `Sphere`：2D 场景里 `Sphere` 的锥体朝向相机轴，速度大多消耗在 Z 轴上、屏幕上几乎看不出扩散。
+
 音效优先用 `AudioDirector` 的 `sfxClips` **指派表**里的真实素材，未指派的 `SfxId` 回退到 `PlaceholderAudioFactory` 在运行时用正弦/方波包络合成的占位音（投放、合成、连击音阶、越线心跳、失败、按钮、领取、复活），因此「一个素材都没配」时也能听到反馈（决策 D4）。需求方（2026-09-13）指定合成音改用 `Assets/Audios/pop.ogg`：`Merge` 与 `ComboUp` 都指向该素材（连击音阶仍由 `pitch` 实现），指派发生在 `Main.unity` 的 `GameRoot/Presentation` 节点上，改素材只需在 Inspector 里换引用。BGM 槽位为可选：未指派时静默降级，不假装有音乐。
 
 **BGM 只在「关闭音乐 → 重新打开」时从头播**（2026-09-14 需求方缺陷修复）：`AudioDirector.PlayMusic()` 是**幂等**的——只有「换了曲子」或「当前没在播」才真正 `Play()`，已经在放同一首时直接返回、不碰播放位置；规则收敛在纯函数 `AudioDirector.ShouldStartMusic(current, wanted, isPlaying)`。之所以必须幂等：任何设置变化都会经 `SettingsService.Changed → GameContext.ApplySettingsToAudio` 调用它（其中先 `SetMusicEnabled(已开)`、末尾再 `PlayMusic()` 一次），而**拖动音量条时存档值逐帧变化**，原先无条件 `Play()` 会把播放位置重置到 0 → 听感上音乐被反复从头播放。反向要求同样固化：「关闭音乐后再打开」必须从头播（`Stop()` 后 `isPlaying=false` → 重新 `Play()`）。门禁：EditMode `MusicPlaybackTests`（4 项规则）、PlayMode `AudioDirectorTests.VolumeChange_DoesNotRestartMusic` 与 `MusicToggledOffThenOn_RestartsFromTheBeginning`（断言 `AudioSource.timeSamples` 未被重置）。
@@ -47,7 +53,7 @@ UI 文本一律使用 **TextMeshPro**（`TextMeshProUGUI` / 世界空间 `TextMe
 ### HUD 布局
 
 - 触发条件：对局进行中。
-- 处理顺序：顶栏左侧最高分、中央大号当前分与其下阶段目标进度条、右侧设置齿轮（置于系统胶囊左侧的安全区）；中央顶部待投水果与垂直虚线落点；右上角 next 预览；左侧入口自上而下为摇一摇、锤子·免费、大礼包；右侧入口自上而下为清屏·免费、炸弹·免费；警戒线为顶部下方横线；底部不放任何广告或推广位（R27）。
+- 处理顺序：顶栏左侧最高分、中央大号当前分与其下阶段目标进度条、右侧设置齿轮（置于系统胶囊左侧的安全区）；中央顶部待投水果与垂直虚线落点；右上角 next 预览；两侧入口（V2.58 后只剩两个）为：左侧摇一摇、右侧清屏；警戒线为顶部下方横线；底部不放任何广告或推广位（R27）。
 - 成功结果：所有元素随设备安全区自适应，竖屏不重叠。
 - 失败与边界：安全区数据缺失时使用默认边距；缺少可选引用时跳过该元素并记录一次告警，不抛异常。
 

@@ -1,11 +1,11 @@
 # M6 Meta 局外系统
 
-> 相关需求：`Docs/requirements.md` 的 R7、R11–R19、R20、R21、R24、R25
+> 相关需求：`Docs/requirements.md` 的 R7、R11、R14–R21（R12/R13 已于 V2.58 删除）、R24、R25
 > 验收文档：`06-meta-test.md`
 
 ## 职责边界
 
-- 本模块负责：本地存档（schema 版本与迁移）、道具库存与每日上限、激励视频/插屏广告的接口与测试适配器、广告位放行规则（复活 90s 全局冷却、每日上限、插屏每 3 局 ≤1 且可远程开关）、本地排行榜、分享记录与 60s 冷却、隐私合规门、埋点（接口 + 本地实现）、设置开关持久化。
+- 本模块负责：本地存档（schema 版本与迁移）、道具库存与每日上限、激励视频/插屏广告的接口与测试适配器、广告位放行规则（复活 90s 全局冷却、每日上限、插屏每 3 局 ≤1 且可远程开关）、分享记录与 60s 冷却、隐私合规门、埋点（接口 + 本地实现）、设置开关持久化。
 - 本模块不负责：局内规则与物理（M1/M2/M3）、UI 绘制（M5）、初始化顺序与流程编排（M7）。
 - 本模块实现 M1 中的 `ISaveStore`/`IAdsService`/`IAnalyticsService`/`ILeaderboardService`/`IShareService`/`IClock` 接口；核心逻辑可在 EditMode 用内存实现与假时钟测试。
 
@@ -38,23 +38,21 @@
 ### 道具库存与每日上限
 
 - 触发条件：领取（看广告/分享）或使用道具。
-- 处理顺序：领取前检查当日已领取次数（V2.13 各 3、V2.14 摇一摇 2、V2.15 大礼包 1）；通过则 `+1` 并记当日计数；使用时要求数量 >0 则 `−1`（使用即时、无冷却）。
+- 处理顺序：领取前检查当日已领取次数（清屏每日 3、摇一摇每日 2；大礼包上限随功能于 V2.58 删除）；通过则 `+1` 并记当日计数；使用时要求数量 >0 则 `−1`（使用即时、无冷却）。
 - 成功结果：返回 `GrantResult`/`SpendResult`；上限与余额在存档中持久化。
 - 失败与边界：达到上限返回 `DailyCapReached`；余额为 0 返回 `NoStock`；跨天首次访问自动重置当日计数。
 
 ### 广告位规则
 
-- 触发条件：复活、道具领取、摇一摇、大礼包、结算插屏。
+- 触发条件：复活、道具领取（清屏）、摇一摇、结算插屏。（大礼包点位 `AdPlacement.Gift` 于 V2.58 删除）
 - 处理顺序：`AdsPlacementRules.CanShow(placement, now, save)` 依次检查开关、每日上限与冷却（复活全局 90s、分享助力 60s、插屏每 3 局 ≤1）→ 放行后调用 `IAdsService.ShowRewarded/ShowInterstitial` → 结果写回存档（`lastReviveAdUtc`、`interstitialCounter`）。
 - 成功结果：返回 `AdDecision.Allowed` 或带原因的拒绝。
 - 失败与边界：`IAdsService.Availability == Unavailable`（Editor/离线）时，复活按 D6 直接放行且不写冷却；道具领取返回 `Unavailable` 并提示「测试环境直接领取」由 `AdsPlacementRules` 的 `OfflineGrantAll` 策略决定（默认允许，便于演示）。
 
-### 本地排行榜
+### 本地排行榜（V2.58 删除）
 
-- 触发条件：结算或查看排行。
-- 处理顺序：`LeaderboardService.Submit(score, displayName)` 插入并排序，取前 N（每页 20）；本地单机用户名默认「我」。
-- 成功结果：破纪录后第一名更新为当前分数。
-- 失败与边界：空榜返回空列表；分数为 0 不写入（避免污染）。
+需求方 2026-09-14 删除排行的入口、面板与整条数据链：`ILeaderboardService`、`LeaderboardService`、`SaveData.leaderboard`、
+`LeaderboardEntry` 与相关埋点名都不在了；旧存档里多余的 `leaderboard` 键在反序列化时被忽略。
 
 ### 分享与冷却
 
@@ -88,7 +86,7 @@
 | `EconomyService.TryConsumeForItem(kind)` | 类 | 道具 | `AdDecision` + 文案 | 汇总上限、冷却、适配器可用性 |
 | `IAdsService.ShowRewarded(placement)` | 接口 | 广告位 | `RewardedResult`（Completed/Skipped/Failed/Unavailable） | 不抛异常；结果枚举稳定 |
 | `IAdsService.ShowInterstitial()` | 接口 | — | `InterstitialResult` | 同上 |
-| `EconomyService.RequestItemGrant(kind, cb)` / `RequestShakeAd(cb)` / `RequestGiftGrant(cb)` | 方法 | 道具（清屏/炸弹/锤子）/ 摇一摇 / 大礼包请求 | 回调 `(GrantResult, AdDecisionResult, RewardedResult)`（摇一摇为 `(bool, AdDecisionResult, RewardedResult)`） | 第三个参数是**广告层结果**：只有 `Completed` 才发奖并记账（取消/失败既不发放也不消耗当日次数与冷却）；`Skipped` = 用户中途关闭、`Failed/Unavailable` = 无广告或失败，M7 据此分档提示（`Skipped` →「未看完广告」，其余 →「暂无可用广告，请稍后再试」）；离线降级（D6）上报 `Completed` |
+| `EconomyService.RequestItemGrant(kind, cb)` / `RequestShakeAd(cb)` | 方法 | 道具（清屏）/ 摇一摇请求 | 回调 `(GrantResult, AdDecisionResult, RewardedResult)`（摇一摇为 `(bool, AdDecisionResult, RewardedResult)`） | 第三个参数是**广告层结果**：只有 `Completed` 才发奖并记账（取消/失败既不发放也不消耗当日次数与冷却）；M7 据此分档提示（`Skipped` →「未看完广告」，其余 →「暂无可用广告，请稍后再试」）。`RequestGiftGrant`（大礼包）已于 V2.58 删除 |
 | `AdsPlacementRules.CanShow(...)` | 静态/类 | 广告位、时间、存档 | `AdDecision` | 纯逻辑，可 EditMode 测 |
 | `LeaderboardService.Submit/GetTop` | 类 | 分数、名字、条数 | 列表 | 排序稳定，空榜安全 |
 | `ShareService.ShareChallenge(score, combo)` | 类 | 分数、连击 | `ShareResult` + 文案 | 60s 冷却；不承诺必得 |

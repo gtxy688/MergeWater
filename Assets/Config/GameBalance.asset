@@ -90,16 +90,13 @@ MonoBehaviour:
     interstitialEveryNGames: 3
     itemDailyCap: 3
     shakeDailyCap: 2
-    giftDailyCap: 1
-    bombRadius: 0.9
-    hammerMaxRadius: 1.8
     stageMilestones:
     - Score: 200
       Reward: 1
     - Score: 500
-      Reward: 2
+      Reward: 1
     - Score: 1000
-      Reward: 3
+      Reward: 4
     dropShakeSeconds: 0.05
     slowMoScale: 0.2
     slowMoSeconds: 0.15

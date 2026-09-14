@@ -17,7 +17,17 @@
 | M6 Meta | 待验收（自动化全绿） | 2026-09-11 EditMode 31 项 PASS | H1–H5 | 无 | 手动验收上限/冷却/插屏/隐私 |
 | M7 Bootstrap | 待验收（自动化全绿） | 2026-09-11 31 项 PASS（EditMode 8 + PlayMode 23） | H1–H4 | 无 | 手动验收首启流程、引导、真机 |
 
-## 自动化测试汇总（2026-09-13 最新一轮）
+## 自动化测试汇总（2026-09-14 最新一轮）
+
+| 套件 | 结果 | 执行方式 | 证据 |
+|------|------|----------|------|
+| EditMode | **147 / 148**（唯一失败：`HudLayoutTests.SettingsPanel_BottomBlock_SitsAboveTheBottomEdgeWithBalancedSpacing`——场景里 `CloseButton` 被手工改成距面板底 216、门槛上限 200，**场景侧既有问题、与本轮改动无关**，见下方「待裁定」条目） | **隔离副本 `E:\MergeWaterVerify`** 命令行（真工程被运行中的编辑器锁定；`Start-Process -Wait` 调用，批处理退出码 2 = 有失败） | `E:\MergeWaterVerify\Logs\final-editmode.xml`（2026-09-14 合成特效轮 V2.56 全量）；上一轮为 `Logs\full-editmode-sfx.xml` |
+| PlayMode | **PASS 87 / 87**（0 失败） | 同上（退出码 0） | `E:\MergeWaterVerify\Logs\final-playmode.xml`；上一轮为 `Logs\full-playmode-sfx.xml` |
+| 合计 | **234 / 235**（无一项失败来自本轮改动） | 同上 | `Docs/evidence/README.md` |
+
+> 2026-09-14 本轮复跑（改动：合成特效行星主题化——火花贴图 + 结果星球主色取色，V2.56）：EditMode **147/148**、PlayMode **87/87**、`failed=0`。**三项反证均成立**：① 把 L1 主色改回葡萄紫 → `FruitAccentPaletteTests` 2 项红（`Expected: 0.343911201f, But was: 0.560000002f`）；② 把粒子贴图换回 `fruit_circle` → 场景门禁红（`Expected: "Assets/Art/Vfx/merge_spark.png", But was: "Assets/Resources/Placeholder/fruit_circle.png"`）；③ 摘掉 `feedback.SetFruitArt(fruitArt)` → 真场景 PlayMode 红（`Expected: 0.553000033f +/- 0.001f, But was: 0.347499996f`，正是水果色板 10 级「西瓜绿」的提亮值）。证据 `E:\MergeWaterVerify\Logs\red-mergefx.xml`、`red-inject.xml`。
+
+## 自动化测试汇总（2026-09-13 上一轮）
 
 | 套件 | 结果 | 执行方式 | 证据 |
 |------|------|----------|------|
@@ -68,6 +78,8 @@
 | 主场景 | `Assets/Scenes/Main.unity`（已加入构建场景列表；**UI 的唯一来源**） | **没有生成器**：在编辑器里手工维护并保存（2026-09-13 删除 `Build Main Scene` / `Rebuild UI In Open Scene`，见下） |
 
 ## 待办
+- [x] **合成特效行星主题化**（2026-09-14，需求方「我把项目从水果变成行星了，所以你之前做的那个合成特效有点违和感，帮我修改」，V2.56）：合成粒子原先用 `Resources/Placeholder/fruit_circle.png`（白色实心圆，占位美术时代的遗留形态）配 `FruitPalette` 的水果色板取色——V2.44 换美术、V2.52 改文案之后，**它是全工程最后一处停留在水果时代的东西**。实测冲突：L1 星球主色 `#58A2B5`（青蓝）而粒子是葡萄紫、L10 星球主色 `#6741A2`（紫）而粒子是西瓜绿 `#219954`。改法：① 新贴图 `Assets/Art/Vfx/merge_spark.png` + 材质 `MergeSpark.mat`（白色**可染色**的四芒星火花：紧凑亮核 + 十字光芒，128px @ PPU 128）；② 新增 `FruitAccentPalette`（星球主色板，由 10 张 planetNN.png **实测**得到，口径 = 不透明像素中饱和度最高 20% 的 RGB 均值）与 `FruitArt.BurstColorForLevel`（有美术 → 星球主色、缺图/越界 → 水果色板），`FeedbackDirector.PlayMerge` 改用它并与白色混合提亮一档；③ `GameBootstrapper` 把同一个 `FruitArt` 注入 `FeedbackDirector`；④ 粒子 2D 化：`Sphere`→`Circle`（单位旋转下 Sphere 锥体朝相机轴，速度大多耗在 Z 轴上、屏幕上几乎不扩散）、去重力、`startSpeed` 4.8→1.6~2.2、加淡出/收缩/随机自转。**顺带修掉一个「假值」陷阱**：单颗尺寸由 `ParticleBurst.SparkWorldSize`（0.18）在每次 `Play` 时写入，**Inspector 里的 `startSize` 根本不生效**——已在场景里对齐成同一基准并写进文档。**验证**：隔离副本全量 EditMode **147/148**（唯一失败是既存的 `CloseButton` 场景几何）、PlayMode **87/87**；三项反证均红在预期断言上（改回水果主色 / 换回水果占位贴图 / 摘掉 `FruitArt` 注入）；真场景录屏复核形态与配色（`screenshots/mergefx-sparks-v3.mp4`）。**待手动验收**：H9（火花观感、亮度、与星球配色是否协调）
+- [x] **顺带修掉一个会「静默丢素材」的坑**（2026-09-14，与 V2.56 同轮）：新贴图放进 `Assets/Art/Vfx/` 后 `git status` 里**看不到它**——`.gitignore` 第 116 行有 `/Assets/Art`（排除第三方素材包），而场景/材质已经引用它：一旦提交并换机器，粒子材质会指向不存在的资产（洋红或不可见），且**不会报任何错**。修法：把该行改成 `/Assets/Art/*` 并用 `!/Assets/Art/Vfx/` 反选。**注意**：`/Assets/Art`（不带 `/*`）会排除整个目录，git 不下探，子项反选**无效**——先按带 `/*` 的写法改才生效（实测 `git check-ignore` 三项：新素材不再被忽略、`Assets/Art/GUI` 与 `Assets/Art/kenney_planets` 仍被忽略）。已写入 `AGENTS.md` 硬约束 6
 
 - [x] 需求文档与架构总览
 - [x] 7 个模块架构文档与验收文档
@@ -124,6 +136,10 @@
 
 - [x] **UI Sprite 图集已启用，星球图集实测后决定不开**（2026-09-14 需求方「你能帮我打一下图集吗？这样能节省渲染开销吧」）：生成器与门禁见 `Assets/Scripts/Editor/SpriteAtlasGenerator.cs` + `SpriteAtlasTests`；已生成 `Assets/Atlases/UIAtlas.spriteatlas`（27 张小图，排除 `bg_star`/`Gamebg`/`bg_night`）。**实测（编辑器 Game 视图 Stats，前后对比）**：开局无堆叠 `Batches 12 → 3`、`SetPass 5 → 3`；堆满星球 `Batches 20 → 15`（该场景由 10 张星球贴图主导），帧时 3.4 → 3.5ms 持平。**星球图集不开**：`Resources/` 下贴图会被无条件打进包，约 +2.6MB 换约 8 个 batch 不划算；菜单保留备用。**保留意见**：两次场景 B 截图不是同一局面（1882 vs 2119 分、含飘字粒子）、Game 视图分辨率也从 452×803 变到 468×832，所以 `SetPass 13 → 15` 不可比、需同局面复测；**真机未验证**（WebGL 上 draw call 的 CPU 占比更高，收益应在真机复测）。**下一步更有价值的优化**：真机 profiling 与 overdraw（两张满屏背景叠加 + 面板 `Dim` 0.62 满屏遮罩）
 
+- [x] **接入 Mock 激励广告系统，且可无痛切真微信广告**（2026-09-14，需求方「暂时无法开通微信流量主，没有真实 adUnitId，先做 Mock 激励广告系统，架构要保证以后无痛切换」，V2.57）：**复用既有广告架构**（硬约束 4：平台能力走 Core 接口）而不是新建 `AdManager.Instance`——`IAdsService` + `AdsServiceProxy` + `MockAdsService` 本来就在，缺的是「模式开关 + 三态 Mock + 真微信适配器」。新增 `AdsMode { Mock, WeChat }`、`AdsAdapterFactory`（唯一开关，WeChat 在非微信运行时/adUnitId 为空时自动退回 Mock）、`WeChatAdsService`（`Load/Show/OnClose/OnError`，`isEnded`→Completed/Skipped）、`WeChatAdBridge`（隔离唯一无法被编辑器编译验证的那行 `WX.CreateRewardedVideoAd`）。`MockAdsService` 升级：`MockAdResult{Success,Cancel,Error}`、默认 1.5 秒、**重入保护**、**销毁兜底**。**Inspector 旋钮**加在场景已有的 `GameBootstrapper` 上（`adsMode`/`mockAdResult`/`mockAdSeconds`/`weChatRewardedAdUnitId`，默认 Mock+Success+1.5s+空 id），**不需要在场景里加任何组件或绑任何引用**。**API 签名用 `ikdasm` dump `wx-runtime-editor.dll` 核对过**（`WXRewardedVideoAd : WXBaseAd` 提供 `Load/Show/OnClose/OnError`；`WXCreateRewardedVideoAdParam.adUnitId`；`OnClose.isEnded`），避免了 2026-09-13 那种「只在导出时才炸」的 CS 错误。测试：EditMode `AdsAdapterTests`（7 项：Mock 创建与配置、适配器复用、两种降级、可用性、三态映射、默认配置）+ PlayMode `AdsMockTests`（5 项：三态、重入拒绝且只播一次、销毁后仍回调）。**未验证**：新测试待跑；`WeChatAdBridge` 那一行需要一次真实微信导出才能编译验证；真机广告未验证（没有广告位）
+
+- [x] **裁剪玩法：删除炸弹/锤子/大礼包与排行榜（V2.58）**（2026-09-14 需求方「锤子炸弹玩家怎么放到想要的位置？我觉得可以删去这两个功能，只留清屏、摇一摇以及最后的复活，大礼包其实也没用」→ 方案 C；随后「我顺手把排行也删了」）：分六片交付（入口接线 → 排行入口 → 排行面板 → 排行数据层 → 大礼包与广告点位 → 炸弹/锤子底层），累计删除约 900 行、触及 40+ 文件。**关键发现**：大礼包按钮**从未接线**（`GameContext.RequestGift` 零调用方，`PanelController.HookButtons` 只接了摇一摇/清屏/炸弹/锤子），一直是个死按钮——这解释了「大礼包其实也没用」。**顺带发现**：砸/敲类道具原本**没有半径/命中预览**（`HudBinder` 只给普通投放画虚线，`IsItemAim` 分支不画），玩家看不到「会打到哪」，是体验差的主因（我据此建议过先补预览再决定，最终仍按方案 C 删除）。**存档兼容**：旧存档里 `bombCount/hammerCount/*GrantedToday/giftGrantedToday/leaderboard` 键被忽略，无需迁移。**过程失误（已修正并记录）**：①自动删除脚本把数组转 List 时被 PowerShell 展开为定长集合；②`CutMember` 匹配到文档注释里的 `<see cref="..."/>`，一度把 `IAimSource` 接口体删空；③按签名扫描收尾大括号时切坏 `EconomyService`/`InventoryService`（回滚重做）；④删字段留下孤儿续行（`AimControllerTests` 的 `new List<...>()`）与未清理的 `_itemRequests` 引用；⑤`bombCount`→`shakeCount` 替换造成 JSON 重复键。以上都由需求方在 Test Runner 里逐个暴露、我逐个修复，并补了「非注释行匹配 + 大括号配平 + 残留标识符 grep + 逐文件行数对比 + JSON 键去重」五道自检。**修复提交**：`2aafbbf`（孤儿续行）、`1882c02`（AimState 三参）、`531d180`（保存用例冲突键）。**验证**：EditMode/PlayMode 批次结果见本条目下方
+
 ## 阻塞
 
 无。模块状态为「待验收」仅因手动验收项尚未由人工确认。
@@ -146,6 +162,9 @@
 | **合成结果被施加向上初速（0.6）** | 结果水果跳到别处并在堆顶制造扰动，助推「堆不平」 | 按 V2.31 改为零初速生成，就地对位由求解器推开邻居 | `GameFieldMergeTests.MergeResult_SpawnsAtRestAtMidpoint` |
 | **同级水果只监听碰撞进入** | 因一次合成被取消而持续贴合的同级水果再也不触发合成 → 表现为「贴着但不动/不合成」 | 按 V2.32 在碰撞停留时也尝试合成（`_merging` 去重保证安全） | `FruitBody.OnCollisionStay2D`；`GameFieldMergeTests` |
 | **改动 `GameBalance` 代码默认值后未重新生成配置资产** | 运行时仍读旧值（本轮摩擦/阻尼/重力倍率一度全部未生效，白跑一轮） | `AGENTS.md` 硬约束 2 补注：必须重新生成 `Assets/Config/GameBalance.asset`；`ConfigAssetTests` 会失败以提示 | `ConfigAssetTests.GameBalanceAsset_Exists_AndMatchesCodeDefault` |
+| **合成特效停留在水果时代（V2.44 换美术、V2.52 改文案之后）** | 需求方「有点违和感」：粒子贴图仍是水果占位圆片（`fruit_circle`）、颜色仍取**水果**色板——实测 L1 星球主色 `#58A2B5`（青蓝）而粒子是葡萄紫、L10 星球主色 `#6741A2`（紫）而粒子是西瓜绿 `#219954` | V2.56：贴图换 `Assets/Art/Vfx/merge_spark.png`（四芒星火花）；取色改 `FruitArt.BurstColorForLevel`（星球主色板 `FruitAccentPalette` 实测而来）+ 提亮；`GameBootstrapper` 注入同一个 `FruitArt`；粒子 `Sphere`→`Circle`、去重力、降速、加淡出/收缩/自转 | `FruitAccentPaletteTests`（6 项，含与美术实测的漂移门禁）、`SceneAssetTests.MergeParticle_UsesSpaceVfxSprite_NotTheFruitPlaceholder`、`BootstrappedSceneTests.Merge_ProducesVisibleFeedback`（真场景断言火花色 = 结果星球主色） |
+| **粒子尺寸是「改了没反应」的假值** | `ParticleBurst.Play` 每次用 `0.1f × sizeMultiplier` 覆盖 `startSize`，Inspector 里怎么调都不生效（本轮调尺寸时实测踩到：场景改成 0.18 仍按 0.10 渲染） | 抽成命名常量 `ParticleBurst.SparkWorldSize`（0.18，星芒墨水只有实心圆一半故需补偿）并把场景值对齐成同一基准，文档写明「尺寸改常量、不是 Inspector」 | `BootstrappedSceneTests.Merge_ProducesVisibleFeedback` 断言 `startSize == 0.18` |
+| **工程自产素材被 `.gitignore` 静默排除** | 新贴图放进 `Assets/Art/Vfx/` 后 `git status` 看不到；场景/材质已引用它，换机器拉取后粒子材质指向不存在的资产（洋红或不可见）且**不报错** | `.gitignore` 的 `/Assets/Art` 改为 `/Assets/Art/*` + `!/Assets/Art/Vfx/`（不带 `/*` 时 git 不下探，子项反选失效）；写入 `AGENTS.md` 硬约束 6 | 实测 `git check-ignore`：新素材不再被忽略、`Assets/Art/GUI` 与 `Assets/Art/kenney_planets` 仍被忽略 |
 | **水果生成高度落在 HUD 顶栏之后** | 待投水果与预测线上段被大号分数/设置按钮遮住（实测中心在屏幕顶部 7%，顶栏占到 15%）→ 玩家「看不出落点、以为拖了没反应」 | 生成高度 5.2 → 4.0（V2.26a），使待投水果落在「顶栏之下、警戒线之上」的可见区间；预览重力按当前等级实际值（V2.28）计算 | `PhysicsAndPreviewDiagnostics.Aiming_ShowsPreviewReachingTheLandingSurface`（断言中心在顶栏之下：实测 17.8%） |
 | **容器墙体/地面只有碰撞体、没有渲染器** | 水果像掉进虚空：玩家看不到场地边界与地面位置；且容器原本只在「第一次投放」时才创建，开局第一帧更是什么都没有 | 墙体/地面增加子节点视觉（`ui_square` 占位图 + 颜色，排序号 -10），并在 `GameField.Awake` 就建好容器。**2026-09-12 起改走 D13「屏幕即边框」：外观默认隐藏、边界外移到屏幕边缘**，该视觉代码保留在 `showArenaVisuals` 开关后 | `PhysicsAndPreviewDiagnostics`（现断言：Arena 三个子节点保留启用的碰撞体、外观已隐藏，且 `PlayHalfWidth/PlayFloorY` 贴合相机可视范围） |
 | **`DangerLineView` 的线引用是非序列化字段** | 运行时为 null → `SetLine` 提前返回 → **警戒线从未显示过**（位置与颜色都没写进去）；且场景里烘焙的常态色是「白色 35% 透明」，画在米色背景上等于没有 | 改用序列化引用 + 运行时兜底解析；常态色改为可见柔和红，并在 `SetLine` 时写入 LineRenderer（不只改字段）；另加运行时可见性守卫 | `PhysicsAndPreviewDiagnostics`（断言警戒线常态 alpha ≥ 0.4） |

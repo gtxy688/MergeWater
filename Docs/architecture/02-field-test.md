@@ -12,7 +12,7 @@
 | A3 | PlayMode | `Field/GameFieldMergeTests.cs::SameTierCollision_MergesIntoNextTierAndRaisesMergedOnce`、`MergeResult_PushedSidewaysAtMidpoint`、`MergeResult_SidePushEqualsConfiguredImpulse` | 同级相撞 → 两颗消失、生成高一级、`Merged` 恰好一次；结果是**水平初速且不向上蹦**（V2.31b），初速大小等于 `GameBalance.MergeResultSideImpulse`（2026-09-12「力度太吝啬」后 0.45→1.5） | 实现前无合成逻辑 | PASS |
 | A4 | PlayMode | `Field/GameFieldMergeTests.cs::TopTierCollision_DoesNotMerge` | 顶级（10 级）相撞不合成、不发事件 | 同上 | PASS |
 | A5 | PlayMode | `Field/GameFieldDangerTests.cs`（4 项，含 `SettledFruitAboveLine_ReportsViolation`、`FreshlySpawnedFruitAboveLine_IsNotReportedBeforeSettleGrace`、`FallingFruitAboveLine_IsNotReported`） | 静止越线判定；刚生成/仍在掉落的水果不误判（V2.9 缓冲） | 实现前无越线查询 | PASS |
-| A6 | PlayMode | `Field/GameFieldItemTests.cs`（5 项，含 `Bomb_RemovesFruitsInRadius`、`Hammer_RemovesSingleNearest`、`Shake_MovesFruitsWithoutRemoving`） | 三种道具对场地的直接作用（炸弹/锤子/摇一摇）。**原「撤销」的两项场地用例已删除**（2026-09-13 需求方「撤销」改为清屏，`DropRecord`/`MarkLastDropMerged` 一并删除）；清屏的效果改由 M7 的 `ItemUseTests.ClearField_*` 覆盖 | 实现前无道具作用 | PASS |
+| A6 | PlayMode | `Field/GameFieldItemTests.cs`（1 项：`Shake_MovesFruitsWithoutRemoving`；V2.58 删除炸弹/锤子的 4 项范围判定用例） | 道具对场地的直接作用只保留摇一摇重排；清屏走 `ClearAll`（A7） | PASS（V2.58 批次） |
 | A7 | PlayMode | `Field/GameFieldLifecycleTests.cs::ClearAll_RemovesEveryFruit`、`SimulationToggle_FreezesAndRestoresBodies`、`EscapedFruit_IsRecycledInsteadOfLeaking` | 重开清理（清屏道具也复用 `ClearAll`）、仿真冻结/恢复、逃逸回收。用例名去掉了 `AndDropRecord`——投放记录机制已随「撤销」一并删除 | 同上 | PASS |
 | A8 | PlayMode | `Assets/Tests/PlayMode/Bootstrap/PhysicsAndPreviewDiagnostics.cs::DroppedFruits_FallMergeAndDoNotScatterToWalls` | 6 次同点投放后：全部落地、不互相穿插、**不滚到贴墙**（判据由场地几何推导）、仍为 Dynamic、同级碰撞确实合成 | **修复「滚到墙角摊平」后新增**（修复前实测偏移 1.95） | PASS |
 | A9 | PlayMode | `PhysicsAndPreviewDiagnostics.cs::FruitsOfDifferentTiers_StackOnEachOther` | 用互不相邻同级的 4 颗水果叠放（不会合成，故确定性）：至少有一颗被别的水果托起（不在底面），且无穿插 | **修复「摊平一层」后新增**：实测 4 颗叠成 4 层竖塔（y=-3.74/-2.64/-1.12/0.88，横向全为 0.00，速度全为 0） | PASS |
@@ -50,7 +50,7 @@
 |------|----------------|--------------------|-----------|------|------------|
 | E1 | 合成吸附期间用道具移除其中一颗 | 取消合成，不产生新水果、不发 `Merged` | 自动 | PASS | `GameFieldMergeTests.MergeCancelled_WhenOneFruitRemovedDuringAbsorb` |
 | E2 | 水果掉出场地下边界 | 回收并告警一次，不残留空引用 | 自动 | PASS | `GameFieldLifecycleTests.EscapedFruit_IsRecycledInsteadOfLeaking` |
-| E3 | 场地空时使用炸弹/锤子 | 返回 0/false，不抛异常 | 自动 | PASS | `GameFieldItemTests.Bomb_WithNonPositiveRadius_RemovesNothing`、`Hammer_WhenNothingInRange_ReturnsFalse`。**清屏的空场拒绝**改在 M7 判定（`ItemUseTests.ClearField_OnEmptyField_IsRejectedWithoutSpendingStock`） |
+| E3 | ~~场地空时使用炸弹/锤子~~ | **不适用**：炸弹/锤子已于 V2.58 删除；等价边界改由「空场清屏被拒绝且不扣库存」覆盖（见 07-bootstrap-test H3） | 自动 | 不适用 | — |
 | E4 | 达到 120 颗后继续投放 | 拒绝生成，`LiveFruitCount` 不超过上限 | 自动 | PASS | `GameFieldDropTests.Drop_InvalidTierOrBeyondLimit_ReturnsFalseWithoutSpawning` |
 
 ## 回归范围
