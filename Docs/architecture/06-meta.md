@@ -88,6 +88,7 @@
 | `EconomyService.TryConsumeForItem(kind)` | 类 | 道具 | `AdDecision` + 文案 | 汇总上限、冷却、适配器可用性 |
 | `IAdsService.ShowRewarded(placement)` | 接口 | 广告位 | `RewardedResult`（Completed/Skipped/Failed/Unavailable） | 不抛异常；结果枚举稳定 |
 | `IAdsService.ShowInterstitial()` | 接口 | — | `InterstitialResult` | 同上 |
+| `EconomyService.RequestItemGrant(kind, cb)` / `RequestShakeAd(cb)` / `RequestGiftGrant(cb)` | 方法 | 道具（清屏/炸弹/锤子）/ 摇一摇 / 大礼包请求 | 回调 `(GrantResult, AdDecisionResult, RewardedResult)`（摇一摇为 `(bool, AdDecisionResult, RewardedResult)`） | 第三个参数是**广告层结果**：只有 `Completed` 才发奖并记账（取消/失败既不发放也不消耗当日次数与冷却）；`Skipped` = 用户中途关闭、`Failed/Unavailable` = 无广告或失败，M7 据此分档提示（`Skipped` →「未看完广告」，其余 →「暂无可用广告，请稍后再试」）；离线降级（D6）上报 `Completed` |
 | `AdsPlacementRules.CanShow(...)` | 静态/类 | 广告位、时间、存档 | `AdDecision` | 纯逻辑，可 EditMode 测 |
 | `LeaderboardService.Submit/GetTop` | 类 | 分数、名字、条数 | 列表 | 排序稳定，空榜安全 |
 | `ShareService.ShareChallenge(score, combo)` | 类 | 分数、连击 | `ShareResult` + 文案 | 60s 冷却；不承诺必得 |
