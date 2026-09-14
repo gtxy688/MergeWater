@@ -232,8 +232,7 @@ namespace MergeWater.Meta
         {
             if (data.schemaVersion < 1)
             {
-                // v0 → v1：早期原型没有列表字段，补齐后再进入后续迁移。
-                data.leaderboard ??= new System.Collections.Generic.List<LeaderboardRecord>();
+
                 data.schemaVersion = 1;
             }
 
@@ -267,15 +266,6 @@ namespace MergeWater.Meta
             data.shakeGrantedToday = ClampItem(data.shakeGrantedToday);
             data.giftGrantedToday = ClampItem(data.giftGrantedToday);
 
-            if (data.leaderboard == null)
-                data.leaderboard = new System.Collections.Generic.List<LeaderboardRecord>();
-
-            for (var i = data.leaderboard.Count - 1; i >= 0; i--)
-            {
-                var record = data.leaderboard[i];
-                if (record.score <= 0 || string.IsNullOrEmpty(record.name))
-                    data.leaderboard.RemoveAt(i);
-            }
 
             if (!DayKeyPattern.IsMatch(data.dailyKey ?? string.Empty))
                 data.dailyKey = _clock.Today;

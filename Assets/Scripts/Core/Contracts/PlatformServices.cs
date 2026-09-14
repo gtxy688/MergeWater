@@ -63,14 +63,6 @@ namespace MergeWater.Core
         void Track(string eventName, params AnalyticsParam[] parameters);
     }
 
-    /// <summary>本地排行榜端口。</summary>
-    public interface ILeaderboardService
-    {
-        void Submit(string displayName, int score);
-
-        IReadOnlyList<LeaderboardEntry> GetTop(int count, int page = 1);
-    }
-
     /// <summary>分享端口。回调不可信，只按「发起即记录 + 冷却」处理（V2.19）。</summary>
     public interface IShareService
     {

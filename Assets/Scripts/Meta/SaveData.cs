@@ -3,19 +3,6 @@ using System.Collections.Generic;
 
 namespace MergeWater.Meta
 {
-    /// <summary>本地排行榜记录（存档内）。</summary>
-    [Serializable]
-    public struct LeaderboardRecord
-    {
-        public string name;
-        public int score;
-
-        public LeaderboardRecord(string name, int score)
-        {
-            this.name = name;
-            this.score = score;
-        }
-    }
 
     /// <summary>
     /// 本地存档数据。字段为 public 以便 JsonUtility 序列化；schema 版本用于迁移。
@@ -68,7 +55,6 @@ namespace MergeWater.Meta
 
         public float settingsMusicVolume = 1f;
 
-        public List<LeaderboardRecord> leaderboard = new List<LeaderboardRecord>();
 
         public static SaveData CreateDefault()
         {

@@ -30,7 +30,6 @@ namespace MergeWater.Tests.EditMode
             Assert.That(data.settingsSfx, Is.True);
             Assert.That(data.settingsMusic, Is.True);
             Assert.That(data.settingsVibrate, Is.True);
-            Assert.That(data.leaderboard, Is.Not.Null);
             Assert.That(_context.Save.LastLoadWasCorrupt, Is.False);
         }
 
@@ -113,19 +112,5 @@ namespace MergeWater.Tests.EditMode
             Assert.That(_context.Save.Data.schemaVersion, Is.EqualTo(SaveData.CurrentSchemaVersion));
         }
 
-        [Test]
-        public void Load_IgnoresInvalidLeaderboardRecords()
-        {
-            const string json = "{\"schemaVersion\":2,\"leaderboard\":[" +
-                                "{\"name\":\"我\",\"score\":300}," +
-                                "{\"name\":\"\",\"score\":500}," +
-                                "{\"name\":\"A\",\"score\":0}]}";
-            _context = new MetaTestContext(json);
-
-            var data = _context.Save.Load();
-
-            Assert.That(data.leaderboard.Count, Is.EqualTo(1), "空名与 0 分记录应被剔除");
-            Assert.That(data.leaderboard[0].name, Is.EqualTo("我"));
-        }
     }
 }

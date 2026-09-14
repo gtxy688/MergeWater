@@ -272,8 +272,6 @@ namespace MergeWater.Tests.EditMode
             Assert.That(_context.Save.Data.gamesPlayed, Is.EqualTo(2));
             Assert.That(_context.Save.Data.bestScore, Is.EqualTo(300), "最高分只增不减");
             Assert.That(_context.Save.Data.bestCombo, Is.EqualTo(9));
-            Assert.That(economy.Leaderboard.Count, Is.EqualTo(1), "本局分数写入本地排行");
-            Assert.That(economy.Leaderboard.GetTop(5)[0].Score, Is.EqualTo(300));
         }
     }
 }

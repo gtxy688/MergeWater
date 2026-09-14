@@ -68,7 +68,6 @@ namespace MergeWater.Bootstrap
             SettingsService = new Meta.SettingsService(Save);
             Economy = new Meta.EconomyService(Save, Clock, Balance, Ads, metaSettings);
             Share = new Meta.ShareService(Save.Data, Save, Clock, Balance);
-            Leaderboard = Economy.Leaderboard;
 
             SettingsService.Changed += ApplySettingsToAudio;
             ApplySettingsToAudio();
@@ -93,7 +92,6 @@ namespace MergeWater.Bootstrap
         public Meta.EconomyService Economy { get; }
         public Meta.SettingsService SettingsService { get; }
         public Meta.ShareService Share { get; }
-        public Meta.LeaderboardService Leaderboard { get; }
 
         public GameField Field { get; }
         public AimController Aim { get; }
@@ -432,7 +430,6 @@ namespace MergeWater.Bootstrap
         private void OnBestScoreChanged(int bestScore)
         {
             Save.Data.bestScore = Mathf.Max(Save.Data.bestScore, bestScore);
-            Leaderboard.Submit(Meta.LeaderboardService.SelfName, bestScore);
             Save.Save();
         }
 

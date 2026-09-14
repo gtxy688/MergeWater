@@ -172,20 +172,6 @@ namespace MergeWater.Core
         }
     }
 
-    /// <summary>本地排行榜条目。</summary>
-    public readonly struct LeaderboardEntry
-    {
-        public readonly string Name;
-        public readonly int Score;
-        public readonly bool IsSelf;
-
-        public LeaderboardEntry(string name, int score, bool isSelf)
-        {
-            Name = name;
-            Score = score;
-            IsSelf = isSelf;
-        }
-    }
 
     /// <summary>埋点参数键值对。</summary>
     public readonly struct AnalyticsParam
@@ -218,8 +204,7 @@ namespace MergeWater.Core
         public const string ReviveClick = "revive_click";
         public const string ReviveComplete = "revive_complete";
         public const string ShareStart = "share_start";
-        public const string LeaderboardView = "leaderboard_view";
-        public const string LeaderboardPage = "leaderboard_page";
+
         public const string ItemGrant = "item_grant";
         public const string ItemUse = "item_use";
         public const string RoundEnd = "round_end";

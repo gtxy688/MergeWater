@@ -17,7 +17,6 @@ namespace MergeWater.Meta
         private readonly MetaSettings _settings;
         private readonly DailyLimitService _daily;
         private readonly InventoryService _inventory;
-        private readonly LeaderboardService _leaderboard;
 
         public EconomyService(SaveService save, IClock clock, GameBalance balance, IAdsService ads,
             MetaSettings settings)
@@ -30,14 +29,11 @@ namespace MergeWater.Meta
 
             _daily = new DailyLimitService(save.Data, clock);
             _inventory = new InventoryService(save.Data, _daily);
-            _leaderboard = new LeaderboardService(save.Data);
         }
 
         public InventoryService Inventory => _inventory;
 
         public DailyLimitService Daily => _daily;
-
-        public LeaderboardService Leaderboard => _leaderboard;
 
         public bool AdsAvailable => _ads != null && _ads.IsAvailable;
 
@@ -278,8 +274,6 @@ namespace MergeWater.Meta
             data.bestScore = Mathf.Max(data.bestScore, Mathf.Max(0, score));
             data.bestCombo = Mathf.Max(data.bestCombo, Mathf.Max(0, bestCombo));
 
-            if (score > 0)
-                _leaderboard.Submit(LeaderboardService.SelfName, score);
 
             Persist();
         }
