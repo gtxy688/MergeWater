@@ -156,7 +156,7 @@ namespace MergeWater.Tests.PlayMode
             binder.Bind(_session, _aim, GameBalance.CreateDefault(), 0);
 
             _aim.PreviewPointCount = 6;
-            _aim.State = new AimState(true, ItemKind.None, 1.2f, 0.77f, false);
+            _aim.State = new AimState(true, 1.2f, 0.77f);
 
             yield return null;
 
