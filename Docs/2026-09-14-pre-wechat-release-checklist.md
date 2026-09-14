@@ -32,7 +32,17 @@
 
 **新发现（值得你在导出后核对一次）**：产物里的符号文件叫 **`WebGLCheck.symbols.json`**，
 而插件默认忽略规则写的是 `.symbols.unityweb` / `.symbols.unityweb.br` —— 名字对不上时符号文件会**进包**（本机测到 6.2MB）。
-导出后请在 `minigame/project.config.json` 的 `packOptions.ignore` 里确认实际文件名（含 `.br` 变体）已被排除。
+导出后请在 `minigame/project.config.json` 的 `packOptions.ignore` 里确认实际文件名（含 `.br` 变体）。
+
+**但这条建议是有条件的（2026-09-14 修正）**：插件源码 `WXConvertCore.cs:1647` 明确写着「**代码分包需要 symbol 文件以进行增量更新**」——
+也就是说符号文件是 **wasm 代码分包**能力的一部分。取舍关系是：
+
+| 你的选择 | 符号文件 | 结果 |
+|---|---|---|
+| 启用 **wasm 代码分包**（微信侧能力，配合 CDN 使用） | **必须保留** | 支持增量更新；包体多约 6MB |
+| 不启用代码分包 | 排除它（`packOptions.ignore`） | 省约 6MB 包体 |
+
+两者不可兼得，按需选一个；不要不加区分地"一律排除"。
 ## 二、必须你在微信后台 / 导出面板做的（我做不了）
 
 1. **首包体积（最重要）**：现在 `assetLoadType = 1`，导致 `data-package`（约 19.7MB）挤在包内，
@@ -96,3 +106,27 @@
 | Console 报 `Some objects were not cleaned up when closing the scene. ... WXSDKManagerHandler` | **微信插件自己造成的**：Editor.log 里该警告紧跟着 `WXTouchInputOverride.OnDisable() → UnregisterWechatTouchEvents() → WXBase.cs:990`——插件在 `OnDisable` 里去取 SDK 单例，而该单例的 `Instance` 是懒加载的（`wx-runtime-editor.dll` 里既有 `WeChatWASM.WXSDKManagerHandler` 类型，也有一次 `DontDestroyOnLoad`），于是在关场景过程中新建了一个跨场景对象。**本工程代码从不引用该类型**（全仓只有 WebGL 模板的 JS 会 `SendMessage('WXSDKManagerHandler', ...)`） | 新增 `Assets/Scripts/Editor/WeChatSdkLeakCleaner.cs`：只在**非播放状态**下清理它（播放中不动，避免干扰运行中的游戏；插件下次需要会自行重建），清理时打一行日志说明成因 |
 
 > 判断依据：警告出现的位置与插件调用栈在同一段日志里相连，且我们的代码对 `WeChatSDKManagerHandler` 零引用。
+
+## 八、微信导出面板开关对照表（2026-09-14，从插件源码逐个核对）
+
+真机性能面板给出的两条建议（「未使用 wasm 代码分包」「未使用预下载能力」）都是**开微信侧能力**，不是改代码。
+插件导出面板里对应的项（键名为 `WXEditorSettingHelper.cs` 中的实际字段名）：
+
+| 面板项（键名） | 中文标签 | 说明 |
+|---|---|---|
+| `assetLoadType` | 首包资源加载方式 | **CDN(0) / 小游戏包内(1)** ← 主开关；当前为「小游戏包内」 |
+| `cdn` | 游戏资源CDN | 切 CDN 模式时必须填写 |
+| `preloadFiles` | **预下载文件列表** | **直接对应「未使用预下载能力」**；`;` 分隔、支持模糊匹配，插件会写进 `game.json` 的 `parallelPreloadSubpackages` |
+| `compressDataPackage` | 压缩首包资源 | Brotli 压缩首包资源（官方提示：首次启动可能 +200ms，推荐与分包加载配合） |
+| `fbslim` | 首包资源优化 | 导出时清理 Unity 默认打包但游戏未使用的资源（团结引擎已内置，无需开启） |
+| `brotliMT` | brotli多线程压缩 | 出包更快、压缩率更低；提示语：「**如若不使用 wasm 代码分包请勿用多线程出包上线**」 |
+| `showMonitorSuggestModal` | 显示优化建议弹窗 | 就是真机上那个「优化建议」弹窗的开关 |
+| `enableProfileStats` / `enablePerfAnalysis` | 显示性能面板 / 集成性能分析工具 | 真机性能面板与 CPU Profile 相关开关 |
+
+### 建议的开启顺序（避免白屏）
+
+1. 微信后台开通 **CDN 或云开发托管** → `assetLoadType` 切 **CDN(0)** + 填 `cdn` 地址 → **单独真机验证一次能正常进游戏**（CDN 配错会直接白屏）
+2. 填 `preloadFiles`（先看 `minigame/` 里资源包的真实文件名再填）
+3. 再跑一次真机性能面板 → 上述两条建议应消失；按需打开 `compressDataPackage`（省包体、首启略慢）与 `fbslim`
+
+> 注意与第七节的符号文件取舍联动：启用 wasm 代码分包 与 省掉 6MB 符号文件**不可兼得**。
