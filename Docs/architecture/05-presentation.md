@@ -164,3 +164,15 @@ UI 文本一律使用 **TextMeshPro**（`TextMeshProUGUI` / 世界空间 `TextMe
 | 警戒线的位置/粗细、危险脉冲色与频率 | **会** | 位置与粗细来自 `GameBalance.DangerLineY`（数值表）；脉冲色/频率是 `DangerLineView` 的序列化字段，在 Inspector 里改 |
 | 面板/背景/按钮底图等静态外观 | **不会** | 场景资产，手工维护（V2.51） |
 | BGM 与音效音量 | **会**（`AudioSource.volume` 每帧级同步） | **不要改场景里 AudioSource 的 Volume**（会被覆盖）。改 `AudioDirector` 组件的 `Music Base Gain` / `Sfx Base Gain`（2026-09-14 起可在 Inspector 调），或改玩家默认值 `SaveData.settingsMusicVolume` / `settingsSfxVolume` |
+
+## 运行时创建清单（代码到底会不会"造东西"）——2026-09-14 补充
+
+需求方要求「有关运行时生成 ui 的，全部给我删除」。全仓扫描（`new GameObject` / `AddComponent<` / `Instantiate(`）结果如下：
+
+| 位置 | 创建什么 | 是不是 UI | 处理 |
+|---|---|---|---|
+| `UiPanel.Group` | 原有一句「缺 `CanvasGroup` 就 `AddComponent` 补一个」 | **是**（唯一一处） | **已删除**——本类已标 `[RequireComponent(typeof(CanvasGroup))]`（挂载时 Unity 自动补），场景里 6 个面板也都带该组件，属永远走不到的死代码。门禁 `UiSourceOfTruthTests` 的禁用类型现在**也包含 `CanvasGroup`** |
+| `GameContext` / `AdsAdapterFactory` | 一个名为 `AdsAdapter` 的**服务宿主**对象 + `MockAdsService` 组件 | 否（广告适配器需要 MonoBehaviour 承载协程） | 保留。可选改进：把 `MockAdsService` 挂到场景已有对象上、由 `GameBootstrapper` 序列化引用，即可连这个宿主对象也不在运行时创建（需你在 Inspector 里挂一次） |
+| `GameField` / `FruitBody` | 水果实体、场地四面墙、碰撞体、渲染子对象 | 否（玩法对象，数量随局面变化） | 保留（这是玩法本身） |
+
+**结论**：运行时不创建任何 UI 对象或 UI 组件；界面的每一个对象都来自 `Assets/Scenes/Main.unity`（手工维护，V2.51）。

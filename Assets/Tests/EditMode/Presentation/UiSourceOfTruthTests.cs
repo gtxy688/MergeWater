@@ -27,15 +27,16 @@ namespace MergeWater.Tests.EditMode.Presentation
     {
         /// <summary>
         /// 一旦在运行时代码里 AddComponent 这些类型，就等于「代码在造界面」。
-        /// 注意**刻意不含** <c>CanvasGroup</c>：<see cref="UiPanel"/> 会在缺组件时给自己补一个
-        /// （它只是透明度载体，不产生任何界面元素），这类自愈不属于「生成界面」。
+        /// **<c>CanvasGroup</c> 也在此列**（2026-09-14 需求方：「有关运行时生成 ui 的，全部给我删除，完全没啥用」）：
+        /// 原先豁免它是因为 <see cref="UiPanel"/> 有一句「缺组件就补一个」的兜底，但本类已标
+        /// <c>[RequireComponent]</c>、场景里也都有该组件，那句兜底是死代码，已删除——于是豁免不再需要。
         ///
         /// <para>扫描范围是 <c>Assets/Scripts/</c>（跳过其中的 <c>Editor/</c>）：**测试**在
         /// <c>Assets/Tests/</c> 下自建最小 HUD（`PresentationHarness`）是允许的——测试不是运行时装配。</para>
         /// </summary>
         private static readonly string[] UiComponentTypes =
         {
-            "Canvas", "CanvasScaler", "GraphicRaycaster", "EventSystem", "StandaloneInputModule",
+            "Canvas", "CanvasScaler", "GraphicRaycaster", "EventSystem", "StandaloneInputModule", "CanvasGroup",
             "Image", "RawImage", "Button", "Toggle", "Slider", "ScrollRect", "Mask", "RectMask2D",
             "TextMeshProUGUI", "TextMeshPro", "HudView", "PanelController", "UiPanel",
             "HorizontalLayoutGroup", "VerticalLayoutGroup", "GridLayoutGroup", "ContentSizeFitter",

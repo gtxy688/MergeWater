@@ -13,6 +13,12 @@ namespace MergeWater.Presentation
     ///
     /// <para>面板根节点的初始状态：<b>场景里保持 alpha=1、active=false</b>。
     /// 这样你在编辑器里手动勾上 active 就能直接看到面板内容来调布局，不用先改 alpha。</para>
+    ///
+    /// <para><b>运行时不创建任何组件</b>（2026-09-14 需求方：「有关运行时生成 ui 的，全部给我删除，完全没啥用」）：
+    /// 原先这里有一句「缺 <c>CanvasGroup</c> 就 <c>AddComponent</c> 补一个」的兜底，但
+    /// ① 本类已标 <c>[RequireComponent(typeof(CanvasGroup))]</c>，Unity 在挂载时就会自动补上；
+    /// ② 场景里 6 个面板本来就都带 <c>CanvasGroup</c>。于是那句兜底是永远走不到的死代码，已删除。
+    /// 门禁 <c>UiSourceOfTruthTests</c> 现在把 <c>CanvasGroup</c> 也列为禁用类型。</para>
     /// </summary>
     [RequireComponent(typeof(CanvasGroup))]
     public class UiPanel : MonoBehaviour
@@ -22,13 +28,14 @@ namespace MergeWater.Presentation
 
         private CanvasGroup _group;
 
-        /// <summary>面板根节点的 CanvasGroup（缺失时自动补一个，避免空引用）。</summary>
+        /// <summary>面板根节点的 CanvasGroup（由 <c>[RequireComponent]</c> 保证存在；运行时只取用、不创建）。</summary>
         public CanvasGroup Group
         {
             get
             {
                 if (_group == null)
-                    _group = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
+                    _group = GetComponent<CanvasGroup>();
+
                 return _group;
             }
         }
