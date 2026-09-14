@@ -88,3 +88,11 @@
 | 星球贴图移出 `Resources/` | 首包 −3.27 MB | 与硬约束 10 的既有设计冲突（`FruitArt.LoadPlanetSprites` 按命名约定 `Resources.Load`），且真正的首包方案是 CDN（第二节第 1 条），收益重叠、改动面大 |
 | `wx.setKeepScreenOn`（防熄屏） | 体验 | 属"只在 WebGL 编译"的新代码，需要一次真实导出才能验证；建议放到下次迭代 |
 | 关闭调试符号 | 子包 −6 MB | 是否产出符号由微信插件的导出流程决定（V2.48 实测：插件会强制 External），改工程设置无效——请在插件的导出面板或 `packOptions.ignore` 里处理（第二节第 1.5 条） |
+
+## 七、已知的编辑器噪声（不影响构建产物）
+
+| 现象 | 成因（有证据） | 处理 |
+|---|---|---|
+| Console 报 `Some objects were not cleaned up when closing the scene. ... WXSDKManagerHandler` | **微信插件自己造成的**：Editor.log 里该警告紧跟着 `WXTouchInputOverride.OnDisable() → UnregisterWechatTouchEvents() → WXBase.cs:990`——插件在 `OnDisable` 里去取 SDK 单例，而该单例的 `Instance` 是懒加载的（`wx-runtime-editor.dll` 里既有 `WeChatWASM.WXSDKManagerHandler` 类型，也有一次 `DontDestroyOnLoad`），于是在关场景过程中新建了一个跨场景对象。**本工程代码从不引用该类型**（全仓只有 WebGL 模板的 JS 会 `SendMessage('WXSDKManagerHandler', ...)`） | 新增 `Assets/Scripts/Editor/WeChatSdkLeakCleaner.cs`：只在**非播放状态**下清理它（播放中不动，避免干扰运行中的游戏；插件下次需要会自行重建），清理时打一行日志说明成因 |
+
+> 判断依据：警告出现的位置与插件调用栈在同一段日志里相连，且我们的代码对 `WeChatSDKManagerHandler` 零引用。
