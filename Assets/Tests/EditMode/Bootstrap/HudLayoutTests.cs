@@ -69,7 +69,6 @@ namespace MergeWater.Tests.EditMode
                 Pair("settingsButton", _view.settingsButton),
                 Pair("shakeButton", _view.shakeButton),
                 Pair("undoButton", _view.undoButton),
-                Pair("leaderboardButton", _view.leaderboardButton),
                 Pair("toastPanel", _view.toastPanel)
             };
 
@@ -283,7 +282,7 @@ namespace MergeWater.Tests.EditMode
             var failures = new List<string>();
 
             var leftEntries = new[] { _view.shakeButton };
-            var rightEntries = new[] { _view.undoButton, _view.leaderboardButton };
+            var rightEntries = new[] { _view.undoButton };
 
             foreach (var entry in leftEntries)
             {

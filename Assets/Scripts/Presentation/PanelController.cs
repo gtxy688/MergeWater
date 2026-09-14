@@ -104,7 +104,6 @@ namespace MergeWater.Presentation
 
             _badges[BadgeId.Undo] = view.undoBadge;
             _badges[BadgeId.Shake] = view.shakeBadge;
-            _badges[BadgeId.Leaderboard] = view.leaderboardBadge;
         }
 
         private void HookButtons()
@@ -116,7 +115,6 @@ namespace MergeWater.Presentation
             Hook(view.retryButton, () => RetryClicked?.Invoke());
             Hook(view.reviveButton, () => ReviveClicked?.Invoke());
             Hook(view.shareButton, () => ShareClicked?.Invoke());
-            Hook(view.leaderboardButton, () => LeaderboardClicked?.Invoke());
             Hook(view.leaderboardCloseButton, () => LeaderboardCloseClicked?.Invoke());
             Hook(view.leaderboardNextPageButton, () => LeaderboardNextPageClicked?.Invoke());
             Hook(view.privacyAcceptButton, () => PrivacyAcceptClicked?.Invoke());

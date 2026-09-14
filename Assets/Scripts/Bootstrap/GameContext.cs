@@ -392,7 +392,6 @@ namespace MergeWater.Bootstrap
 
             Panels.SetBadge(BadgeId.Undo, Economy.ItemRemainingToday(ItemKind.Undo) > 0);
             Panels.SetBadge(BadgeId.Shake, Economy.ItemRemainingToday(ItemKind.Shake) > 0);
-            Panels.SetBadge(BadgeId.Leaderboard, Leaderboard.IsSelfBeaten);
         }
 
         public void Dispose()
