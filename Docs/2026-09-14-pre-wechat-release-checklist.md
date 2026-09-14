@@ -62,12 +62,29 @@
 - **炸弹 / 锤子已删**：原实现**没有半径 / 命中预览**，玩家看不到"会打到哪"，体验不完整。
 - **阶段目标奖励**改为 200/500→清屏、1000→摇一摇（原 500→炸弹、1000→锤子已随道具删除）。
 
-## 五、可选优化（我没做，理由写在后面）
+## 五、优化记录（2026-09-14，V2.61，全部为本机实测）
 
-| 项 | 预期收益 | 为什么我没动 |
+| 优化 | 改动 | 实测收益 |
 |---|---|---|
-| BGM `our_expanse_-_with_tail-version-.mp3` 重编码（2.07MB → 约 0.5MB） | 总包直接省 ~1.5MB | 会改变音质手感；你说一声我就做（并保留原文件可回退） |
-| `Assets/Audios/Out in Space.ogg` 2.32MB | — | **零引用**，不进包，只是仓库里的死文件；要不要删由你定 |
-| 提高 `managedStrippingLevel`（WebGL 默认） | 显著减小 wasm | 有反射裁剪风险，**必须真机验证**；打包前的最后一步不适合引入这种风险 |
-| `wx.setKeepScreenOn`（防熄屏） | 体验 | 属"只在 WebGL 编译"的新代码，需要一次真实导出才能验证；我可以做，但建议放到下次迭代 |
-| 星球贴图移出 `Resources/`（改由图集/场景引用） | 首包 -3.27MB | 与硬约束 10 的既有设计冲突（`FruitArt.LoadPlanetSprites` 按约定 `Resources.Load`），改动面大，收益要配合 CDN 方案一起看 |
+| **托管代码剥离** | WebGL `managedStrippingLevel`：Low → **Medium**（菜单 `MergeWater/Apply WebGL Release Settings`，脚本 `Assets/Scripts/Editor/WebGlReleaseSettings.cs`）；反射依赖的第三方程序集由 **`Assets/link.xml`** 保留（`WeChatWASM` / `wx-runtime`） | **wasm 29,411 KB → 24,889 KB（−4.5 MB）** |
+| **BGM 导入设置** | `our_expanse_-_with_tail-version-.mp3`：`DecompressOnLoad` → **`CompressedInMemory`**（内存里不再解成 PCM）、Vorbis 质量 **100% → 60%** | **data 13,159 KB → 11,357 KB（−1.8 MB）**，运行时内存同步下降 |
+| 调试符号 | 剥离后符号表同步缩小 | `symbols.json` 6,265 KB → **5,126 KB（−1.1 MB）**（符号本不该进包，见第二节第 1.5 条） |
+| **WebGL 内存** | 初始 **32 MB → 256 MB**，上限保持 2048 MB | 不再运行时反复扩容（2048² 字体图集 + 2048² 精灵图集 + 10 张星球贴图 + BGM，32 MB 初始值不现实） |
+| **死资源清理** | 删除零引用的 `Assets/Audios/Out in Space.ogg`（2.32 MB，全仓 GUID 引用数 = 0） | 不进包，属仓库卫生。恢复：`git checkout 0d9b91e -- "Assets/Audios/Out in Space.ogg" "Assets/Audios/Out in Space.ogg.meta"` |
+
+**合计：WebGL 构建 48.22 MB → 40.92 MB（−7.30 MB，−15.1%）**；同期 `EditMode 160/160`、`PlayMode 85/85` 保持全绿。
+（Brotli 压缩后按比例推算：wasm 约 6.7 MB → **约 5.7 MB**，即总包再省约 1 MB。）
+
+**回滚办法**
+- 剥离级别 / 内存：把 `WebGlReleaseSettings` 里的 Medium 改回 `Low`、`TargetInitialMemoryMb` 改回 32 再跑一次（脚本会打印改动前后值）。
+- 音频：`loadType` 改回 `0`、`quality` 改回 `1`。
+
+**待真机验证（剥离的固有风险，必须做）**：Medium 剥离靠 `link.xml` 保护反射路径，但**一定要在体验版上把设置面板、存档、分享、广告、复活各走一遍**；若出现 `MissingMethodException` / `TypeLoadException`，按上面的回滚办法改回 Low 即可。
+
+## 六、仍未做的优化（附理由）
+
+| 项 | 预期收益 | 为什么没做 |
+|---|---|---|
+| 星球贴图移出 `Resources/` | 首包 −3.27 MB | 与硬约束 10 的既有设计冲突（`FruitArt.LoadPlanetSprites` 按命名约定 `Resources.Load`），且真正的首包方案是 CDN（第二节第 1 条），收益重叠、改动面大 |
+| `wx.setKeepScreenOn`（防熄屏） | 体验 | 属"只在 WebGL 编译"的新代码，需要一次真实导出才能验证；建议放到下次迭代 |
+| 关闭调试符号 | 子包 −6 MB | 是否产出符号由微信插件的导出流程决定（V2.48 实测：插件会强制 External），改工程设置无效——请在插件的导出面板或 `packOptions.ignore` 里处理（第二节第 1.5 条） |

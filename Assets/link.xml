@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  IL2CPP 托管代码剥离白名单（2026-09-14，打包前优化）。
+
+  为什么需要：WebGL 的 `managedStrippingLevel` 从默认的 Low 提到 Medium 能显著减小 wasm，
+  但剥离是按"静态引用"判断的——**通过反射/字符串按名字找类型的代码会被误删**。
+  微信小游戏的 SDK（`WeChatWASM`）内部就是这么干的（JS 桥按名字回调 C# 类型），
+  所以这里整程序集保留它。
+
+  维护约定：以后接入新的、内部用反射的第三方 DLL（尤其是平台 SDK），
+  在这里加一行 `<assembly fullname="程序集名" preserve="all"/>`，并在 `Docs/progress.md` 记一笔。
+  本工程自己的代码只用 `JsonUtility`（Unity 自带序列化，不需要反射元数据），不需要保留。
+-->
+<linker>
+  <assembly fullname="WeChatWASM" preserve="all" />
+  <assembly fullname="wx-runtime" preserve="all" />
+</linker>
