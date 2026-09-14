@@ -16,6 +16,23 @@
 | 输入 / 广告 | 广告播放期输入冻结、遮罩、重入保护、销毁兜底；Mock/真微信一键切换（`adsMode`），六入口失败文案统一 |
 | 玩法现状 | 道具只剩**清屏**与**摇一摇**；排行榜、大礼包、炸弹、锤子已按需求删除（V2.58） |
 
+### WebGL 构建自检结果（2026-09-14，`MergeWater/Check WebGL Build`，本地实测）
+
+```
+✅ 构建成功：总计 48.22 MB（未压缩），耗时 135 秒
+   WebGLCheck.wasm        29,411 KB   ← 未压缩；Brotli 后约 6.7MB（与之前导出报告的 wasmcode 6.73MB 一致）
+   WebGLCheck.data        13,159 KB   ← 数据包（贴图/字体/音频等）
+   WebGLCheck.symbols.json 6,265 KB   ← 调试符号（**不该进包**，见下面第 1.5 条）
+   framework.js 495 KB + loader/index 等
+```
+
+**这一步的真正价值**：它是**唯一**能编译 `#if UNITY_WEBGL && !UNITY_EDITOR` 分支的手段——
+`SafeAreaSources` 的微信安全区分支与 `WeChatAdBridge.CreateRewardedVideo`（`WeChatWASM.WX` 只在运行时 DLL）。
+本次构建通过 ⇒ 这两段在真实导出时不会出现编译错误（2026-09-13 的 CS1503 就是漏在这里）。
+
+**新发现（值得你在导出后核对一次）**：产物里的符号文件叫 **`WebGLCheck.symbols.json`**，
+而插件默认忽略规则写的是 `.symbols.unityweb` / `.symbols.unityweb.br` —— 名字对不上时符号文件会**进包**（本机测到 6.2MB）。
+导出后请在 `minigame/project.config.json` 的 `packOptions.ignore` 里确认实际文件名（含 `.br` 变体）已被排除。
 ## 二、必须你在微信后台 / 导出面板做的（我做不了）
 
 1. **首包体积（最重要）**：现在 `assetLoadType = 1`，导致 `data-package`（约 19.7MB）挤在包内，
