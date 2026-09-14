@@ -48,9 +48,6 @@ namespace MergeWater.Core
         [SerializeField] private int itemDailyCap = 3;
         [SerializeField] private int shakeDailyCap = 2;
 
-        // ── V2.17 道具作用范围 ───────────────────────────────────────
-        [SerializeField] private float bombRadius = 0.9f;
-        [SerializeField] private float hammerMaxRadius = 1.8f;
 
         // ── V2.18 阶段目标 ───────────────────────────────────────────
         [SerializeField] private StageMilestone[] stageMilestones = Array.Empty<StageMilestone>();
@@ -138,8 +135,6 @@ namespace MergeWater.Core
         public int ItemDailyCap => itemDailyCap;
         public int ShakeDailyCap => shakeDailyCap;
 
-        public float BombRadius => bombRadius;
-        public float HammerMaxRadius => hammerMaxRadius;
 
         public StageMilestone[] StageMilestones => stageMilestones;
 
@@ -212,8 +207,6 @@ namespace MergeWater.Core
             switch (kind)
             {
                 case ItemKind.Undo:
-                case ItemKind.Bomb:
-                case ItemKind.Hammer:
                     return itemDailyCap;
                 case ItemKind.Shake:
                     return shakeDailyCap;
@@ -255,8 +248,8 @@ namespace MergeWater.Core
                 stageMilestones = new[]
                 {
                     new StageMilestone(200, ItemKind.Undo),
-                    new StageMilestone(500, ItemKind.Bomb),
-                    new StageMilestone(1000, ItemKind.Hammer)
+                    new StageMilestone(500, ItemKind.Undo),
+                    new StageMilestone(1000, ItemKind.Shake)
                 }
             };
         }

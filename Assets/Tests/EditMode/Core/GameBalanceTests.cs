@@ -96,9 +96,9 @@ namespace MergeWater.Tests.EditMode
             Assert.That(milestones[0].Score, Is.EqualTo(200));
             Assert.That(milestones[0].Reward, Is.EqualTo(ItemKind.Undo));
             Assert.That(milestones[1].Score, Is.EqualTo(500));
-            Assert.That(milestones[1].Reward, Is.EqualTo(ItemKind.Bomb));
+            Assert.That(milestones[1].Reward, Is.EqualTo(ItemKind.Undo));
             Assert.That(milestones[2].Score, Is.EqualTo(1000));
-            Assert.That(milestones[2].Reward, Is.EqualTo(ItemKind.Hammer));
+            Assert.That(milestones[2].Reward, Is.EqualTo(ItemKind.Shake));
         }
 
         [Test]
@@ -129,7 +129,6 @@ namespace MergeWater.Tests.EditMode
             Assert.That(balance.ItemDailyCap, Is.EqualTo(3), "V2.13");
             Assert.That(balance.ShakeDailyCap, Is.EqualTo(2), "V2.14");
             Assert.That(balance.InterstitialEveryNGames, Is.EqualTo(3), "V2.16");
-            Assert.That(balance.BombRadius, Is.EqualTo(0.9f).Within(1e-5f), "V2.17（2026-09-13 随半径 x1.5 同步）");
             Assert.That(balance.DropShakeSeconds, Is.EqualTo(0.05f).Within(1e-5f), "V2.20");
             Assert.That(balance.SlowMoScale, Is.EqualTo(0.2f).Within(1e-5f), "V2.22");
             Assert.That(balance.SlowMoSeconds, Is.EqualTo(0.15f).Within(1e-5f), "V2.22");

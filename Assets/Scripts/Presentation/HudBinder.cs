@@ -293,7 +293,7 @@ namespace MergeWater.Presentation
             var state = _aim.State;
             preview.SetPendingBasePosition(new Vector2(state.X, _balance.DropSpawnY));
 
-            if (state.IsAiming && !state.IsItemAim)
+            if (state.IsAiming)
             {
                 var count = _aim.BuildPreview(_previewPoints);
                 preview.SetTrajectory(_previewPoints, count >= 2);

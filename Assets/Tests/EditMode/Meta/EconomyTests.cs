@@ -52,8 +52,8 @@ namespace MergeWater.Tests.EditMode
             var (daily, inventory) = CreateInventory();
 
             Assert.That(inventory.RemainingToday(ItemKind.Undo, _context.Balance), Is.EqualTo(3), "V2.13");
-            Assert.That(inventory.RemainingToday(ItemKind.Bomb, _context.Balance), Is.EqualTo(3), "V2.13");
-            Assert.That(inventory.RemainingToday(ItemKind.Hammer, _context.Balance), Is.EqualTo(3), "V2.13");
+            Assert.That(inventory.RemainingToday(ItemKind.Undo, _context.Balance), Is.EqualTo(3), "V2.13");
+            Assert.That(inventory.RemainingToday(ItemKind.Undo, _context.Balance), Is.EqualTo(3), "V2.13");
             Assert.That(inventory.RemainingToday(ItemKind.Shake, _context.Balance), Is.EqualTo(2), "V2.14");
 
             for (var i = 0; i < 2; i++)
@@ -72,16 +72,16 @@ namespace MergeWater.Tests.EditMode
             var (daily, inventory) = CreateInventory();
 
             for (var i = 0; i < 3; i++)
-                inventory.Grant(ItemKind.Bomb, _context.Balance);
+                inventory.Grant(ItemKind.Undo, _context.Balance);
 
-            Assert.That(inventory.RemainingToday(ItemKind.Bomb, _context.Balance), Is.EqualTo(0));
-            Assert.That(inventory.Grant(ItemKind.Bomb, _context.Balance), Is.EqualTo(GrantResult.DailyCapReached));
+            Assert.That(inventory.RemainingToday(ItemKind.Undo, _context.Balance), Is.EqualTo(0));
+            Assert.That(inventory.Grant(ItemKind.Undo, _context.Balance), Is.EqualTo(GrantResult.DailyCapReached));
 
             _context.Clock.Advance(TimeSpan.FromDays(1));
 
             Assert.That(daily.EnsureCurrentDay(), Is.True, "跨天应重置");
-            Assert.That(inventory.RemainingToday(ItemKind.Bomb, _context.Balance), Is.EqualTo(3));
-            Assert.That(inventory.Grant(ItemKind.Bomb, _context.Balance), Is.EqualTo(GrantResult.Granted));
+            Assert.That(inventory.RemainingToday(ItemKind.Undo, _context.Balance), Is.EqualTo(3));
+            Assert.That(inventory.Grant(ItemKind.Undo, _context.Balance), Is.EqualTo(GrantResult.Granted));
         }
 
         [Test]
@@ -144,18 +144,18 @@ namespace MergeWater.Tests.EditMode
             for (var i = 0; i < 3; i++)
             {
                 GrantResult granted = GrantResult.Failed;
-                economy.RequestItemGrant(ItemKind.Bomb, (result, _, _) => granted = result);
+                economy.RequestItemGrant(ItemKind.Undo, (result, _, _) => granted = result);
                 Assert.That(granted, Is.EqualTo(GrantResult.Granted), $"第 {i + 1} 次领取应成功");
             }
 
-            var decision = economy.CanGrantItem(ItemKind.Bomb);
+            var decision = economy.CanGrantItem(ItemKind.Undo);
             Assert.That(decision.IsAllowed, Is.False);
             Assert.That(decision.Decision, Is.EqualTo(AdDecision.DailyCapReached));
 
             GrantResult fourth = GrantResult.Granted;
-            economy.RequestItemGrant(ItemKind.Bomb, (result, _, _) => fourth = result);
+            economy.RequestItemGrant(ItemKind.Undo, (result, _, _) => fourth = result);
             Assert.That(fourth, Is.EqualTo(GrantResult.DailyCapReached));
-            Assert.That(economy.ItemCount(ItemKind.Bomb), Is.EqualTo(3), "上限后不再增加");
+            Assert.That(economy.ItemCount(ItemKind.Undo), Is.EqualTo(3), "上限后不再增加");
         }
 
         [Test]
@@ -167,10 +167,10 @@ namespace MergeWater.Tests.EditMode
             var economy = _context.CreateEconomy(ads);
 
             GrantResult result = GrantResult.Granted;
-            economy.RequestItemGrant(ItemKind.Hammer, (grant, _, _) => result = grant);
+            economy.RequestItemGrant(ItemKind.Undo, (grant, _, _) => result = grant);
 
             Assert.That(result, Is.EqualTo(GrantResult.Failed), "广告未完成不发道具");
-            Assert.That(economy.ItemCount(ItemKind.Hammer), Is.EqualTo(0));
+            Assert.That(economy.ItemCount(ItemKind.Undo), Is.EqualTo(0));
         }
 
         [Test]

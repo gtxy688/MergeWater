@@ -7,7 +7,7 @@ namespace MergeWater.Aim
 {
     /// <summary>
     /// 指针输入 → 瞄准状态。实现 <see cref="IAimSource"/>。
-    /// 每次松手最多发出一次 <see cref="DropRequested"/> 或 <see cref="ItemTargetRequested"/>；
+    /// 每次松手最多发出一次 <see cref="DropRequested"/>；
     /// <see cref="SetInteractable"/> 为 false 或指针离开屏幕时取消瞄准且不发指令。
     /// </summary>
     public sealed class AimController : MonoBehaviour, IAimSource
@@ -31,25 +31,19 @@ namespace MergeWater.Aim
 
         private bool _interactable = true;
         private bool _aiming;
-        private bool _itemAim;
 
         /// <summary>「落点区间因半径反转」只告警一次：该判断在逐帧的指针更新路径里，否则会每帧刷屏。</summary>
         private bool _invertedWarned;
         private bool _pointerLeftScreen;
-        private ItemKind _itemKind = ItemKind.None;
         private float _x;
         private float _centerX;
         private Vector2 _aimPoint;
 
         public event Action<float> DropRequested;
-        public event Action<ItemKind, Vector2> ItemTargetRequested;
-
         public AimState State => new AimState(
             _aiming,
-            _itemAim ? _itemKind : ItemKind.None,
             _x,
-            AimSolver.NormalizeX(_x, _minX, _maxX),
-            _itemAim);
+            AimSolver.NormalizeX(_x, _minX, _maxX));
 
         public bool Interactable => _interactable;
 
@@ -146,25 +140,6 @@ namespace MergeWater.Aim
                 CancelAimInternal();
         }
 
-        public void BeginItemAim(ItemKind kind, float radius)
-        {
-            if (!_interactable || kind == ItemKind.None)
-                return;
-
-            _itemAim = true;
-            _itemKind = kind;
-            _aimRadius = Mathf.Max(0.01f, radius);
-            _aiming = true;
-            _pointerLeftScreen = false;
-            _aimPoint = new Vector2(_x, _floorY);
-        }
-
-        public void CancelItemAim()
-        {
-            if (_itemAim)
-                CancelAimInternal();
-        }
-
         /// <summary>
         /// 采样当前落点的预测路径：先垂直下落到落点表面，再做 ≤<c>_maxPreviewTime</c> 的镜像反弹预演。
         /// 下落段不占用反弹预算——否则从生成高度落到地面需要约 1.4s，会把线截断在半空（V2.26 的 0.8s 指反弹预演）。
@@ -200,12 +175,6 @@ namespace MergeWater.Aim
         {
             var world = WorldFromScreen(screenPosition);
 
-            if (_itemAim)
-            {
-                _aimPoint = world;
-                _x = Mathf.Clamp(world.x, _minX, _maxX);
-                return;
-            }
 
             _x = AimSolver.ClampX(world.x, _minX, _maxX, _dropRadius, out var inverted);
             if (inverted && !_invertedWarned)
@@ -228,18 +197,9 @@ namespace MergeWater.Aim
 
         private void Release()
         {
-            var wasItemAim = _itemAim;
-            var kind = _itemKind;
             var dropX = _x;
-            var point = wasItemAim ? _aimPoint : new Vector2(_x, _floorY);
 
             CancelAimInternal();
-
-            if (wasItemAim)
-            {
-                ItemTargetRequested?.Invoke(kind, point);
-                return;
-            }
 
             DropRequested?.Invoke(dropX);
 
@@ -250,8 +210,6 @@ namespace MergeWater.Aim
         private void CancelAimInternal()
         {
             _aiming = false;
-            _itemAim = false;
-            _itemKind = ItemKind.None;
             _pointerLeftScreen = false;
         }
 

@@ -253,16 +253,12 @@ namespace MergeWater.Meta
             data.tutorialRoundsSeen = Mathf.Max(0, data.tutorialRoundsSeen);
 
             data.undoCount = ClampItem(data.undoCount);
-            data.bombCount = ClampItem(data.bombCount);
-            data.hammerCount = ClampItem(data.hammerCount);
             data.shakeCount = ClampItem(data.shakeCount);
 
             data.settingsSfxVolume = Mathf.Clamp01(data.settingsSfxVolume);
             data.settingsMusicVolume = Mathf.Clamp01(data.settingsMusicVolume);
 
             data.undoGrantedToday = ClampItem(data.undoGrantedToday);
-            data.bombGrantedToday = ClampItem(data.bombGrantedToday);
-            data.hammerGrantedToday = ClampItem(data.hammerGrantedToday);
             data.shakeGrantedToday = ClampItem(data.shakeGrantedToday);
 
 

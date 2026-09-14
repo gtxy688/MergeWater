@@ -24,15 +24,6 @@ namespace MergeWater.Core
         /// <summary>按 id 移除水果。幂等；不存在返回 false。</summary>
         bool RemoveFruit(int fruitId);
 
-        /// <summary>移除指定点半径内的全部水果，返回移除数量。</summary>
-        int RemoveFruitInRadius(Vector2 point, float radius);
-
-        /// <summary>指定点半径内是否有水果；用于道具命中判定，不产生副作用。</summary>
-        bool HasFruitInRadius(Vector2 point, float radius);
-
-        /// <summary>移除距离指定点最近的一颗水果（限定最大半径）。</summary>
-        bool RemoveSingleNearest(Vector2 point, float maxRadius, out int removedId);
-
         /// <summary>移除全场最高水果所在的接触连通簇，最多 maxCount 颗，优先高等级。</summary>
         int RemoveHighestCluster(int maxCount);
 

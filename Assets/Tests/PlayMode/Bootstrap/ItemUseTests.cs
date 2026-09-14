@@ -29,70 +29,6 @@ namespace MergeWater.Tests.PlayMode
                 _itemEvents.Add(new KeyValuePair<ItemKind, ItemUseResult>(kind, result));
         }
 
-        [UnityTest]
-        public IEnumerator UseBomb_DeductsStockAndRemovesFruits()
-        {
-            _harness = BootstrapTestHarness.Create(privacyAccepted: true);
-            yield return _harness.Activate();
-            StartPlayable();
-
-            _harness.Context.Economy.Inventory.Grant(ItemKind.Bomb, _harness.Context.Balance);
-            _harness.Field.SpawnAt(1, new Vector2(-0.2f, 0f), out _);
-            _harness.Field.SpawnAt(3, new Vector2(0.2f, 0f), out _);
-            _harness.Field.SpawnAt(2, new Vector2(1.9f, 0f), out _);
-
-            _harness.Context.Items.OnEntryClicked(ItemKind.Bomb);
-            Assert.That(_harness.Context.Aim.State.IsItemAim, Is.True, "有库存时应进入瞄准模式");
-
-            var before = _harness.Field.LiveFruitCount;
-            _harness.Context.Items.ApplyTargetedItem(ItemKind.Bomb, Vector2.zero);
-            yield return null;
-
-            Assert.That(_harness.Context.Economy.ItemCount(ItemKind.Bomb), Is.EqualTo(0), "使用后扣除库存");
-            Assert.That(_harness.Field.LiveFruitCount, Is.LessThan(before), "范围内水果被清除（R12）");
-            Assert.That(_itemEvents.Exists(e => e.Key == ItemKind.Bomb && e.Value == ItemUseResult.Applied), Is.True);
-        }
-
-        [UnityTest]
-        public IEnumerator CancelAim_DoesNotDeductStockOrRemoveFruit()
-        {
-            _harness = BootstrapTestHarness.Create(privacyAccepted: true);
-            yield return _harness.Activate();
-            StartPlayable();
-
-            _harness.Context.Economy.Inventory.Grant(ItemKind.Hammer, _harness.Context.Balance);
-            _harness.Field.SpawnAt(1, Vector2.zero, out _);
-            var before = _harness.Field.LiveFruitCount;
-
-            _harness.Context.Items.OnEntryClicked(ItemKind.Hammer);
-            Assert.That(_harness.Context.Aim.State.IsItemAim, Is.True);
-
-            _harness.Context.Aim.CancelItemAim();
-            yield return null;
-
-            Assert.That(_harness.Context.Aim.State.IsItemAim, Is.False);
-            Assert.That(_harness.Context.Economy.ItemCount(ItemKind.Hammer), Is.EqualTo(1), "取消不扣库存");
-            Assert.That(_harness.Field.LiveFruitCount, Is.EqualTo(before), "取消不产生效果");
-        }
-
-        [UnityTest]
-        public IEnumerator EmptyStock_PlaysRewardedAdThenContinuesToAim()
-        {
-            _harness = BootstrapTestHarness.Create(privacyAccepted: true);
-            yield return _harness.Activate();
-            _harness.GetMockAds().Configure(Meta.MockAdResult.Success, 0f, 0f);
-            StartPlayable();
-
-            Assert.That(_harness.Context.Economy.ItemCount(ItemKind.Bomb), Is.EqualTo(0));
-
-            _harness.Context.Items.OnEntryClicked(ItemKind.Bomb);
-            yield return null;
-
-            Assert.That(_harness.GetMockAds().RewardedShown, Is.EqualTo(1), "库存为 0 时应先看激励视频（R15）");
-            Assert.That(_harness.Context.Economy.ItemCount(ItemKind.Bomb), Is.EqualTo(1), "看完广告获得 1 个");
-            Assert.That(_harness.Context.Aim.State.IsItemAim, Is.True, "领取成功后应自动继续这次使用（D11）");
-        }
-
         /// <summary>
         /// 2026-09-13 需求方：「撤销」改为**清屏**（R11 改写，V2.46）——一次性清空全场水果并扣 1 个库存。
         /// 不再有「最后一颗是否参与合成」的判定（`DropRecord` 那套机器已删除）。
@@ -166,21 +102,5 @@ namespace MergeWater.Tests.PlayMode
                 Is.EqualTo(remainingBefore - 1), "消耗当日摇一摇次数（V2.14）");
         }
 
-        [UnityTest]
-        public IEnumerator UseBomb_WithNoFruitInRadius_DoesNotDeductStock()
-        {
-            _harness = BootstrapTestHarness.Create(privacyAccepted: true);
-            yield return _harness.Activate();
-            StartPlayable();
-
-            _harness.Context.Economy.Inventory.Grant(ItemKind.Bomb, _harness.Context.Balance);
-            _harness.Field.SpawnAt(1, new Vector2(2.0f, 0f), out _);
-
-            _harness.Context.Items.ApplyTargetedItem(ItemKind.Bomb, new Vector2(-2f, 0f));
-            yield return null;
-
-            Assert.That(_harness.Context.Economy.ItemCount(ItemKind.Bomb), Is.EqualTo(1), "空放不扣库存");
-            Assert.That(_itemEvents.Exists(e => e.Key == ItemKind.Bomb && e.Value == ItemUseResult.NoTarget), Is.True);
-        }
     }
 }

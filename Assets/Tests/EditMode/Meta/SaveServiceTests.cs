@@ -51,7 +51,7 @@ namespace MergeWater.Tests.EditMode
         public void Load_OldSchema_MigratesAndClampsOutOfRangeValues()
         {
             const string legacy = "{\"schemaVersion\":1,\"bestScore\":-50,\"bestCombo\":-3," +
-                                  "\"gamesPlayed\":-9,\"undoCount\":99999,\"bombCount\":-20," +
+                                  "\"gamesPlayed\":-9,\"undoCount\":99999,\"shakeCount\":-20," +
                                   "\"shakeCount\":5,\"privacyAccepted\":true}";
             _context = new MetaTestContext(legacy);
 
@@ -62,7 +62,7 @@ namespace MergeWater.Tests.EditMode
             Assert.That(data.bestCombo, Is.EqualTo(0));
             Assert.That(data.gamesPlayed, Is.EqualTo(0));
             Assert.That(data.undoCount, Is.EqualTo(SaveData.MaxItemCount), "超上限被夹到上限");
-            Assert.That(data.bombCount, Is.EqualTo(0));
+            Assert.That(data.shakeCount, Is.EqualTo(0));
             Assert.That(data.shakeCount, Is.EqualTo(5));
             Assert.That(data.privacyAccepted, Is.True, "已同意状态应保留");
             Assert.That(data.dailyKey, Is.EqualTo(_context.Clock.Today), "非法日期键应修正为今天");

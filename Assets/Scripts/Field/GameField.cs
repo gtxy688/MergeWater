@@ -281,31 +281,6 @@ namespace MergeWater.Field
             return true;
         }
 
-        public int RemoveFruitInRadius(Vector2 point, float radius)
-        {
-            if (radius <= 0f)
-                return 0;
-
-            _scratch.Clear();
-            for (var i = 0; i < _ordered.Count; i++)
-            {
-                var fruit = _ordered[i];
-                if (fruit == null)
-                    continue;
-
-                var distance = ((Vector2)fruit.transform.position - point).magnitude;
-                if (distance <= radius)
-                    _scratch.Add(fruit);
-            }
-
-            for (var i = 0; i < _scratch.Count; i++)
-                RemoveInternal(_scratch[i]);
-
-            var removed = _scratch.Count;
-            _scratch.Clear();
-            return removed;
-        }
-
         /// <summary>
         /// 落点表面查询（供瞄准预览）：取该 x 处所有水果里最高的、且不高于起点的那颗的顶面；
         /// 没有则落到地面。这样预览线会停在堆叠表面上，而不是穿过去。
@@ -333,52 +308,6 @@ namespace MergeWater.Field
             }
 
             return best;
-        }
-
-        public bool HasFruitInRadius(Vector2 point, float radius)
-        {
-            if (radius <= 0f)
-                return false;
-
-            for (var i = 0; i < _ordered.Count; i++)
-            {
-                var fruit = _ordered[i];
-                if (fruit == null)
-                    continue;
-
-                if (((Vector2)fruit.transform.position - point).sqrMagnitude <= radius * radius)
-                    return true;
-            }
-
-            return false;
-        }
-
-        public bool RemoveSingleNearest(Vector2 point, float maxRadius, out int removedId)
-        {
-            removedId = 0;
-            FruitBody best = null;
-            var bestDistance = float.MaxValue;
-
-            for (var i = 0; i < _ordered.Count; i++)
-            {
-                var fruit = _ordered[i];
-                if (fruit == null)
-                    continue;
-
-                var distance = ((Vector2)fruit.transform.position - point).magnitude;
-                if (distance > maxRadius || distance >= bestDistance)
-                    continue;
-
-                best = fruit;
-                bestDistance = distance;
-            }
-
-            if (best == null)
-                return false;
-
-            removedId = best.FruitId;
-            RemoveInternal(best);
-            return true;
         }
 
         public int RemoveHighestCluster(int maxCount)

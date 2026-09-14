@@ -26,8 +26,6 @@ namespace MergeWater.Meta
 
             _data.dailyKey = today;
             _data.undoGrantedToday = 0;
-            _data.bombGrantedToday = 0;
-            _data.hammerGrantedToday = 0;
             _data.shakeGrantedToday = 0;
             return true;
         }
@@ -38,8 +36,6 @@ namespace MergeWater.Meta
             switch (kind)
             {
                 case ItemKind.Undo: return _data.undoGrantedToday;
-                case ItemKind.Bomb: return _data.bombGrantedToday;
-                case ItemKind.Hammer: return _data.hammerGrantedToday;
                 case ItemKind.Shake: return _data.shakeGrantedToday;
                 default: return 0;
             }
@@ -51,8 +47,6 @@ namespace MergeWater.Meta
             switch (kind)
             {
                 case ItemKind.Undo: _data.undoGrantedToday++; break;
-                case ItemKind.Bomb: _data.bombGrantedToday++; break;
-                case ItemKind.Hammer: _data.hammerGrantedToday++; break;
                 case ItemKind.Shake: _data.shakeGrantedToday++; break;
             }
         }
@@ -83,8 +77,6 @@ namespace MergeWater.Meta
             switch (kind)
             {
                 case ItemKind.Undo: return _data.undoCount;
-                case ItemKind.Bomb: return _data.bombCount;
-                case ItemKind.Hammer: return _data.hammerCount;
                 case ItemKind.Shake: return _data.shakeCount;
                 default: return 0;
             }
@@ -131,8 +123,6 @@ namespace MergeWater.Meta
             switch (kind)
             {
                 case ItemKind.Undo: _data.undoCount = Clamp(_data.undoCount + delta); break;
-                case ItemKind.Bomb: _data.bombCount = Clamp(_data.bombCount + delta); break;
-                case ItemKind.Hammer: _data.hammerCount = Clamp(_data.hammerCount + delta); break;
                 case ItemKind.Shake: _data.shakeCount = Clamp(_data.shakeCount + delta); break;
             }
         }

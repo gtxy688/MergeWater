@@ -10,13 +10,11 @@ namespace MergeWater.Core
         GameOver = 4
     }
 
-    /// <summary>道具种类。撤销/炸弹/锤子/摇一摇（R11–R14）。</summary>
+    /// <summary>道具种类（V2.58 起只剩清屏与摇一摇：炸弹/锤子随入口删除，R11–R14 收窄为 R11/R14）。</summary>
     public enum ItemKind
     {
         None = 0,
         Undo = 1,
-        Bomb = 2,
-        Hammer = 3,
         Shake = 4
     }
 

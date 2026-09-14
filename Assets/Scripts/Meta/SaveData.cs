@@ -24,13 +24,9 @@ namespace MergeWater.Meta
 
         public string dailyKey = string.Empty;
         public int undoGrantedToday;
-        public int bombGrantedToday;
-        public int hammerGrantedToday;
         public int shakeGrantedToday;
 
         public int undoCount;
-        public int bombCount;
-        public int hammerCount;
         public int shakeCount;
 
         public int interstitialLastShownGame = -999;

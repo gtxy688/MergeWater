@@ -122,21 +122,17 @@ namespace MergeWater.Core
     public readonly struct AimState
     {
         public readonly bool IsAiming;
-        public readonly ItemKind AimItem;
         public readonly float X;
         public readonly float NormalizedX;
-        public readonly bool IsItemAim;
 
-        public AimState(bool isAiming, ItemKind aimItem, float x, float normalizedX, bool isItemAim)
+        public AimState(bool isAiming, float x, float normalizedX)
         {
             IsAiming = isAiming;
-            AimItem = aimItem;
             X = x;
             NormalizedX = normalizedX;
-            IsItemAim = isItemAim;
         }
 
-        public static AimState Idle => new AimState(false, ItemKind.None, 0f, 0.5f, false);
+        public static AimState Idle => new AimState(false, 0f, 0.5f);
     }
 
     /// <summary>局内只读快照，供表现层每帧读取。</summary>

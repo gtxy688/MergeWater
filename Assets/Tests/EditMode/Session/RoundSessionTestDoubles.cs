@@ -49,16 +49,6 @@ namespace MergeWater.Tests.EditMode
 
         public bool RemoveFruit(int fruitId) => true;
 
-        public int RemoveFruitInRadius(Vector2 point, float radius) => 0;
-
-        public bool HasFruitInRadius(Vector2 point, float radius) => LiveFruitCount > 0;
-
-        public bool RemoveSingleNearest(Vector2 point, float maxRadius, out int removedId)
-        {
-            removedId = 0;
-            return false;
-        }
-
         public int RemoveHighestCluster(int maxCount)
         {
             RemoveHighestClusterCalls++;

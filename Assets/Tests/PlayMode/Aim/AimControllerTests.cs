@@ -15,7 +15,6 @@ namespace MergeWater.Tests.PlayMode
         private Camera _camera;
         private AimController _aim;
         private readonly List<float> _dropRequests = new List<float>();
-        private readonly List<KeyValuePair<ItemKind, Vector2>> _itemRequests =
             new List<KeyValuePair<ItemKind, Vector2>>();
 
         [SetUp]
@@ -38,7 +37,6 @@ namespace MergeWater.Tests.PlayMode
             _dropRequests.Clear();
             _itemRequests.Clear();
             _aim.DropRequested += x => _dropRequests.Add(x);
-            _aim.ItemTargetRequested += (kind, point) => _itemRequests.Add(new KeyValuePair<ItemKind, Vector2>(kind, point));
         }
 
         [TearDown]
@@ -127,27 +125,6 @@ namespace MergeWater.Tests.PlayMode
             _aim.HandleFrame(new PointerFrame(false, false, true, false, ScreenPointForWorldX(0.3f)));
 
             Assert.That(_dropRequests, Is.Empty, "指针离开屏幕后松手不应投放");
-            Assert.That(_aim.State.IsAiming, Is.False);
-        }
-
-        [Test]
-        public void ItemAim_ReleasesOneTargetRequest_AndCancelRaisesNothing()
-        {
-            _aim.BeginItemAim(ItemKind.Hammer, 1.2f);
-            Assert.That(_aim.State.IsItemAim, Is.True);
-
-            Press(0.4f);
-            Hold(0.6f);
-            Release(0.6f);
-
-            Assert.That(_itemRequests.Count, Is.EqualTo(1), "道具瞄准松手恰好一次目标指令");
-            Assert.That(_itemRequests[0].Key, Is.EqualTo(ItemKind.Hammer));
-            Assert.That(_dropRequests, Is.Empty, "道具瞄准不应产生投放指令");
-
-            _aim.BeginItemAim(ItemKind.Bomb, 0.6f);
-            _aim.CancelItemAim();
-
-            Assert.That(_itemRequests.Count, Is.EqualTo(1), "取消瞄准不产生指令");
             Assert.That(_aim.State.IsAiming, Is.False);
         }
 

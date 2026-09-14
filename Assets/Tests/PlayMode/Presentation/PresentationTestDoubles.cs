@@ -59,8 +59,6 @@ namespace MergeWater.Tests.PlayMode
         public int PreviewPointCount { get; set; }
 
         public event System.Action<float> DropRequested;
-        public event System.Action<ItemKind, Vector2> ItemTargetRequested;
-
         public void SetDropRadius(float radius)
         {
         }
@@ -70,14 +68,6 @@ namespace MergeWater.Tests.PlayMode
         }
 
         public void SetInteractable(bool interactable)
-        {
-        }
-
-        public void BeginItemAim(ItemKind kind, float radius)
-        {
-        }
-
-        public void CancelItemAim()
         {
         }
 
@@ -95,7 +85,6 @@ namespace MergeWater.Tests.PlayMode
 
         public void RaiseDrop(float x) => DropRequested?.Invoke(x);
 
-        public void RaiseItemTarget(ItemKind kind, Vector2 point) => ItemTargetRequested?.Invoke(kind, point);
     }
 
     /// <summary>

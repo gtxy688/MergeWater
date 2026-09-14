@@ -80,7 +80,6 @@ namespace MergeWater.Bootstrap
             Aim.SetObstacleProvider(Field);
 
             Aim.DropRequested += OnDropRequested;
-            Aim.ItemTargetRequested += OnItemTargetRequested;
         }
 
         public GameBalance Balance { get; }
@@ -399,7 +398,6 @@ namespace MergeWater.Bootstrap
             if (Aim != null)
             {
                 Aim.DropRequested -= OnDropRequested;
-                Aim.ItemTargetRequested -= OnItemTargetRequested;
             }
 
             Hud?.Unbind();
@@ -420,11 +418,6 @@ namespace MergeWater.Bootstrap
             Feedback?.PlayDrop(new Vector2(x, Balance.DropSpawnY));
             Tutorial?.OnDropPerformed(Session);
             SyncAimRadius();
-        }
-
-        private void OnItemTargetRequested(ItemKind kind, Vector2 point)
-        {
-            Items?.ApplyTargetedItem(kind, point);
         }
 
         private void OnBestScoreChanged(int bestScore)

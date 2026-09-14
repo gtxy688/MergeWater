@@ -45,71 +45,6 @@ namespace MergeWater.Bootstrap
             }
         }
 
-        /// <summary>瞄准松手后由 <see cref="GameContext"/> 调用。</summary>
-        public void ApplyTargetedItem(ItemKind kind, Vector2 point)
-        {
-            var context = _context;
-            if (context == null)
-                return;
-
-            var session = context.Session;
-            if (session == null || !session.CanUseItem())
-            {
-                session?.NotifyItemUsed(kind, ItemUseResult.NotAllowed);
-                return;
-            }
-
-            var field = context.Field;
-            var balance = context.Balance;
-
-            if (kind == ItemKind.Bomb)
-            {
-                if (!field.HasFruitInRadius(point, balance.BombRadius))
-                {
-                    session.NotifyItemUsed(kind, ItemUseResult.NoTarget);
-                    context.Notify("炸弹范围内没有行星");
-                    return;
-                }
-
-                if (context.Economy.SpendItem(kind) != SpendResult.Spent)
-                {
-                    session.NotifyItemUsed(kind, ItemUseResult.NoStock);
-                    context.Notify("炸弹数量不足");
-                    return;
-                }
-
-                var removed = field.RemoveFruitInRadius(point, balance.BombRadius);
-                session.NotifyItemUsed(kind, ItemUseResult.Applied);
-                context.Feedback?.PlayItemUse(kind);
-                context.Notify($"炸弹清除了 {removed} 颗行星");
-                context.RefreshBadges();
-                return;
-            }
-
-            if (kind == ItemKind.Hammer)
-            {
-                if (!field.HasFruitInRadius(point, balance.HammerMaxRadius))
-                {
-                    session.NotifyItemUsed(kind, ItemUseResult.NoTarget);
-                    context.Notify("锤子范围内没有行星");
-                    return;
-                }
-
-                if (context.Economy.SpendItem(kind) != SpendResult.Spent)
-                {
-                    session.NotifyItemUsed(kind, ItemUseResult.NoStock);
-                    context.Notify("锤子数量不足");
-                    return;
-                }
-
-                field.RemoveSingleNearest(point, balance.HammerMaxRadius, out _);
-                session.NotifyItemUsed(kind, ItemUseResult.Applied);
-                context.Feedback?.PlayItemUse(kind);
-                context.Notify("锤子敲碎了 1 颗行星");
-                context.RefreshBadges();
-            }
-        }
-
         private void EnsureStockThen(ItemKind kind, System.Action onReady)
         {
             var context = _context;
@@ -167,13 +102,5 @@ namespace MergeWater.Bootstrap
             context.RefreshBadges();
         }
 
-        private void BeginAim(ItemKind kind)
-        {
-            var context = _context;
-            var radius = kind == ItemKind.Bomb ? context.Balance.BombRadius : context.Balance.HammerMaxRadius;
-
-            context.Aim.BeginItemAim(kind, radius);
-            context.Notify(kind == ItemKind.Bomb ? "点击场地选择炸弹落点" : "点击场地选择要敲碎的行星");
-        }
     }
 }
