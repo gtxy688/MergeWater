@@ -114,8 +114,22 @@ namespace MergeWater.Bootstrap
 
         public event Action<GameContext> ContextReady;
 
+        /// <summary>
+        /// 小游戏/WebGL 的目标帧率（2026-09-14 打包前优化）：显式锁 60，而不是把渲染节奏交给运行时默认值——
+        /// 在高刷屏上无上限渲染只会带来发热与掉电，收益几乎为零（本作主线程约 3.4ms，渲染不是瓶颈）。
+        /// **只在 WebGL 生效**，编辑器与其它平台保持原生帧率便于调试。
+        /// </summary>
+        private const int WebGlTargetFrameRate = 60;
+
         private void Awake()
         {
+            // 打包前优化：WebGL / 小游戏显式锁帧（编辑器不动）。
+            if (Application.platform == RuntimePlatform.WebGLPlayer)
+            {
+                QualitySettings.vSyncCount = 0;
+                Application.targetFrameRate = WebGlTargetFrameRate;
+            }
+
             // 诊断开关（默认关，见 logDiagnosticsToConsole）：广告请求/结果 + 输入锁定开合都写 Console。
             Meta.AdsDiagnostics.Enabled = logDiagnosticsToConsole;
 
