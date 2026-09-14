@@ -152,6 +152,7 @@ namespace MergeWater.Meta
         {
             if (!IsInitialized)
             {
+                AdsDiagnostics.Log($"Mock 请求 {placement} → 适配器未 Initialize，直接判 Failed");
                 onComplete?.Invoke(MergeWater.Core.RewardedResult.Failed);
                 return;
             }
@@ -159,12 +160,15 @@ namespace MergeWater.Meta
             // 重入保护：播放中再次请求直接拒绝（连续点击广告按钮 / 结算页连点复活）。
             if (IsShowing)
             {
+                AdsDiagnostics.Log($"Mock 请求 {placement} → 正在播放中，立即拒绝（Unavailable）");
                 onComplete?.Invoke(MergeWater.Core.RewardedResult.Unavailable);
                 return;
             }
 
+            AdsDiagnostics.Log($"Mock 请求 {placement} → 模拟播放 {rewardedSeconds:0.##} 秒，" +
+                               $"预期结果 {rewardedResult}");
             _pendingRewarded = onComplete;
-            StartCoroutine(RunRewarded(rewardedSeconds, onComplete));
+            StartCoroutine(RunRewarded(placement, rewardedSeconds, onComplete));
         }
 
         public void ShowInterstitial(Action<MergeWater.Core.InterstitialResult> onComplete)
@@ -184,7 +188,8 @@ namespace MergeWater.Meta
             StartCoroutine(RunInterstitial(interstitialSeconds, onComplete));
         }
 
-        private IEnumerator RunRewarded(float seconds, Action<MergeWater.Core.RewardedResult> onComplete)
+        private IEnumerator RunRewarded(MergeWater.Core.AdPlacement placement, float seconds,
+            Action<MergeWater.Core.RewardedResult> onComplete)
         {
             IsShowing = true;
             RewardedShown++;
@@ -194,7 +199,9 @@ namespace MergeWater.Meta
 
             IsShowing = false;
             _pendingRewarded = null;
-            onComplete?.Invoke(ToRewardedResult(rewardedResult));
+            var result = ToRewardedResult(rewardedResult);
+            AdsDiagnostics.Log($"Mock {placement} → 结果 {AdsDiagnostics.Describe(result)}");
+            onComplete?.Invoke(result);
         }
 
         private IEnumerator RunInterstitial(float seconds, Action<MergeWater.Core.InterstitialResult> onComplete)

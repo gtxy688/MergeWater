@@ -95,6 +95,14 @@ namespace MergeWater.Bootstrap
                  "都会自动退回 Mock 广告（Console 会告警说明）")]
         [SerializeField] private string weChatRewardedAdUnitId = "";
 
+        [Header("诊断（默认关闭）")]
+        [Tooltip("打开后写 Console：每次广告请求/结果、以及**输入锁定的每一次开合**（含原因：加载页/面板/广告中）。" +
+                 "专门用于排查「点了没反应」——平时保持关闭（V2.47：运行期不刷 Console）")]
+        [SerializeField] private bool logDiagnosticsToConsole;
+
+        private bool _lastInputBlocked;
+        private bool _hasLoggedInputState;
+
         /// <summary>测试接缝：注入的 Sink 优先；为空且未勾选日志开关时用 <see cref="Meta.NullAnalyticsSink"/>（不写 Console）。</summary>
         public Meta.IAnalyticsSink AnalyticsSinkOverride { get; set; }
 
@@ -109,6 +117,9 @@ namespace MergeWater.Bootstrap
 
         private void Awake()
         {
+            // 诊断开关（默认关，见 logDiagnosticsToConsole）：广告请求/结果 + 输入锁定开合都写 Console。
+            Meta.AdsDiagnostics.Enabled = logDiagnosticsToConsole;
+
             ResolveOrBuildPresentation();
             ResolveReferences();
 
@@ -192,7 +203,21 @@ namespace MergeWater.Bootstrap
 
             var adShowing = Context.Ads.IsShowing;
             var panelOpen = panels != null && panels.CurrentPanel != PanelId.None;
-            Context.SetInputBlocked(adShowing || panelOpen);
+            var blocked = adShowing || panelOpen;
+
+            // 诊断（默认关）：输入锁定的每一次开合都留一行，并把原因写清楚——
+            // 「点了没反应」九成是这里锁着，而不是按钮坏了（2026-09-14 排查用）。
+            if (logDiagnosticsToConsole && (!_hasLoggedInputState || blocked != _lastInputBlocked))
+            {
+                _hasLoggedInputState = true;
+                _lastInputBlocked = blocked;
+                var reason = blocked
+                    ? (adShowing ? "广告播放中" : $"面板打开：{panels?.CurrentPanel}")
+                    : "无";
+                Debug.Log($"[Input] 输入{(blocked ? "已锁定" : "已解锁")}（原因：{reason}）");
+            }
+
+            Context.SetInputBlocked(blocked);
         }
 
         private void AdvanceLoading(float deltaSeconds)
