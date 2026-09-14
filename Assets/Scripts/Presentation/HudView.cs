@@ -15,13 +15,14 @@ namespace MergeWater.Presentation
         Loading = 6
     }
 
+    /// <summary>
+    /// 红点/角标 id。2026-09-14 需求方决定删除锤子/炸弹/大礼包三个入口，只保留清屏与摇一摇，
+    /// 因此 <c>Bomb</c>/<c>Hammer</c>/<c>Gift</c> 已移除；保留项的数值**刻意不变**（避免任何隐式依赖）。
+    /// </summary>
     public enum BadgeId
     {
         Undo = 0,
-        Bomb = 1,
-        Hammer = 2,
         Shake = 3,
-        Gift = 4,
         Leaderboard = 5
     }
 
@@ -43,21 +44,9 @@ namespace MergeWater.Presentation
         public TextMeshProUGUI shakeLabel;
         public GameObject shakeBadge;
 
-        public Button hammerButton;
-        public TextMeshProUGUI hammerLabel;
-        public GameObject hammerBadge;
-
-        public Button giftButton;
-        public TextMeshProUGUI giftLabel;
-        public GameObject giftBadge;
-
         [Header("右侧入口（上→下）")] public Button undoButton;
         public TextMeshProUGUI undoLabel;
         public GameObject undoBadge;
-
-        public Button bombButton;
-        public TextMeshProUGUI bombLabel;
-        public GameObject bombBadge;
 
         public Button leaderboardButton;
         public GameObject leaderboardBadge;

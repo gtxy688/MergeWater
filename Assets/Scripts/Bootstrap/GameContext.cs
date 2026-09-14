@@ -362,39 +362,6 @@ namespace MergeWater.Bootstrap
             });
         }
 
-        public void RequestGift()
-        {
-            var decision = Economy.CanGrantGift();
-            if (!decision.IsAllowed)
-            {
-                Notify(decision.Reason);
-                return;
-            }
-
-            if (Ads.IsAvailable)
-                Panels?.SetAdOverlay(true, "激励视频（测试位）：大礼包");
-
-            Economy.RequestGiftGrant((grant, _, ad) =>
-            {
-                Panels?.SetAdOverlay(false, null);
-
-                if (grant == GrantResult.Granted)
-                {
-                    Feedback?.PlayClaim();
-                    Notify("大礼包：撤销 / 炸弹 / 锤子 各 +1");
-                    RefreshBadges();
-                }
-                else if (ad != RewardedResult.Completed)
-                {
-                    Notify(AdFailureMessage(ad));
-                }
-                else
-                {
-                    Notify("大礼包今日已领取");
-                }
-            });
-        }
-
         public void RequestShare()
         {
             var score = Session?.Score ?? 0;
@@ -424,10 +391,7 @@ namespace MergeWater.Bootstrap
                 return;
 
             Panels.SetBadge(BadgeId.Undo, Economy.ItemRemainingToday(ItemKind.Undo) > 0);
-            Panels.SetBadge(BadgeId.Bomb, Economy.ItemRemainingToday(ItemKind.Bomb) > 0);
-            Panels.SetBadge(BadgeId.Hammer, Economy.ItemRemainingToday(ItemKind.Hammer) > 0);
             Panels.SetBadge(BadgeId.Shake, Economy.ItemRemainingToday(ItemKind.Shake) > 0);
-            Panels.SetBadge(BadgeId.Gift, Economy.GiftRemainingToday > 0);
             Panels.SetBadge(BadgeId.Leaderboard, Leaderboard.IsSelfBeaten);
         }
 

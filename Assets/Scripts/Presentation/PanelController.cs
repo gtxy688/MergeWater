@@ -103,10 +103,7 @@ namespace MergeWater.Presentation
             _panels[PanelId.Loading] = view.loadingPanel;
 
             _badges[BadgeId.Undo] = view.undoBadge;
-            _badges[BadgeId.Bomb] = view.bombBadge;
-            _badges[BadgeId.Hammer] = view.hammerBadge;
             _badges[BadgeId.Shake] = view.shakeBadge;
-            _badges[BadgeId.Gift] = view.giftBadge;
             _badges[BadgeId.Leaderboard] = view.leaderboardBadge;
         }
 
@@ -131,8 +128,6 @@ namespace MergeWater.Presentation
             Hook(view.settingsCloseButton, () => Hide(PanelId.Settings));
 
             Hook(view.undoButton, () => ItemEntryClicked?.Invoke(ItemKind.Undo));
-            Hook(view.bombButton, () => ItemEntryClicked?.Invoke(ItemKind.Bomb));
-            Hook(view.hammerButton, () => ItemEntryClicked?.Invoke(ItemKind.Hammer));
             Hook(view.shakeButton, () => ItemEntryClicked?.Invoke(ItemKind.Shake));
 
             if (view.sfxToggle != null)

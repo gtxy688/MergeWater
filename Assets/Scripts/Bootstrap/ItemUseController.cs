@@ -42,11 +42,6 @@ namespace MergeWater.Bootstrap
                 case ItemKind.Undo:
                     EnsureStockThen(ItemKind.Undo, () => UseClearField());
                     return;
-
-                case ItemKind.Bomb:
-                case ItemKind.Hammer:
-                    EnsureStockThen(kind, () => BeginAim(kind));
-                    return;
             }
         }
 

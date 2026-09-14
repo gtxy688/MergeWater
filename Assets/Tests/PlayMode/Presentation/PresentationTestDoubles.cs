@@ -148,10 +148,7 @@ namespace MergeWater.Tests.PlayMode
             view.privacyPanel = MakePanel(canvasGo.transform, "Privacy");
 
             view.undoButton = MakeButton(canvasGo.transform, "Undo");
-            view.bombButton = MakeButton(canvasGo.transform, "Bomb");
-            view.hammerButton = MakeButton(canvasGo.transform, "Hammer");
             view.shakeButton = MakeButton(canvasGo.transform, "Shake");
-            view.giftButton = MakeButton(canvasGo.transform, "Gift");
 
             view.settlementPanel = MakePanel(canvasGo.transform, "Settlement");
             view.settlementTitleText = MakeText(canvasGo.transform, "SettlementTitle");

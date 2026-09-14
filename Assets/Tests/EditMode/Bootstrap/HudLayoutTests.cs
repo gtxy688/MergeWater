@@ -68,10 +68,7 @@ namespace MergeWater.Tests.EditMode
                 // 阶段目标（stageProgressLabel/Fill）与 NEXT 预览（nextFruitIcon/Label）。
                 Pair("settingsButton", _view.settingsButton),
                 Pair("shakeButton", _view.shakeButton),
-                Pair("hammerButton", _view.hammerButton),
-                Pair("giftButton", _view.giftButton),
                 Pair("undoButton", _view.undoButton),
-                Pair("bombButton", _view.bombButton),
                 Pair("leaderboardButton", _view.leaderboardButton),
                 Pair("toastPanel", _view.toastPanel)
             };
@@ -285,8 +282,8 @@ namespace MergeWater.Tests.EditMode
             var center = UiDesignSpec.ReferenceWidth * 0.5f;
             var failures = new List<string>();
 
-            var leftEntries = new[] { _view.shakeButton, _view.hammerButton, _view.giftButton };
-            var rightEntries = new[] { _view.undoButton, _view.bombButton, _view.leaderboardButton };
+            var leftEntries = new[] { _view.shakeButton };
+            var rightEntries = new[] { _view.undoButton, _view.leaderboardButton };
 
             foreach (var entry in leftEntries)
             {

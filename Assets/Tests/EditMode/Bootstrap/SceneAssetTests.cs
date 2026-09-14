@@ -121,12 +121,9 @@ namespace MergeWater.Tests.EditMode
             Assert.That(view.leaderboardPanel, Is.Not.Null);
             Assert.That(view.toastText, Is.Not.Null);
 
-            // 两侧入口齐备（GDD §6.2）
+            // 两侧入口（2026-09-14 需求方删除锤子/炸弹/大礼包后，只剩两个道具入口：左 摇一摇、右 清屏）
             Assert.That(view.shakeButton, Is.Not.Null, "左侧：摇一摇");
-            Assert.That(view.hammerButton, Is.Not.Null, "左侧：锤子");
-            Assert.That(view.giftButton, Is.Not.Null, "左侧：大礼包");
-            Assert.That(view.undoButton, Is.Not.Null, "右侧：撤销");
-            Assert.That(view.bombButton, Is.Not.Null, "右侧：炸弹");
+            Assert.That(view.undoButton, Is.Not.Null, "右侧：清屏");
         }
 
         /// <summary>
@@ -218,8 +215,7 @@ namespace MergeWater.Tests.EditMode
 
         [Test]
         public void MainScene_HasNoReferencesToMissingScripts()
-        {
-            // 指向「已不存在的脚本资产」的引用在编辑器里显示为 Missing Script：运行时该组件根本不会
+        {            // 指向「已不存在的脚本资产」的引用在编辑器里显示为 Missing Script：运行时该组件根本不会
             // 实例化，功能静默失效——而且序列化数据看起来完全正常，肉眼看场景也未必发现。
             // 2026-09-13 的飘字池正是这样坏的：`FloatingTextItem.cs` 从共享文件拆成独立文件后，
             // 场景里 12 个飘字条目仍指向拆分前的旧脚本 GUID，`FloatingTextSpawner.Spawn`
@@ -243,5 +239,40 @@ namespace MergeWater.Tests.EditMode
                 "主场景里有引用不到脚本资产的组件（Missing Script，功能会静默失效）：" +
                 string.Join(", ", missing.Select(g => string.IsNullOrEmpty(g) ? "(无 guid)" : g)));
         }
+
+        /// <summary>
+        /// 合成粒子的贴图必须是行星主题的火花，不能是水果时代的占位圆片（V2.56，2026-09-14）。
+        ///
+        /// <para>需求方反馈「项目从水果变成行星了，合成特效有点违和感」——根因是粒子用的是
+        /// `Resources/Placeholder/fruit_circle.png`（白色实心圆，占位美术时代的遗留），
+        /// 而全工程只有它一处还留着「水果」的形态。素材与场景都是手工维护的，因此这条断言
+        /// 是「有人把贴图换回去 / 新建场景时忘了指派」的唯一防线。</para>
+        /// </summary>
+        [Test]
+        public void MergeParticle_UsesSpaceVfxSprite_NotTheFruitPlaceholder()
+        {
+            var burst = InScene<ParticleBurst>().SingleOrDefault();
+            Assert.That(burst, Is.Not.Null, "主场景应有合成粒子（ParticleBurst）");
+
+            var renderer = burst.GetComponentInChildren<ParticleSystemRenderer>(true);
+            Assert.That(renderer, Is.Not.Null, "ParticleBurst 下应有 ParticleSystemRenderer");
+
+            var material = renderer.sharedMaterial;
+            Assert.That(material, Is.Not.Null, "合成粒子必须有材质（为空 = 粒子完全看不见）");
+
+            var texture = material.mainTexture;
+            Assert.That(texture, Is.Not.Null, "合成粒子材质必须有贴图");
+
+            var texturePath = AssetDatabase.GetAssetPath(texture);
+            Assert.That(texturePath, Is.EqualTo(MergeParticleSpritePath),
+                "合成粒子应使用行星主题的火花贴图（Assets/Art/Vfx/merge_spark.png）；" +
+                $"现在是「{texturePath}」");
+
+            Assert.That(Path.GetFileNameWithoutExtension(texturePath), Is.Not.EqualTo("fruit_circle"),
+                "合成粒子不得再用水果占位圆片：星球美术下它会像水果碎片（V2.56 已修）");
+        }
+
+        /// <summary>合成粒子的火花贴图路径（场景门禁与文档引用的同一份）。</summary>
+        private const string MergeParticleSpritePath = "Assets/Art/Vfx/merge_spark.png";
     }
 }
