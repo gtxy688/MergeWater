@@ -227,6 +227,24 @@ namespace MergeWater.Presentation
 
         public void SetVibrateEnabled(bool enabled) => VibrateEnabled = enabled;
 
+        /// <summary>
+        /// 音乐是否该（重新）开始播放——纯判断，便于 EditMode 直接单测。
+        ///
+        /// <para>规则：**换了曲子**要重播；**当前没在播**要开始播（首次启动、被外部停掉、以及
+        /// 「关闭音乐后再打开」——需求方 2026-09-14 明确要求只有这种情况才重头播）；
+        /// **已经在放同一首则什么都不做**。</para>
+        /// </summary>
+        public static bool ShouldStartMusic(AudioClip currentClip, AudioClip wantedClip, bool isPlaying) =>
+            currentClip != wantedClip || !isPlaying;
+
+        /// <summary>
+        /// 保证 BGM 正在播放（**幂等**）。
+        ///
+        /// <para>2026-09-14 需求方反馈「修改音效为什么会导致音乐重新播放」：任何设置变化都会走
+        /// <c>SettingsService.Changed</c> → <c>GameContext.ApplySettingsToAudio</c> → 本方法，
+        /// 而拖动音量条时存档值**逐帧**变化，原先每次都 <c>Play()</c>（等于把播放位置重置到 0），
+        /// 听感上就是音乐被反复从头播放。现在只有「换曲子」或「当前没在播」才真正开始播放。</para>
+        /// </summary>
         public void PlayMusic()
         {
             if (!MusicEnabled || musicSource == null)
@@ -239,8 +257,15 @@ namespace MergeWater.Presentation
                 return;
             }
 
-            musicSource.clip = backgroundMusic;
+            if (musicSource.clip != backgroundMusic)
+                musicSource.clip = backgroundMusic;
+
             musicSource.loop = true;
+
+            // 已经在放同一首 → 直接返回，不碰播放位置（这是修复的核心一行）。
+            if (!ShouldStartMusic(musicSource.clip, backgroundMusic, musicSource.isPlaying))
+                return;
+
             musicSource.Play();
         }
 

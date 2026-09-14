@@ -38,6 +38,8 @@ UI 文本一律使用 **TextMeshPro**（`TextMeshProUGUI` / 世界空间 `TextMe
 
 音效优先用 `AudioDirector` 的 `sfxClips` **指派表**里的真实素材，未指派的 `SfxId` 回退到 `PlaceholderAudioFactory` 在运行时用正弦/方波包络合成的占位音（投放、合成、连击音阶、越线心跳、失败、按钮、领取、复活），因此「一个素材都没配」时也能听到反馈（决策 D4）。需求方（2026-09-13）指定合成音改用 `Assets/Audios/pop.ogg`：`Merge` 与 `ComboUp` 都指向该素材（连击音阶仍由 `pitch` 实现），指派发生在 `Main.unity` 的 `GameRoot/Presentation` 节点上，改素材只需在 Inspector 里换引用。BGM 槽位为可选：未指派时静默降级，不假装有音乐。
 
+**BGM 只在「关闭音乐 → 重新打开」时从头播**（2026-09-14 需求方缺陷修复）：`AudioDirector.PlayMusic()` 是**幂等**的——只有「换了曲子」或「当前没在播」才真正 `Play()`，已经在放同一首时直接返回、不碰播放位置；规则收敛在纯函数 `AudioDirector.ShouldStartMusic(current, wanted, isPlaying)`。之所以必须幂等：任何设置变化都会经 `SettingsService.Changed → GameContext.ApplySettingsToAudio` 调用它（其中先 `SetMusicEnabled(已开)`、末尾再 `PlayMusic()` 一次），而**拖动音量条时存档值逐帧变化**，原先无条件 `Play()` 会把播放位置重置到 0 → 听感上音乐被反复从头播放。反向要求同样固化：「关闭音乐后再打开」必须从头播（`Stop()` 后 `isPlaying=false` → 重新 `Play()`）。门禁：EditMode `MusicPlaybackTests`（4 项规则）、PlayMode `AudioDirectorTests.VolumeChange_DoesNotRestartMusic` 与 `MusicToggledOffThenOn_RestartsFromTheBeginning`（断言 `AudioSource.timeSamples` 未被重置）。
+
 `timeScale` 与顿帧由 `TimeDirector` 独占管理（慢放、顿帧、暂停），避免其他模块各自改 `timeScale`；M2 的 `SetSimulationEnabled` 与之解耦（冻结物理用 M2，视觉时间缩放用本模块）。
 
 ## 关键机制

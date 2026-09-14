@@ -460,6 +460,9 @@ namespace MergeWater.Bootstrap
             Audio.SetSfxVolume(SettingsService.SfxVolume);
             Audio.SetMusicVolume(SettingsService.MusicVolume);
 
+            // 音乐：这里只保证「在放」——PlayMusic 是**幂等**的，不会把正在播的曲子重头开始；
+            // 只有「关闭音乐后再打开」（SetMusicEnabled(false) → (true)）才会从头播放（需求方 2026-09-14）。
+            // 注意本方法挂在 SettingsService.Changed 上，拖音量条时会被**逐帧**调用。
             if (SettingsService.MusicEnabled)
                 Audio.PlayMusic();
         }
