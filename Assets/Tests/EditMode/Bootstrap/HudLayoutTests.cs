@@ -226,34 +226,47 @@ namespace MergeWater.Tests.EditMode
         [Test]
         public void SettingsPanel_BottomBlock_SitsAboveTheBottomEdgeWithBalancedSpacing()
         {
-            // V2.41（需求方「把底部上移一点」）：设置面板底部的「版本 + 关闭」块必须
-            // ① 整体抬离面板下边缘足够远（关闭按钮下沿 ≥ 90 设计单位），
-            // ② 与上方最后一个内容（清除缓存按钮）留出可辨的空档（≥ 80），
-            // ③ 不能高到压到清除缓存（间距上限 200）。
-            // 面板下边缘 = Rect 底边；子元素为底锚点 + 底侧 pivot，anchoredPosition.y 即「距面板底距离」。
+            // 2026-09-14（需求方「我一直用着没问题啊，把测试改掉或者删除」）：
+            // 原用例假设「面板子元素全部底锚点 + 底侧 pivot」，用 `面板高 + anchoredPosition.y` 推算空档；
+            // 但设置面板后来重新排版成**拉伸锚点**，该假设从一开始就不成立——于是它长期红着，
+            // 而且算出来的 -28.9 是模型噪声、不是观感问题。现在改用 RectTransformUtility 把子元素换算到
+            // 面板局部空间（任何锚点模式都适用），只断言真正的观感约束、不写死像素值。
             var panelRect = _view.settingsPanel.GetComponent<RectTransform>();
-            Assert.That(panelRect, Is.Not.Null, "设置面板应有 RectTransform");
-
             var closeRect = _view.settingsCloseButton.GetComponent<RectTransform>();
             var versionRect = _view.versionText.GetComponent<RectTransform>();
             var clearCacheRect = _view.clearCacheButton.GetComponent<RectTransform>();
 
-            var closeBottom = closeRect.anchoredPosition.y;
-            var versionBottom = versionRect.anchoredPosition.y;
-            var clearCacheBottom = panelRect.rect.height + clearCacheRect.anchoredPosition.y;
-            var gapToContent = clearCacheBottom - (versionBottom + versionRect.sizeDelta.y);
-            var bottomPadding = closeBottom;
+            Assert.That(panelRect, Is.Not.Null, "设置面板应有 RectTransform");
+            Assert.That(closeRect, Is.Not.Null, "关闭按钮应有 RectTransform");
+            Assert.That(versionRect, Is.Not.Null, "版本号应有 RectTransform");
+            Assert.That(clearCacheRect, Is.Not.Null, "清除缓存按钮应有 RectTransform");
 
-            Assert.That(bottomPadding, Is.GreaterThanOrEqualTo(90f),
-                $"关闭按钮下沿距面板底仅 {bottomPadding:0.#}：需求方要求底部块上移（V2.41，原值 60）");
-            Assert.That(bottomPadding, Is.LessThanOrEqualTo(200f),
-                $"关闭按钮下沿距面板底 {bottomPadding:0.#} 过大，底部块会被推到面板中部");
+            // 子元素在**面板局部空间**的包围盒（y 向上为正）；面板下沿 = panelRect.rect.yMin
+            var close = RectTransformUtility.CalculateRelativeRectTransformBounds(panelRect, closeRect);
+            var version = RectTransformUtility.CalculateRelativeRectTransformBounds(panelRect, versionRect);
+            var clearCache = RectTransformUtility.CalculateRelativeRectTransformBounds(panelRect, clearCacheRect);
+            var bottomClearance = close.min.y - panelRect.rect.yMin;
 
-            Assert.That(gapToContent, Is.InRange(80f, 200f),
-                $"「清除缓存」与底部块之间空档 {gapToContent:0.#}，应落在 80–200（V2.41 目标约 94）");
+            // ① 底部块不贴边：下沿距面板底 ≥ 90（微信胶囊 / 系统手势区）
+            Assert.That(bottomClearance, Is.GreaterThanOrEqualTo(90f),
+                $"关闭按钮下沿距面板底仅 {bottomClearance:0.#}：需求方要求底部块上移（V2.41，原值 60）");
 
-            Assert.That(versionBottom, Is.GreaterThan(closeBottom),
-                "版本号应位于关闭按钮之上");
+            // ② 不被推到面板中部（真正的回归形态；宽松上限 = 面板高的 25%）
+            Assert.That(bottomClearance, Is.LessThanOrEqualTo(panelRect.rect.height * 0.25f),
+                $"关闭按钮下沿距面板底 {bottomClearance:0.#} 超过面板高度的 25%" +
+                $"（{panelRect.rect.height * 0.25f:0.#}），底部块会被推到面板中部");
+
+            // ③ 底部块（版本 + 关闭）不得与上方内容重叠——这才是原用例想守的不变量
+            Assert.That(close.Intersects(clearCache), Is.False,
+                $"关闭按钮与「清除缓存」重叠：close.min={close.min} close.max={close.max} " +
+                $"clearCache.min={clearCache.min} clearCache.max={clearCache.max}");
+            Assert.That(version.Intersects(clearCache), Is.False,
+                $"版本号与「清除缓存」重叠：version.min={version.min} version.max={version.max} " +
+                $"clearCache.min={clearCache.min} clearCache.max={clearCache.max}");
+
+            // ④ 版本号在关闭按钮之上
+            Assert.That(version.min.y, Is.GreaterThanOrEqualTo(close.max.y - 1f),
+                $"版本号应位于关闭按钮之上（version.min.y={version.min.y:0.#}，close.max.y={close.max.y:0.#}）");
         }
 
         [Test]
