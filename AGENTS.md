@@ -78,7 +78,7 @@ AI 可以报告实现及已运行的自动化验证完成，但必须分别列�
 # 代码与仓库约定
 
 - 命名空间与程序集：`MergeWater.Core` / `.Field` / `.Session` / `.Aim` / `.Presentation` / `.Meta` / `.Bootstrap` / `.Editor`；每个模块一个 `.asmdef`，目录与程序集同名。测试程序集 `MergeWater.Tests.EditMode` / `MergeWater.Tests.PlayMode`。
-- 目录和序列化：运行时代码放 `Assets/Scripts/<Module>/`，测试放 `Assets/Tests/{EditMode,PlayMode}/<Module>/`，编辑器工具放 `Assets/Scripts/Editor/`（**已无 UI 生成器**：只剩字体烘焙/字符收集、配置资产生成、占位美术生成、地面调参窗口，以及只含常量的 `MainSceneAsset.cs` / `UiDesignSpec.cs`），占位美术放 `Assets/Resources/Placeholder/`，正式水果美术放 `Assets/Resources/kenney_planets/Planets/`（`planet00..09` 按等级 1..10 依次对应），素材包其余部分放 `Assets/Art/kenney_planets/`（刻意不进包），UI 美术放 `Assets/UI/Art/`，配置资产放 `Assets/Config/`，中文字体与字符收集文件放 `Assets/Fonts/`（`TMPCharacters.txt` + `ChineseUI SDF.asset`），主场景 `Assets/Scenes/Main.unity`（**UI 全在该场景里手工维护**，没有重建菜单）。
+- 目录和序列化：运行时代码放 `Assets/Scripts/<Module>/`，测试放 `Assets/Tests/{EditMode,PlayMode}/<Module>/`，编辑器工具放 `Assets/Scripts/Editor/`（**已无 UI 生成器**：只剩字体烘焙/字符收集、配置资产生成、占位美术生成、地面调参窗口，以及只含常量的 `MainSceneAsset.cs` / `UiDesignSpec.cs`），占位美术放 `Assets/Resources/Placeholder/`，正式水果美术放 `Assets/Resources/kenney_planets/Planets/`（`planet00..09` 按等级 1..10 依次对应），素材包其余部分放 `Assets/Art/kenney_planets/`（刻意不进包），UI 美术放 `Assets/UI/Art/`，配置资产放 `Assets/Config/`，Sprite 图集放 `Assets/Atlases/`，中文字体与字符收集文件放 `Assets/Fonts/`（`TMPCharacters.txt` + `ChineseUI SDF.asset`），主场景 `Assets/Scenes/Main.unity`（**UI 全在该场景里手工维护**，没有重建菜单）。
 - 序列化字段使用 `[SerializeField] private`；公开只读状态用属性；不用 public 字段暴露可变状态。
 - 日志与错误处理：运行时报错用 `Debug.LogError` 且必须可降级；预期内的拒绝（库存不足、广告冷却）用返回值枚举表达并记 `Debug.Log`，不抛异常。
 - 提交格式：`feat(<module>): 描述` / `fix(<module>): 描述` / `docs(<area>): 描述` / `test(<module>): 描述`；功能连同测试一起提交。
