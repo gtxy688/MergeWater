@@ -80,7 +80,7 @@ namespace MergeWater.Tests.PlayMode
         {
             _harness = BootstrapTestHarness.Create(privacyAccepted: true);
             yield return _harness.Activate();
-            _harness.GetMockAds().Configure(true, 0f, 0f);
+            _harness.GetMockAds().Configure(Meta.MockAdResult.Success, 0f, 0f);
             StartPlayable();
 
             Assert.That(_harness.Context.Economy.ItemCount(ItemKind.Bomb), Is.EqualTo(0));
@@ -149,7 +149,7 @@ namespace MergeWater.Tests.PlayMode
         {
             _harness = BootstrapTestHarness.Create(privacyAccepted: true);
             yield return _harness.Activate();
-            _harness.GetMockAds().Configure(true, 0f, 0f);
+            _harness.GetMockAds().Configure(Meta.MockAdResult.Success, 0f, 0f);
             StartPlayable();
 
             _harness.Field.SpawnAt(1, new Vector2(-0.8f, 0f), out _);

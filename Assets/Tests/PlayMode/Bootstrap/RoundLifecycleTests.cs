@@ -93,7 +93,7 @@ namespace MergeWater.Tests.PlayMode
             // 重力设为 0：投放的水果会静止悬停在警戒线上方，从而稳定触发越线判负。
             _harness = BootstrapTestHarness.Create(privacyAccepted: true, gravity: 0f);
             yield return _harness.Activate();
-            _harness.GetMockAds().Configure(completes: true, rewardedDelaySeconds: 0f, interstitialDelaySeconds: 0f);
+            _harness.GetMockAds().Configure(Meta.MockAdResult.Success, rewardedDelaySeconds: 0f, interstitialDelaySeconds: 0f);
 
             DropOnce(_harness);
             yield return null;
@@ -126,7 +126,7 @@ namespace MergeWater.Tests.PlayMode
         {
             _harness = BootstrapTestHarness.Create(privacyAccepted: true, gravity: 0f);
             yield return _harness.Activate();
-            _harness.GetMockAds().Configure(completes: false, rewardedDelaySeconds: 0f);
+            _harness.GetMockAds().Configure(Meta.MockAdResult.Cancel, rewardedDelaySeconds: 0f);
 
             DropOnce(_harness);
             yield return null;

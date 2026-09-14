@@ -72,6 +72,20 @@ namespace MergeWater.Core
         Unavailable = 3
     }
 
+    /// <summary>
+    /// 广告适配器模式（2026-09-14）：未开通微信流量主、没有 `adUnitId` 时用 <see cref="Mock"/> 跑通全部流程；
+    /// 拿到 `adunit-xxxxxxxx` 后，把场景里 <c>GameBootstrapper.adsMode</c> 改成 <see cref="WeChat"/> 并填 id 即可，
+    /// **业务层（EconomyService / 复活流程 / UI）一行都不用改**。
+    /// </summary>
+    public enum AdsMode
+    {
+        /// <summary>模拟广告：Inspector 可切换 Success / Cancel / Error，并有 1~2 秒的假播放时长。</summary>
+        Mock = 0,
+
+        /// <summary>真实微信激励视频（`WX.CreateRewardedVideoAd`）：需要有效 adUnitId，且只在微信小游戏真机生效。</summary>
+        WeChat = 1
+    }
+
     /// <summary>插屏结果。</summary>
     public enum InterstitialResult
     {

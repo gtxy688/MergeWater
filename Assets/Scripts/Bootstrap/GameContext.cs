@@ -16,6 +16,7 @@ namespace MergeWater.Bootstrap
     {
         private readonly Transform _host;
         private readonly Action<string> _notify;
+        private readonly Meta.AdsRuntimeConfig _adsConfig;
         private int _roundIndex;
 
         public GameContext(
@@ -33,10 +34,12 @@ namespace MergeWater.Bootstrap
             ISaveStore saveStore,
             Meta.MetaSettings metaSettings,
             Meta.IAnalyticsSink analyticsSink = null,
-            Action<string> notify = null)
+            Action<string> notify = null,
+            Meta.AdsRuntimeConfig adsConfig = null)
         {
             _host = host;
             _notify = notify ?? (_ => { });
+            _adsConfig = adsConfig ?? new Meta.AdsRuntimeConfig();
 
             Balance = balance ?? GameBalance.CreateDefault();
             Field = field;
@@ -110,11 +113,16 @@ namespace MergeWater.Bootstrap
 
         public void Notify(string message) => _notify(message ?? string.Empty);
 
-        /// <summary>隐私同意后才初始化埋点与广告（R20）。</summary>
+        /// <summary>
+        /// 隐私同意后才初始化埋点与广告（R20）。适配器由 <see cref="Meta.AdsAdapterFactory"/> 按模式创建：
+        /// Mock（默认，无需广告位）或真实微信激励视频（需要 adUnitId + 微信小游戏真机；否则自动退回 Mock）。
+        /// </summary>
         public void ApplyConsent()
         {
-            if (Ads.Inner is Meta.MockAdsService)
+            // 已经注入过适配器就不覆盖：测试注入的 Mock、或上一次同意时已建好的那个。
+            if (!(Ads.Inner is Meta.NullAdsService))
             {
+                Ads.Initialize();
                 Analytics.Initialize();
                 return;
             }
@@ -123,9 +131,9 @@ namespace MergeWater.Bootstrap
             if (_host != null)
                 adsHost.transform.SetParent(_host, false);
 
-            var mock = adsHost.AddComponent<Meta.MockAdsService>();
-            mock.Initialize();
-            Ads.Inner = mock;
+            Ads.Inner = Meta.AdsAdapterFactory.Create(_adsConfig.Mode, _adsConfig.WeChatAdUnitId,
+                _adsConfig.MockResult, _adsConfig.MockRewardedSeconds, adsHost.transform);
+            Ads.Initialize();
 
             Analytics.Initialize();
         }
@@ -252,8 +260,13 @@ namespace MergeWater.Bootstrap
 
                 if (result != RewardedResult.Completed)
                 {
-                    Notify("广告未完成，复活失败");
-                    onResolved?.Invoke(false, "广告未完成");
+                    // 三种非成功结果给不同提示（2026-09-14 需求）：
+                    // 中途关闭 → 温和提示、保留结算页；失败/不可用 → 明确告知稍后再试。
+                    var reason = result == RewardedResult.Skipped
+                        ? "已取消观看广告"
+                        : "暂无可用广告，请稍后再试";
+                    Notify(reason);
+                    onResolved?.Invoke(false, reason);
                     return;
                 }
 

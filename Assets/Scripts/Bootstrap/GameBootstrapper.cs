@@ -80,6 +80,21 @@ namespace MergeWater.Bootstrap
         /// </summary>
         [SerializeField] private bool logAnalyticsToConsole;
 
+        [Header("广告（Mock / 微信）")]
+        [Tooltip("Mock = 模拟广告（默认，没有广告位也能跑通复活/道具/礼包全流程）；" +
+                 "WeChat = 真实微信激励视频（需要 adUnitId，且只在微信小游戏真机生效）")]
+        [SerializeField] private AdsMode adsMode = AdsMode.Mock;
+
+        [Tooltip("Mock 模式下模拟的广告结果：Success = 完整播完 / Cancel = 中途关闭 / Error = 拉取或播放失败")]
+        [SerializeField] private Meta.MockAdResult mockAdResult = Meta.MockAdResult.Success;
+
+        [Tooltip("Mock 模式下模拟的播放时长（秒），需求方要求 1~2 秒")]
+        [SerializeField] private float mockAdSeconds = Meta.AdsAdapterFactory.DefaultMockRewardedSeconds;
+
+        [Tooltip("真实微信激励视频广告位 id（adunit-xxxxxxxx…）。留空、或当前不是微信小游戏运行时，" +
+                 "都会自动退回 Mock 广告（Console 会告警说明）")]
+        [SerializeField] private string weChatRewardedAdUnitId = "";
+
         /// <summary>测试接缝：注入的 Sink 优先；为空且未勾选日志开关时用 <see cref="Meta.NullAnalyticsSink"/>（不写 Console）。</summary>
         public Meta.IAnalyticsSink AnalyticsSinkOverride { get; set; }
 
@@ -353,13 +368,14 @@ namespace MergeWater.Bootstrap
 
             // 水果外观：等级 1..10 依次对应 kenney_planets 的 planet00..planet09（CC0 授权），
             // 缺图时回退程序化占位圆片 + 调色板染色。装载与注入只在这里发生一次，
-            // M2（生成水果）与 M5（待投预览）通过同一个 FruitArt 取用，规则不会漂移。
+            // M2（生成水果）、M5（待投预览）与 M5（合成特效取色）通过同一个 FruitArt 取用，规则不会漂移。
             var fruitArt = new FruitArt(FruitArt.LoadPlanetSprites(),
                 Resources.Load<Sprite>("Placeholder/fruit_circle"));
 
             field.Configure(balance, fruitArt.Fallback, null);
             field.SetFruitArt(fruitArt);
             hud.SetFruitArt(fruitArt);
+            feedback.SetFruitArt(fruitArt);
 
             aim.SetCamera(targetCamera != null ? targetCamera : Camera.main);
 
@@ -385,7 +401,14 @@ namespace MergeWater.Bootstrap
                 SaveStoreOverride ?? (ISaveStore)new Meta.FileSaveStore(),
                 settings,
                 analyticsSink,
-                message => panels?.ShowToast(message));
+                message => panels?.ShowToast(message),
+                new Meta.AdsRuntimeConfig
+                {
+                    Mode = adsMode,
+                    WeChatAdUnitId = weChatRewardedAdUnitId,
+                    MockResult = mockAdResult,
+                    MockRewardedSeconds = mockAdSeconds
+                });
         }
 
         private void HookPanels()
