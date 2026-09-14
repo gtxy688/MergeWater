@@ -47,7 +47,6 @@ namespace MergeWater.Core
         // ── V2.13–V2.15 道具每日上限 ─────────────────────────────────
         [SerializeField] private int itemDailyCap = 3;
         [SerializeField] private int shakeDailyCap = 2;
-        [SerializeField] private int giftDailyCap = 1;
 
         // ── V2.17 道具作用范围 ───────────────────────────────────────
         [SerializeField] private float bombRadius = 0.9f;
@@ -138,7 +137,6 @@ namespace MergeWater.Core
 
         public int ItemDailyCap => itemDailyCap;
         public int ShakeDailyCap => shakeDailyCap;
-        public int GiftDailyCap => giftDailyCap;
 
         public float BombRadius => bombRadius;
         public float HammerMaxRadius => hammerMaxRadius;

@@ -264,7 +264,6 @@ namespace MergeWater.Meta
             data.bombGrantedToday = ClampItem(data.bombGrantedToday);
             data.hammerGrantedToday = ClampItem(data.hammerGrantedToday);
             data.shakeGrantedToday = ClampItem(data.shakeGrantedToday);
-            data.giftGrantedToday = ClampItem(data.giftGrantedToday);
 
 
             if (!DayKeyPattern.IsMatch(data.dailyKey ?? string.Empty))

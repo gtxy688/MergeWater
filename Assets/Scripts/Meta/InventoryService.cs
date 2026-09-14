@@ -29,7 +29,6 @@ namespace MergeWater.Meta
             _data.bombGrantedToday = 0;
             _data.hammerGrantedToday = 0;
             _data.shakeGrantedToday = 0;
-            _data.giftGrantedToday = 0;
             return true;
         }
 
@@ -65,26 +64,6 @@ namespace MergeWater.Meta
             return Math.Max(0, cap - GrantedToday(kind));
         }
 
-        public int GiftGrantedToday
-        {
-            get
-            {
-                EnsureCurrentDay();
-                return _data.giftGrantedToday;
-            }
-        }
-
-        public void RecordGiftGrant()
-        {
-            EnsureCurrentDay();
-            _data.giftGrantedToday++;
-        }
-
-        public int GiftRemaining(GameBalance balance)
-        {
-            var cap = balance?.GiftDailyCap ?? 0;
-            return Math.Max(0, cap - GiftGrantedToday);
-        }
     }
 
     /// <summary>道具库存（V2.13–V2.15）。领取受每日上限约束，使用即时且无冷却。</summary>
@@ -112,9 +91,6 @@ namespace MergeWater.Meta
         }
 
         public int RemainingToday(ItemKind kind, GameBalance balance) => _daily.Remaining(kind, balance);
-
-        public int GiftRemainingToday(GameBalance balance) => _daily.GiftRemaining(balance);
-
         public GrantResult Grant(ItemKind kind, GameBalance balance)
         {
             if (kind == ItemKind.None)
@@ -128,19 +104,6 @@ namespace MergeWater.Meta
 
             Add(kind, 1);
             _daily.RecordGrant(kind);
-            return GrantResult.Granted;
-        }
-
-        /// <summary>大礼包：每日 1 次，一次发放撤销/炸弹/锤子各 1。</summary>
-        public GrantResult GrantGiftBundle(GameBalance balance)
-        {
-            if (_daily.GiftRemaining(balance) <= 0)
-                return GrantResult.DailyCapReached;
-
-            Add(ItemKind.Undo, 1);
-            Add(ItemKind.Bomb, 1);
-            Add(ItemKind.Hammer, 1);
-            _daily.RecordGiftGrant();
             return GrantResult.Granted;
         }
 

@@ -48,7 +48,6 @@ namespace MergeWater.Core
         Revive = 0,
         ItemGrant = 1,
         Shake = 2,
-        Gift = 3,
         Interstitial = 4
     }
 

@@ -128,7 +128,6 @@ namespace MergeWater.Tests.EditMode
             Assert.That(balance.ReviveCooldownSeconds, Is.EqualTo(90f).Within(1e-5f), "V2.12");
             Assert.That(balance.ItemDailyCap, Is.EqualTo(3), "V2.13");
             Assert.That(balance.ShakeDailyCap, Is.EqualTo(2), "V2.14");
-            Assert.That(balance.GiftDailyCap, Is.EqualTo(1), "V2.15");
             Assert.That(balance.InterstitialEveryNGames, Is.EqualTo(3), "V2.16");
             Assert.That(balance.BombRadius, Is.EqualTo(0.9f).Within(1e-5f), "V2.17（2026-09-13 随半径 x1.5 同步）");
             Assert.That(balance.DropShakeSeconds, Is.EqualTo(0.05f).Within(1e-5f), "V2.20");

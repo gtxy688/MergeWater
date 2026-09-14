@@ -27,7 +27,6 @@ namespace MergeWater.Meta
         public int bombGrantedToday;
         public int hammerGrantedToday;
         public int shakeGrantedToday;
-        public int giftGrantedToday;
 
         public int undoCount;
         public int bombCount;

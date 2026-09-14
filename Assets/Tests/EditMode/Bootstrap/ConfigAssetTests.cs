@@ -81,7 +81,6 @@ namespace MergeWater.Tests.EditMode
                 ("V2.16 插屏间隔局数", b => b.InterstitialEveryNGames),
                 ("V2.13 道具每日上限", b => b.ItemDailyCap),
                 ("V2.14 摇一摇每日上限", b => b.ShakeDailyCap),
-                ("V2.15 礼包每日上限", b => b.GiftDailyCap),
                 ("V2.17 炸弹半径", b => b.BombRadius),
                 ("V2.17 锤子最大半径", b => b.HammerMaxRadius),
                 ("V2.20 投放震屏时长", b => b.DropShakeSeconds),

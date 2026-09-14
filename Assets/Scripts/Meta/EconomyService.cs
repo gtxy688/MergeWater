@@ -45,8 +45,6 @@ namespace MergeWater.Meta
 
         public int ItemRemainingToday(ItemKind kind) => _inventory.RemainingToday(kind, _balance);
 
-        public int GiftRemainingToday => _inventory.GiftRemainingToday(_balance);
-
         // ── 复活 ─────────────────────────────────────────────────────
 
         public AdDecisionResult CanRevive() =>
@@ -180,43 +178,6 @@ namespace MergeWater.Meta
                     Finish();
                 else
                     onComplete?.Invoke(false, decision, result);
-            });
-        }
-
-        // ── 大礼包 ───────────────────────────────────────────────────
-
-        public AdDecisionResult CanGrantGift() =>
-            AdsPlacementRules.CanGrantGift(_daily, _balance, AdsAvailable, OfflineGrantAll);
-
-        /// <summary>看激励视频领大礼包（每日一次）。第三个回调参数含义同 <see cref="RequestItemGrant"/>。</summary>
-        public void RequestGiftGrant(Action<GrantResult, AdDecisionResult, RewardedResult> onComplete)
-        {
-            var decision = CanGrantGift();
-            if (!decision.IsAllowed)
-            {
-                onComplete?.Invoke(GrantResult.DailyCapReached, decision, RewardedResult.Unavailable);
-                return;
-            }
-
-            if (!AdsAvailable)
-            {
-                var offline = _inventory.GrantGiftBundle(_balance);
-                Persist();
-                onComplete?.Invoke(offline, decision, RewardedResult.Completed);
-                return;
-            }
-
-            _ads.ShowRewarded(AdPlacement.Gift, result =>
-            {
-                if (result != RewardedResult.Completed)
-                {
-                    onComplete?.Invoke(GrantResult.Failed, decision, result);
-                    return;
-                }
-
-                var grant = _inventory.GrantGiftBundle(_balance);
-                Persist();
-                onComplete?.Invoke(grant, decision, result);
             });
         }
 

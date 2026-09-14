@@ -52,22 +52,6 @@ namespace MergeWater.Meta
             return AdDecisionResult.Allowed();
         }
 
-        /// <summary>大礼包：每日 1 次（V2.15）。</summary>
-        public static AdDecisionResult CanGrantGift(DailyLimitService daily, GameBalance balance,
-            bool adsAvailable, bool offlineGrantAll)
-        {
-            if (daily == null || balance == null)
-                return AdDecisionResult.Denied(AdDecision.Unavailable, ReasonUnavailable);
-
-            if (daily.GiftRemaining(balance) <= 0)
-                return AdDecisionResult.Denied(AdDecision.DailyCapReached, ReasonDailyCap);
-
-            if (!adsAvailable && !offlineGrantAll)
-                return AdDecisionResult.Denied(AdDecision.Unavailable, ReasonUnavailable);
-
-            return AdDecisionResult.Allowed();
-        }
-
         /// <summary>插屏：仅结算页，每 3 局至多 1 次且可远程开关（V2.16）。</summary>
         public static AdDecisionResult CanShowInterstitial(SaveData data, GameBalance balance,
             bool interstitialEnabled, bool adsAvailable)
