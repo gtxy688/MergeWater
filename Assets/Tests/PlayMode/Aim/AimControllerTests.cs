@@ -15,7 +15,6 @@ namespace MergeWater.Tests.PlayMode
         private Camera _camera;
         private AimController _aim;
         private readonly List<float> _dropRequests = new List<float>();
-            new List<KeyValuePair<ItemKind, Vector2>>();
 
         [SetUp]
         public void SetUp()
@@ -35,7 +34,6 @@ namespace MergeWater.Tests.PlayMode
             _aim.SetDropGeometry(5.2f, -4.2f, -9.81f, 0.8f);
 
             _dropRequests.Clear();
-            _itemRequests.Clear();
             _aim.DropRequested += x => _dropRequests.Add(x);
         }
 
