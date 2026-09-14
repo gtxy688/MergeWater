@@ -147,3 +147,20 @@ UI 文本一律使用 **TextMeshPro**（`TextMeshProUGUI` / 世界空间 `TextMe
 ## 待裁定事项
 
 无。
+
+## 运行时写入清单（哪些 Inspector 值会被覆盖）——2026-09-14 补充
+
+需求方问过「现在代码到底怎么跑的？是不是还在运行时生成 UI？」——**不是生成 UI**（没有 `AddComponent` 造界面，
+门禁 `UiSourceOfTruthTests` 会红），但**确实有一批属性会在运行时被代码写入**，你在 Inspector 里改它们不会生效。
+分工如下（改表现值前先看这张表）：
+
+| 类别 | 会不会被运行时写 | 权威来源 / 怎么改 |
+|---|---|---|
+| 分数、最高分、按钮文案、结算文字、Toast、版本号、加载进度与百分比 | **会** | 动态内容，本来就该由数据驱动；文案字面量在 `PanelController`/`HudBinder` |
+| 红点可见性、复活按钮文案与可点性、分享按钮显隐 | **会** | 由存档/局内状态决定（`PanelController.SetBadge` 等） |
+| 音量条填充 `fillAmount` | **会** | 由设置值决定 |
+| 待投水果的颜色与显隐、合成飘字（颜色/文字） | **会** | 由等级与 `FruitArt` 决定 |
+| **警戒线颜色（常态）** | **不会**（2026-09-14 起） | **场景里 `LineRenderer` 自身的颜色**就是权威。原先 `DangerLineView.EnsureVisibleColors()` 会把「alpha < 0.45 或 RGB 全 > 0.95」的常态色替换成默认色，正是它把需求方调好的颜色改回去的——**该逻辑已按需求方要求删除**；现在只有越线脉冲期间才临时改色，脉冲结束还原。门禁：`DangerLineViewTests`（半透明/近白/全透明都必须原样保留） |
+| 警戒线的位置/粗细、危险脉冲色与频率 | **会** | 位置与粗细来自 `GameBalance.DangerLineY`（数值表）；脉冲色/频率是 `DangerLineView` 的序列化字段，在 Inspector 里改 |
+| 面板/背景/按钮底图等静态外观 | **不会** | 场景资产，手工维护（V2.51） |
+| BGM 与音效音量 | **会**（`AudioSource.volume` 每帧级同步） | **不要改场景里 AudioSource 的 Volume**（会被覆盖）。改 `AudioDirector` 组件的 `Music Base Gain` / `Sfx Base Gain`（2026-09-14 起可在 Inspector 调），或改玩家默认值 `SaveData.settingsMusicVolume` / `settingsSfxVolume` |

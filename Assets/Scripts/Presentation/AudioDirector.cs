@@ -113,10 +113,12 @@ namespace MergeWater.Presentation
     public sealed class AudioDirector : MonoBehaviour
     {
         /// <summary>音效基准增益：音量条 100% 时音效源的音量。</summary>
-        private const float SfxBaseGain = 1f;
+        [Tooltip("音效基础增益：最终音量 = 本值 × 音量条")]
+        [SerializeField] private float sfxBaseGain = 1f;
 
         /// <summary>音乐基准增益：BGM 比音效轻，音量条 100% 时音乐源用 0.4。</summary>
-        private const float MusicBaseGain = 0.4f;
+        [Tooltip("BGM 基础增益：最终音量 = 本值 × 音量条（需求方 2026-09-14：BGM 默认音量在这里调）")]
+        [SerializeField] private float musicBaseGain = 0.4f;
 
         [SerializeField] private SfxClipEntry[] sfxClips;
         [SerializeField] private AudioSource sfxSource;
@@ -199,10 +201,10 @@ namespace MergeWater.Presentation
         private void ApplyVolumes()
         {
             if (sfxSource != null)
-                sfxSource.volume = SfxBaseGain * SfxVolume;
+                sfxSource.volume = Mathf.Clamp01(sfxBaseGain) * SfxVolume;
 
             if (musicSource != null)
-                musicSource.volume = MusicBaseGain * MusicVolume;
+                musicSource.volume = Mathf.Clamp01(musicBaseGain) * MusicVolume;
         }
 
         public void SetSfxEnabled(bool enabled)
